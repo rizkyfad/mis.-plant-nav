@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PlantNav – Pupuk Kaltim</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --or:#FF6A13;--ord:#e05500;--orl:#fff4ee;
+  --bl:#0054A6;--bld:#003d7a;--bll:#e8f1fb;
+  --w:#fff;--bg:#f0f4f8;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;
+  --g400:#9ca3af;--g600:#4b5563;--g800:#1f2937;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:flex;justify-content:center;}
+.phone{width:100%;max-width:420px;min-height:100vh;background:var(--w);position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,0.15);}
+.screen{display:none;flex-direction:column;height:100vh;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* ===== LOGIN ===== */
+#screen-login{
+  background:linear-gradient(160deg,var(--bld) 0%,var(--bl) 45%,#0072cc 100%);
+  justify-content:center;align-items:center;padding:40px 32px;
+  position:relative;overflow:hidden;
+}
+#screen-login::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:rgba(255,106,19,0.15);border-radius:50%;}
+#screen-login::after{content:'';position:absolute;bottom:-100px;left:-60px;width:250px;height:250px;background:rgba(255,255,255,0.05);border-radius:50%;}
+.login-logo{text-align:center;margin-bottom:40px;z-index:1;}
+.login-logo .logo-icon{width:72px;height:72px;background:var(--or);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(255,106,19,0.4);font-size:32px;}
+.login-logo h1{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:1px;}
+.login-logo p{font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px;letter-spacing:0.5px;text-transform:uppercase;}
+.login-card{background:#fff;border-radius:24px;padding:28px 24px;width:100%;z-index:1;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.login-card h2{font-family:'Barlow',sans-serif;font-size:20px;font-weight:700;color:var(--g800);margin-bottom:4px;}
+.login-card>p{font-size:13px;color:var(--g400);margin-bottom:24px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--g600);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input{width:100%;padding:14px 16px;border:1.5px solid var(--g200);border-radius:12px;font-size:15px;font-family:'Inter',sans-serif;color:var(--g800);outline:none;background:var(--g50);}
+.form-group input:focus{border-color:var(--bl);background:#fff;}
+.btn-login{width:100%;padding:15px;background:linear-gradient(135deg,var(--or),var(--ord));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-top:8px;box-shadow:0 4px 16px rgba(255,106,19,0.35);}
+.btn-login:active{transform:scale(0.98);}
+.login-note{text-align:center;font-size:12px;color:var(--g400);margin-top:16px;}
+
+/* ===== PILIH PABRIK ===== */
+#screen-pabrik{
+  background:linear-gradient(160deg,var(--bld) 0%,var(--bl) 55%,#0072cc 100%);
+  overflow:hidden;position:relative;
+}
+#screen-pabrik::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:rgba(255,106,19,0.12);border-radius:50%;}
+.pabrik-header{padding:24px 20px 16px;z-index:1;position:relative;flex-shrink:0;}
+.pabrik-header .ph-back{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer;margin-bottom:16px;}
+.pabrik-header h2{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.pabrik-header p{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;}
+.pabrik-body{flex:1;overflow-y:auto;padding:0 16px 24px;z-index:1;position:relative;}
+.pabrik-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:0;}
+.pabrik-card{
+  background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;
+  transition:all 0.18s;position:relative;
+}
+.pabrik-card.active{
+  background:rgba(255,106,19,0.18);border-color:var(--or);
+  box-shadow:0 4px 20px rgba(255,106,19,0.25);
+}
+.pabrik-card.locked{opacity:0.38;cursor:not-allowed;filter:grayscale(0.6);}
+.pabrik-card .pc-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:#fff;line-height:1;}
+.pabrik-card .pc-label{font-size:10px;color:rgba(255,255,255,0.6);margin-top:3px;font-weight:500;letter-spacing:0.3px;}
+.pabrik-card .pc-lock{position:absolute;top:8px;right:8px;font-size:11px;opacity:0.5;}
+.pabrik-card.active .pc-num{color:var(--or);}
+.pabrik-card.active .pc-label{color:rgba(255,255,255,0.8);}
+.pabrik-sep{height:1px;background:rgba(255,255,255,0.1);margin:20px 0 16px;}
+.pabrik-sel-info{
+  background:rgba(255,255,255,0.08);border-radius:14px;
+  padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.pabrik-sel-info .psi-dot{width:10px;height:10px;background:var(--or);border-radius:50%;flex-shrink:0;}
+.pabrik-sel-info p{font-size:13px;color:rgba(255,255,255,0.8);}
+.pabrik-sel-info p b{color:#fff;}
+.btn-next{width:100%;padding:15px;background:linear-gradient(135deg,var(--or),var(--ord));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(255,106,19,0.35);}
+
+/* ===== PILIH AREA ===== */
+#screen-area{
+  background:linear-gradient(160deg,var(--bld) 0%,var(--bl) 55%,#0072cc 100%);
+  overflow:hidden;position:relative;
+}
+#screen-area::before{content:'';position:absolute;bottom:-80px;left:-60px;width:250px;height:250px;background:rgba(255,255,255,0.04);border-radius:50%;}
+.area-header{padding:24px 20px 16px;z-index:1;position:relative;flex-shrink:0;}
+.area-header .ah-back{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer;margin-bottom:16px;}
+.area-header h2{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.area-header p{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;}
+.area-sel-body{flex:1;overflow-y:auto;padding:0 16px 28px;z-index:1;position:relative;}
+.area-type-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
+.area-type-card{
+  background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:18px;padding:20px 18px;cursor:pointer;
+  display:flex;align-items:center;gap:16px;
+  transition:all 0.18s;position:relative;overflow:hidden;
+}
+.area-type-card.active{background:rgba(255,106,19,0.18);border-color:var(--or);box-shadow:0 4px 20px rgba(255,106,19,0.25);}
+.area-type-card.locked{opacity:0.38;cursor:not-allowed;filter:grayscale(0.5);}
+.atc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.atc-icon.ammonia{background:rgba(255,106,19,0.2);}
+.atc-icon.urea{background:rgba(34,197,94,0.15);}
+.atc-icon.utility{background:rgba(0,84,166,0.25);}
+.atc-info{}
+.atc-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.atc-desc{font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px;line-height:1.4;}
+.atc-badge{position:absolute;top:12px;right:14px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.atc-badge.aktif{background:rgba(34,197,94,0.2);color:#86efac;border:1px solid rgba(34,197,94,0.3);}
+.atc-badge.soon{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.1);}
+.area-type-card.locked .atc-lock{position:absolute;bottom:14px;right:14px;font-size:16px;opacity:0.4;}
+
+/* ===== TOPBAR ===== */
+.topbar{background:var(--bl);padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,84,166,0.3);flex-shrink:0;}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.topbar-logo{width:32px;height:32px;background:var(--or);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.topbar-sub{font-size:10px;color:rgba(255,255,255,0.6);line-height:1;}
+.topbar-user{width:34px;height:34px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;}
+
+/* ===== HOME ===== */
+#screen-home{background:var(--bg);}
+.home-content{flex:1;overflow-y:auto;padding:20px 16px 8px;}
+.greeting{margin-bottom:20px;}
+.greeting h3{font-family:'Barlow',sans-serif;font-size:22px;font-weight:700;color:var(--g800);}
+.greeting p{font-size:13px;color:var(--g400);margin-top:2px;}
+.active-plant-banner{
+  background:linear-gradient(135deg,var(--bl),var(--bld));
+  border-radius:14px;padding:12px 16px;margin-bottom:18px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 12px rgba(0,84,166,0.2);
+}
+.apb-left{}
+.apb-label{font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px;}
+.apb-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.5px;margin-top:2px;}
+.apb-right{background:rgba(255,255,255,0.12);border-radius:8px;padding:6px 10px;font-size:11px;color:rgba(255,255,255,0.7);cursor:pointer;}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:20px;}
+.search-wrap input{width:100%;padding:14px 16px 14px 46px;border:none;border-radius:14px;font-size:15px;font-family:'Inter',sans-serif;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.08);outline:none;color:var(--g800);}
+.search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--g400);}
+.search-results{display:none;position:absolute;top:62px;left:0;right:0;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.12);z-index:200;overflow:hidden;max-height:280px;overflow-y:auto;}
+.search-results.show{display:block;}
+.search-result-item{padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g100);cursor:pointer;}
+.search-result-item:last-child{border-bottom:none;}
+.search-result-item:active{background:var(--g50);}
+.sri-icon{width:36px;height:36px;background:var(--bll);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.sri-tag{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g800);}
+.sri-meta{font-size:12px;color:var(--g400);}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{background:#fff;border-radius:14px;padding:14px 12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1;}
+.stat-label{font-size:10px;color:var(--g400);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.3px;}
+
+/* AREA CHIPS */
+.section-title{font-family:'Barlow',sans-serif;font-size:16px;font-weight:700;color:var(--g800);margin-bottom:12px;}
+.area-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none;}
+.area-scroll::-webkit-scrollbar{display:none;}
+.area-chip{flex-shrink:0;padding:10px 18px;background:#fff;border:2px solid var(--g200);border-radius:40px;font-size:13px;font-weight:600;color:var(--g600);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.area-chip.active{background:var(--bl);border-color:var(--bl);color:#fff;}
+
+/* ITEM LIST */
+.item-list{display:flex;flex-direction:column;gap:10px;padding-bottom:16px;}
+.item-card{background:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);cursor:pointer;transition:transform 0.1s;}
+.item-card:active{transform:scale(0.98);}
+.item-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.item-icon.valve{background:#fff0e8;}.item-icon.instrument{background:var(--bll);}.item-icon.pump{background:#eafaf0;}.item-icon.tank{background:#fdf3e7;}
+.item-info{flex:1;min-width:0;}
+.item-tag{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--g800);letter-spacing:0.5px;}
+.item-name{font-size:12px;color:var(--g400);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item-badge{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.badge-area{font-size:11px;font-weight:600;color:var(--bl);background:var(--bll);padding:3px 8px;border-radius:20px;}
+.badge-floor{font-size:10px;color:var(--g400);}
+
+/* BOTTOM NAV */
+.bottom-nav{background:#fff;border-top:1px solid var(--g100);padding:8px 0 14px;display:grid;grid-template-columns:repeat(4,1fr);position:sticky;bottom:0;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:50;flex-shrink:0;}
+.nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
+.nav-tab .tab-icon{font-size:22px;}
+.nav-tab .tab-label{font-size:10px;font-weight:500;color:var(--g400);}
+.nav-tab.active .tab-label{color:var(--bl);font-weight:600;}
+.tab-icon-wrap{position:relative;}
+.tab-dot{position:absolute;top:-2px;right:-4px;width:8px;height:8px;background:var(--or);border-radius:50%;border:1.5px solid #fff;}
+
+/* ===== MAP ===== */
+#screen-map{position:relative;background:#162336;}
+canvas#mapCanvas{width:100%;height:100%;display:block;position:absolute;inset:0;}
+.map-topbar{position:absolute;top:0;left:0;right:0;z-index:50;padding:12px 14px 0;pointer-events:none;}
+.map-search-row{display:flex;gap:8px;pointer-events:all;}
+.map-sbox{flex:1;display:flex;align-items:center;gap:9px;background:#fff;border-radius:14px;padding:11px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.28);}
+.map-sbox input{border:none;outline:none;flex:1;font-size:15px;font-family:'Inter',sans-serif;color:var(--g800);background:transparent;}
+.map-sbox input::placeholder{color:var(--g400);}
+.map-sico{font-size:17px;color:var(--g400);}
+.map-back-btn{width:46px;height:46px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 20px rgba(0,0,0,0.22);cursor:pointer;flex-shrink:0;pointer-events:all;}
+.map-sdd{background:#fff;border-radius:14px;margin-top:8px;box-shadow:0 8px 30px rgba(0,0,0,0.2);overflow:hidden;display:none;pointer-events:all;max-height:250px;overflow-y:auto;}
+.map-sdd.show{display:block;}
+.map-sdi{padding:12px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g100);cursor:pointer;}
+.map-sdi:last-child{border-bottom:none;}
+.map-sdi:active{background:var(--g50);}
+.map-sdico{width:36px;height:36px;background:var(--bll);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.map-sdtag{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--g800);}
+.map-sdsub{font-size:12px;color:var(--g400);}
+.map-ctrl{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:40;}
+.mc-btn{width:40px;height:40px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,0.2);cursor:pointer;}
+.gps-badge{position:absolute;bottom:14px;left:14px;z-index:40;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);}
+.gps-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:gpspulse 2s infinite;}
+@keyframes gpspulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.gps-badge.searching .gps-dot{background:#facc15;}
+.gps-badge.err .gps-dot{background:#ef4444;animation:none;}
+
+/* BOTTOM POPUP */
+.bpop{position:absolute;bottom:0;left:0;right:0;z-index:50;transform:translateY(105%);transition:transform 0.38s cubic-bezier(0.34,1.15,0.64,1);}
+.bpop.show{transform:translateY(0);}
+.bcard{background:#fff;border-radius:22px 22px 0 0;padding:8px 18px 28px;box-shadow:0 -8px 36px rgba(0,0,0,0.22);}
+.bhandle{width:40px;height:4px;background:var(--g200);border-radius:2px;margin:0 auto 14px;}
+.brow1{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px;}
+.btag{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;color:var(--g800);line-height:1;}
+.bbadge{background:var(--bll);color:var(--bl);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;margin-top:5px;}
+.bname{font-size:13px;color:var(--g400);margin-bottom:10px;}
+.binforow{display:flex;gap:8px;margin-bottom:12px;}
+.bibox{background:var(--g50);border-radius:10px;padding:8px 10px;flex:1;text-align:center;}
+.bival{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--g800);}
+.bilbl{font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:0.3px;margin-top:1px;}
+.bhint{background:var(--g50);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--g600);line-height:1.5;margin-bottom:13px;}
+.bhint b{color:var(--g800);}
+.bacts{display:flex;gap:8px;}
+.bact{flex:1;padding:13px 8px;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform 0.12s;}
+.bact:active{transform:scale(0.96);}
+.bact-x{background:var(--g100);color:var(--g600);max-width:46px;padding:13px 0;}
+.bact-sv{background:var(--bll);color:var(--bl);}
+.bact-nav{background:linear-gradient(135deg,var(--or),var(--ord));color:#fff;flex:2;box-shadow:0 4px 14px rgba(255,106,19,0.32);}
+
+/* NAV OVERLAY */
+.novo{position:absolute;inset:0;z-index:60;pointer-events:none;display:none;}
+.novo.active{display:block;pointer-events:all;}
+.nvpill{position:absolute;top:72px;left:50%;transform:translateX(-50%);background:rgba(8,17,31,0.88);backdrop-filter:blur(12px);border-radius:18px;padding:11px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);white-space:nowrap;}
+.nv-back{width:30px;height:30px;background:rgba(255,255,255,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:rgba(255,255,255,0.8);flex-shrink:0;}
+.nv-sep{width:1px;height:28px;background:rgba(255,255,255,0.12);}
+.nv-tag{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.5px;line-height:1;}
+.nv-sub{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.nvcompass{position:absolute;bottom:185px;left:14px;background:rgba(8,17,31,0.88);backdrop-filter:blur(12px);border-radius:18px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;align-items:center;gap:8px;min-width:92px;}
+.cring{width:64px;height:64px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;position:relative;animation:cspin 8s linear infinite;}
+@keyframes cspin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.crd{position:absolute;font-size:9px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;}
+.crd.n{top:2px;left:50%;transform:translateX(-50%);color:rgba(255,106,19,0.9);}
+.crd.s{bottom:2px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.3);}
+.crd.e{right:3px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);}
+.crd.w{left:3px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);}
+.cinner{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,rgba(255,106,19,0.15),transparent);display:flex;align-items:center;justify-content:center;animation:cspin 8s linear infinite reverse;}
+.carrow{font-size:24px;filter:drop-shadow(0 0 8px rgba(255,106,19,0.8));}
+.nvdist{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:#fff;line-height:1;text-align:center;}
+.nvdist span{font-size:12px;color:rgba(255,255,255,0.4);font-family:'Inter',sans-serif;font-weight:400;}
+.nvdir{font-size:11px;color:var(--or);font-weight:600;text-align:center;}
+.nvbar{position:absolute;bottom:0;left:0;right:0;background:rgba(8,17,31,0.92);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.08);padding:12px 18px 22px;display:flex;}
+.nvbitem{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.07);}
+.nvbitem:last-child{border-right:none;}
+.nvbval{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;}
+.nvblbl{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.3px;margin-top:2px;}
+.nvstop{position:absolute;bottom:90px;right:14px;background:rgba(239,68,68,0.9);color:#fff;border:none;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(239,68,68,0.4);}
+.arrived{position:absolute;top:140px;left:14px;right:14px;z-index:61;background:rgba(34,197,94,0.92);border-radius:14px;padding:12px 16px;display:none;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(34,197,94,0.4);}
+.arrived.show{display:flex;}
+.arrived p{color:#fff;font-size:14px;font-weight:600;}
+
+/* STREET VIEW */
+#screen-sv{position:relative;background:#0d0d0d;}
+.svtop{position:absolute;top:0;left:0;right:0;z-index:30;padding:12px 14px;display:flex;align-items:center;gap:10px;background:linear-gradient(to bottom,rgba(0,0,0,0.78),transparent);}
+.svback{width:38px;height:38px;background:rgba(255,255,255,0.14);backdrop-filter:blur(8px);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:#fff;border:1px solid rgba(255,255,255,0.18);flex-shrink:0;}
+.sv-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.sv-sub{font-size:11px;color:rgba(255,255,255,0.45);}
+.svview{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#0d0d0d;}
+.svph{text-align:center;color:rgba(255,255,255,0.2);}
+.svph .svbig{font-size:72px;margin-bottom:14px;opacity:0.5;}
+.svph h3{font-size:16px;font-weight:600;color:rgba(255,255,255,0.45);margin-bottom:6px;}
+.svph p{font-size:13px;line-height:1.5;color:rgba(255,255,255,0.25);}
+.sv360{position:absolute;top:68px;right:14px;background:rgba(255,106,19,0.88);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;letter-spacing:0.5px;}
+.svbot{position:absolute;bottom:0;left:0;right:0;z-index:30;padding:14px 16px 28px;background:linear-gradient(to top,rgba(0,0,0,0.88),transparent);}
+.svitemrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.svitemtag{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.svitemmeta{font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.svarow{display:flex;gap:8px;}
+.svbtn{flex:1;padding:13px 10px;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform 0.12s;}
+.svbtn:active{transform:scale(0.96);}
+.svbtn-map{background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.15);}
+.svbtn-nav{background:linear-gradient(135deg,var(--or),var(--ord));color:#fff;flex:2;box-shadow:0 4px 14px rgba(255,106,19,0.35);}
+.dot-amb{position:absolute;border-radius:50%;background:rgba(255,255,255,0.06);}
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- ===== LOGIN ===== -->
+<div id="screen-login" class="screen active">
+  <div class="login-logo">
+    <div class="logo-icon">🏭</div>
+    <h1>PLANT NAV</h1>
+    <p>Pabrik 2 Ammonia · Pupuk Kaltim</p>
+  </div>
+  <div class="login-card">
+    <h2>Selamat Datang</h2>
+    <p>Masuk menggunakan NPK & No. HP kamu</p>
+    <div class="form-group"><label>NPK</label><input type="text" placeholder="Contoh: 123456"></div>
+    <div class="form-group"><label>No. HP</label><input type="tel" placeholder="Contoh: 081234567890"></div>
+    <button class="btn-login" onclick="goTo('pabrik')">Masuk →</button>
+    <p class="login-note">🔒 Akun hanya bisa dibuat oleh admin</p>
+  </div>
+</div>
+
+<!-- ===== PILIH PABRIK ===== -->
+<div id="screen-pabrik" class="screen">
+  <div class="pabrik-header">
+    <div class="ph-back" onclick="goTo('login')">← Kembali</div>
+    <h2>Pilih Pabrik</h2>
+    <p>Pabrik mana yang akan kamu jelajahi?</p>
+  </div>
+  <div class="pabrik-body">
+    <div class="pabrik-grid">
+      <!-- Pabrik 1 locked -->
+      <div class="pabrik-card locked" onclick="lockedTap()">
+        <div class="pc-lock">🔒</div>
+        <div class="pc-num">P1</div>
+        <div class="pc-label">Pabrik 1</div>
+      </div>
+      <!-- Pabrik 2 aktif -->
+      <div class="pabrik-card active" id="pc-2" onclick="selectPabrik(2)">
+        <div class="pc-num">P2</div>
+        <div class="pc-label">Pabrik 2</div>
+      </div>
+      <!-- Pabrik 3-6 locked -->
+      <div class="pabrik-card locked" onclick="lockedTap()">
+        <div class="pc-lock">🔒</div>
+        <div class="pc-num">P3</div>
+        <div class="pc-label">Pabrik 3</div>
+      </div>
+      <div class="pabrik-card locked" onclick="lockedTap()">
+        <div class="pc-lock">🔒</div>
+        <div class="pc-num">P4</div>
+        <div class="pc-label">Pabrik 4</div>
+      </div>
+      <div class="pabrik-card locked" onclick="lockedTap()">
+        <div class="pc-lock">🔒</div>
+        <div class="pc-num">P5</div>
+        <div class="pc-label">Pabrik 5</div>
+      </div>
+      <div class="pabrik-card locked" onclick="lockedTap()">
+        <div class="pc-lock">🔒</div>
+        <div class="pc-num">P6</div>
+        <div class="pc-label">Pabrik 6</div>
+      </div>
+    </div>
+
+    <div class="pabrik-sep"></div>
+
+    <div class="pabrik-sel-info" id="pabrikInfo">
+      <div class="psi-dot"></div>
+      <p><b>Pabrik 2</b> dipilih — Ketuk Lanjut untuk memilih area</p>
+    </div>
+
+    <button class="btn-next" onclick="goTo('area')">Lanjut Pilih Area →</button>
+  </div>
+</div>
+
+<!-- ===== PILIH AREA ===== -->
+<div id="screen-area" class="screen">
+  <div class="area-header">
+    <div class="ah-back" onclick="goTo('pabrik')">← Kembali</div>
+    <h2>Pilih Area</h2>
+    <p id="area-pabrik-label">Pabrik 2 — pilih area yang ingin dijelajahi</p>
+  </div>
+  <div class="area-sel-body">
+    <div class="area-type-cards">
+
+      <!-- Ammonia AKTIF -->
+      <div class="area-type-card active" id="atc-ammonia" onclick="selectArea('ammonia')">
+        <div class="atc-icon ammonia">🧪</div>
+        <div class="atc-info">
+          <div class="atc-name">Ammonia</div>
+          <div class="atc-desc">Unit produksi ammonia,<br>compressor, converter, absorber</div>
+        </div>
+        <div class="atc-badge aktif">● Aktif</div>
+      </div>
+
+      <!-- Urea LOCKED -->
+      <div class="area-type-card locked" onclick="lockedTap()">
+        <div class="atc-icon urea">🌱</div>
+        <div class="atc-info">
+          <div class="atc-name">Urea</div>
+          <div class="atc-desc">Unit produksi urea,<br>granulator, prilling tower</div>
+        </div>
+        <div class="atc-badge soon">Segera</div>
+        <div class="atc-lock">🔒</div>
+      </div>
+
+      <!-- Utility LOCKED -->
+      <div class="area-type-card locked" onclick="lockedTap()">
+        <div class="atc-icon utility">⚡</div>
+        <div class="atc-info">
+          <div class="atc-name">Utility</div>
+          <div class="atc-desc">Power plant, water treatment,<br>steam system, instrument air</div>
+        </div>
+        <div class="atc-badge soon">Segera</div>
+        <div class="atc-lock">🔒</div>
+      </div>
+
+    </div>
+    <button class="btn-next" onclick="goTo('home')">Masuk ke Area →</button>
+  </div>
+</div>
+
+<!-- ===== HOME ===== -->
+<div id="screen-home" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🏭</div>
+      <div>
+        <div class="topbar-title">PLANT NAV</div>
+        <div class="topbar-sub" id="topbar-sub-label">Pabrik 2 · Ammonia</div>
+      </div>
+    </div>
+    <div class="topbar-user" onclick="goTo('pabrik')">👤</div>
+  </div>
+
+  <div class="home-content">
+    <div class="greeting">
+      <h3>Halo, Operator 👋</h3>
+      <p>Cari item atau jelajahi area pabrik</p>
+    </div>
+
+    <!-- Active plant banner -->
+    <div class="active-plant-banner">
+      <div class="apb-left">
+        <div class="apb-label">Sedang di</div>
+        <div class="apb-name" id="apb-name">Pabrik 2 · Ammonia</div>
+      </div>
+      <div class="apb-right" onclick="goTo('pabrik')">Ganti ›</div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="home-search" placeholder="Cari tag item… cth: FV-3, PT-101"
+        oninput="homeSearch(this.value)"
+        onkeydown="if(event.key==='Enter')homeSearchEnter()"
+        autocomplete="off">
+      <div class="search-results" id="home-results"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" style="color:var(--bl)">847</div><div class="stat-label">Total Item</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--or)">5</div><div class="stat-label">Area</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#22c55e">10</div><div class="stat-label">Max Lantai</div></div>
+    </div>
+
+    <div class="section-title">Area Pabrik</div>
+    <div class="area-scroll">
+      <div class="area-chip active" onclick="filterArea(this,'all')">Semua</div>
+      <div class="area-chip" onclick="filterArea(this,'Area 1')">Area 1</div>
+      <div class="area-chip" onclick="filterArea(this,'Area 2')">Area 2</div>
+      <div class="area-chip" onclick="filterArea(this,'Area 3')">Area 3</div>
+      <div class="area-chip" onclick="filterArea(this,'Area 4')">Area 4</div>
+      <div class="area-chip" onclick="filterArea(this,'Area 5')">Area 5</div>
+    </div>
+
+    <div class="section-title">Item Terbaru Dicari</div>
+    <div class="item-list" id="item-list"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-tab active"><div class="tab-icon">🏠</div><div class="tab-label">Home</div></div>
+    <div class="nav-tab" onclick="goTo('map');initMap()"><div class="tab-icon">🗺️</div><div class="tab-label">Peta</div></div>
+    <div class="nav-tab"><div class="tab-icon-wrap"><div class="tab-icon">📋</div><div class="tab-dot"></div></div><div class="tab-label">Semua Item</div></div>
+    <div class="nav-tab"><div class="tab-icon">⚙️</div><div class="tab-label">Admin</div></div>
+  </div>
+</div>
+
+<!-- ===== MAP ===== -->
+<div id="screen-map" class="screen">
+  <canvas id="mapCanvas"></canvas>
+  <div class="map-topbar">
+    <div class="map-search-row">
+      <div class="map-back-btn" onclick="goTo('home')">←</div>
+      <div class="map-sbox">
+        <span class="map-sico">🔍</span>
+        <input type="text" id="map-search" placeholder="Cari item di peta…" oninput="mapSearch(this.value)" autocomplete="off">
+        <span id="map-clear" style="font-size:16px;color:var(--g400);cursor:pointer;display:none" onclick="mapClear()">✕</span>
+      </div>
+    </div>
+    <div class="map-sdd" id="map-sdd"></div>
+  </div>
+  <div class="map-ctrl">
+    <div class="mc-btn" onclick="zoom(1.3)">＋</div>
+    <div class="mc-btn" onclick="zoom(0.77)">－</div>
+    <div class="mc-btn" onclick="centerMe()">📍</div>
+  </div>
+  <div class="gps-badge searching" id="gpsBadge">
+    <div class="gps-dot"></div><span id="gpsLbl">Mencari GPS…</span>
+  </div>
+  <div class="bpop" id="bpop">
+    <div class="bcard">
+      <div class="bhandle"></div>
+      <div class="brow1">
+        <div><div class="btag" id="btag">—</div><div class="bname" id="bname">—</div></div>
+        <div class="bbadge" id="btype">—</div>
+      </div>
+      <div class="binforow">
+        <div class="bibox"><div class="bival" id="barea" style="color:var(--bl)">—</div><div class="bilbl">Area</div></div>
+        <div class="bibox"><div class="bival" id="bfloor">—</div><div class="bilbl">Lantai</div></div>
+        <div class="bibox"><div class="bival" id="bdist" style="color:var(--or)">—</div><div class="bilbl">Jarak</div></div>
+      </div>
+      <div class="bhint" id="bhint"><b>Petunjuk:</b> —</div>
+      <div class="bacts">
+        <button class="bact bact-x" onclick="closePop()">✕</button>
+        <button class="bact bact-sv" onclick="openSV()">📸 Street View</button>
+        <button class="bact bact-nav" onclick="startNav()">🧭 Navigasi</button>
+      </div>
+    </div>
+  </div>
+  <div class="novo" id="novo">
+    <div class="nvpill">
+      <div class="nv-back" onclick="stopNav()">←</div>
+      <div class="nv-sep"></div>
+      <div><div class="nv-tag" id="nvtag">—</div><div class="nv-sub" id="nvsub">—</div></div>
+    </div>
+    <div class="nvcompass">
+      <div class="cring">
+        <span class="crd n">U</span><span class="crd s">S</span>
+        <span class="crd e">T</span><span class="crd w">B</span>
+        <div class="cinner"><div class="carrow">🧭</div></div>
+      </div>
+      <div class="nvdist" id="nvdist">—<span> m</span></div>
+      <div class="nvdir" id="nvdir">—</div>
+    </div>
+    <div class="arrived" id="arrived"><p>✅ Sudah dekat! <b id="arrivedTag">—</b> ada di sekitarmu.</p></div>
+    <button class="nvstop" onclick="stopNav()">✕ Stop</button>
+    <div class="nvbar">
+      <div class="nvbitem"><div class="nvbval" id="nvb1">—</div><div class="nvblbl">Jarak</div></div>
+      <div class="nvbitem"><div class="nvbval" style="color:var(--or)" id="nvb2">—</div><div class="nvblbl">Target Lantai</div></div>
+      <div class="nvbitem"><div class="nvbval" id="nvb3">—</div><div class="nvblbl">Estimasi</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STREET VIEW ===== -->
+<div id="screen-sv" class="screen">
+  <div class="svtop">
+    <div class="svback" onclick="goTo('map')">←</div>
+    <div><div class="sv-title" id="svtitle">Street View</div><div class="sv-sub" id="svsub">—</div></div>
+  </div>
+  <div class="svview">
+    <div class="dot-amb" style="width:120px;height:120px;top:10%;left:-20px;"></div>
+    <div class="dot-amb" style="width:80px;height:80px;bottom:30%;right:-10px;"></div>
+    <div class="svph">
+      <div class="svbig">📷</div>
+      <h3>Foto 360° Belum Tersedia</h3>
+      <p>Admin / operator dapat mengunggah<br>foto dari lapangan</p>
+    </div>
+    <div class="sv360">360° VIEW</div>
+  </div>
+  <div class="svbot">
+    <div class="svitemrow">
+      <div>
+        <div class="svitemtag" id="svtag">—</div>
+        <div class="svitemmeta" id="svmeta">—</div>
+      </div>
+    </div>
+    <div class="svarow">
+      <button class="svbtn svbtn-map" onclick="goTo('map')">🗺️ Kembali ke Peta</button>
+      <button class="svbtn svbtn-nav" onclick="goTo('map');setTimeout(startNav,80)">🧭 Navigasi ke Sini</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+const ITEMS=[
+  {id:'FV-3',  name:'Flow Valve 3',            type:'Flow Valve',          area:'Area 2',floor:3,icon:'🔧',cls:'valve',  hint:'Naik tangga utama Area 2, belok kiri setelah kolom C-201. Item di sisi kanan platform.',mx:.42,my:.30},
+  {id:'FV-12', name:'Flow Valve 12',            type:'Flow Valve',          area:'Area 1',floor:1,icon:'🔧',cls:'valve',  hint:'Dekat pintu masuk Area 1, sebelah kanan pompa P-101.',                                  mx:.20,my:.52},
+  {id:'PT-101',name:'Pressure Transmitter 101', type:'Pressure Transmitter',area:'Area 3',floor:2,icon:'📡',cls:'instrument',hint:'Platform lantai 2 Area 3, di sebelah kiri tangga naik dari lantai 1.',              mx:.64,my:.44},
+  {id:'P-201', name:'Pompa 201',                type:'Centrifugal Pump',    area:'Area 1',floor:1,icon:'⚙️',cls:'pump',   hint:'Lantai dasar Area 1, baris pompa utama, urutan ke-3 dari kiri.',                        mx:.26,my:.66},
+  {id:'T-401', name:'Tangki Ammonia 401',       type:'Storage Tank',        area:'Area 4',floor:1,icon:'🛢️',cls:'tank',   hint:'Area 4 ujung barat, tangki besar. Terlihat dari jalan utama.',                          mx:.74,my:.26},
+  {id:'LV-5',  name:'Level Valve 5',            type:'Level Valve',         area:'Area 2',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 Area 2, dekat tangki T-202.',                                         mx:.50,my:.48},
+  {id:'CV-8',  name:'Control Valve 8',          type:'Control Valve',       area:'Area 3',floor:1,icon:'🔧',cls:'valve',  hint:'Lantai dasar Area 3, jalur pipa utama ammonia.',                                        mx:.62,my:.62},
+  {id:'TIC-5', name:'Temp Indicator 5',         type:'Instrument',          area:'Area 5',floor:4,icon:'📡',cls:'instrument',hint:'Platform lantai 4 Area 5, panel instrumen barat.',                                  mx:.16,my:.26},
+  {id:'XV-10', name:'Shutdown Valve 10',        type:'Shutdown Valve',      area:'Area 4',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 Area 4, dekat flare knock drum.',                                     mx:.80,my:.58},
+];
+
+let activeItem=null,navigating=false,sc=1;
+let myLat=null,myLon=null,myMapX=.50,myMapY=.62,watchId=null;
+const PLANT={latMin:0.1790,latMax:0.1840,lonMin:117.4882,lonMax:117.4932};
+
+// ===== PABRIK & AREA SELECTION =====
+let selectedPabrik=2, selectedArea='ammonia';
+
+function selectPabrik(n){
+  selectedPabrik=n;
+  document.querySelectorAll('.pabrik-card:not(.locked)').forEach(c=>c.classList.remove('active'));
+  document.getElementById('pc-'+n).classList.add('active');
+}
+
+function selectArea(a){
+  selectedArea=a;
+  document.querySelectorAll('.area-type-card:not(.locked)').forEach(c=>c.classList.remove('active'));
+  document.getElementById('atc-'+a).classList.add('active');
+}
+
+function lockedTap(){
+  // brief shake feedback
+  const el = event.currentTarget;
+  el.style.transform='translateX(6px)';
+  setTimeout(()=>{el.style.transform='translateX(-4px)';},80);
+  setTimeout(()=>{el.style.transform='';},160);
+}
+
+// ===== SCREENS =====
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id==='home'){
+    const label='Pabrik '+selectedPabrik+' · '+selectedArea.charAt(0).toUpperCase()+selectedArea.slice(1);
+    document.getElementById('topbar-sub-label').textContent=label;
+    document.getElementById('apb-name').textContent=label;
+    renderItemList(ITEMS);
+  }
+  if(id==='map') setTimeout(initMap,40);
+}
+
+// ===== HOME SEARCH =====
+function homeSearch(v){
+  const el=document.getElementById('home-results');
+  if(!v.trim()){el.classList.remove('show');return;}
+  const q=v.trim().toUpperCase();
+  const res=ITEMS.filter(i=>i.id.includes(q)||i.name.toUpperCase().includes(q)||i.type.toUpperCase().includes(q));
+  el.innerHTML=res.length
+    ?res.map(i=>`<div class="search-result-item" onclick="goToMapItem('${i.id}')">
+      <div class="sri-icon">${i.icon}</div>
+      <div><div class="sri-tag">${i.id}</div><div class="sri-meta">${i.name} · ${i.area} · Lantai ${i.floor}</div></div>
+    </div>`).join('')
+    :`<div class="search-result-item"><div class="sri-meta" style="color:var(--g400)">Tidak ada hasil untuk "${v}"</div></div>`;
+  el.classList.add('show');
+}
+
+function homeSearchEnter(){
+  const v=document.getElementById('home-search').value.trim().toUpperCase();
+  const found=ITEMS.find(i=>i.id===v)||ITEMS.find(i=>i.id.startsWith(v));
+  if(found) goToMapItem(found.id);
+}
+
+function filterArea(el,area){
+  document.querySelectorAll('.area-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderItemList(area==='all'?ITEMS:ITEMS.filter(i=>i.area===area));
+}
+
+function renderItemList(list){
+  document.getElementById('item-list').innerHTML=list.map(i=>`
+    <div class="item-card" onclick="goToMapItem('${i.id}')">
+      <div class="item-icon ${i.cls}">${i.icon}</div>
+      <div class="item-info"><div class="item-tag">${i.id}</div><div class="item-name">${i.name}</div></div>
+      <div class="item-badge"><span class="badge-area">${i.area}</span><span class="badge-floor">Lantai ${i.floor}</span></div>
+    </div>`).join('');
+}
+
+function goToMapItem(id){
+  const item=ITEMS.find(i=>i.id===id);
+  if(!item)return;
+  activeItem=item;
+  goTo('map');
+  setTimeout(()=>{initMap();showPop(item);},60);
+}
+
+// ===== MAP SEARCH =====
+function mapSearch(v){
+  const dd=document.getElementById('map-sdd');
+  document.getElementById('map-clear').style.display=v?'block':'none';
+  if(!v.trim()){dd.classList.remove('show');return;}
+  const q=v.trim().toUpperCase();
+  const res=ITEMS.filter(i=>i.id.includes(q)||i.name.toUpperCase().includes(q));
+  dd.innerHTML=res.length
+    ?res.map(i=>`<div class="map-sdi" onclick="mapPickItem('${i.id}')">
+      <div class="map-sdico">${i.icon}</div>
+      <div><div class="map-sdtag">${i.id}</div><div class="map-sdsub">${i.name} · ${i.area} · Lantai ${i.floor}</div></div>
+    </div>`).join('')
+    :`<div class="map-sdi"><div class="map-sdsub" style="color:var(--g400)">Tidak ada hasil</div></div>`;
+  dd.classList.add('show');
+}
+
+function mapPickItem(id){
+  const item=ITEMS.find(i=>i.id===id);
+  if(!item)return;
+  document.getElementById('map-sdd').classList.remove('show');
+  document.getElementById('map-search').value=item.id;
+  document.getElementById('map-clear').style.display='block';
+  showPop(item);
+}
+
+function mapClear(){
+  document.getElementById('map-search').value='';
+  document.getElementById('map-clear').style.display='none';
+  document.getElementById('map-sdd').classList.remove('show');
+  closePop();
+}
+
+// ===== POPUP =====
+function showPop(item){
+  activeItem=item;
+  document.getElementById('btag').textContent=item.id;
+  document.getElementById('bname').textContent=item.name;
+  document.getElementById('btype').textContent=item.type;
+  document.getElementById('barea').textContent=item.area;
+  document.getElementById('bfloor').textContent='Lt. '+item.floor;
+  document.getElementById('bhint').innerHTML='<b>Petunjuk:</b> '+item.hint;
+  const il=itemLL(item);
+  document.getElementById('bdist').textContent=(myLat!==null)?distText(haversine(myLat,myLon,il.lat,il.lon)):'—';
+  document.getElementById('bpop').classList.add('show');
+  drawMap();
+}
+
+function closePop(){
+  document.getElementById('bpop').classList.remove('show');
+  activeItem=null;
+  document.getElementById('map-search').value='';
+  document.getElementById('map-clear').style.display='none';
+  drawMap();
+}
+
+// ===== NAV =====
+function startNav(){
+  if(!activeItem)return;
+  navigating=true;
+  document.getElementById('nvtag').textContent=activeItem.id;
+  document.getElementById('nvsub').textContent=activeItem.area+' · Lantai '+activeItem.floor;
+  document.getElementById('arrivedTag').textContent=activeItem.id;
+  updateNavUI();
+  document.getElementById('novo').classList.add('active');
+  document.getElementById('bpop').classList.remove('show');
+  drawMap();
+}
+
+function stopNav(){
+  navigating=false;
+  document.getElementById('novo').classList.remove('active');
+  document.getElementById('arrived').classList.remove('show');
+  if(activeItem) document.getElementById('bpop').classList.add('show');
+  drawMap();
+}
+
+function updateNavUI(){
+  if(!activeItem)return;
+  const il=itemLL(activeItem);
+  let dist,dirStr;
+  if(myLat!==null){dist=haversine(myLat,myLon,il.lat,il.lon);dirStr=bearingName(bearing(myLat,myLon,il.lat,il.lon));}
+  else{dist=47;dirStr='↗️ Timur Laut';}
+  const dt=distText(dist),est=estimate(dist);
+  document.getElementById('nvdist').innerHTML=Math.round(dist<1000?dist:dist/1000)+'<span>'+(dist<1000?' m':' km')+'</span>';
+  document.getElementById('nvdir').textContent=dirStr;
+  document.getElementById('nvb1').textContent=dt;
+  document.getElementById('nvb2').textContent='Lt. '+activeItem.floor;
+  document.getElementById('nvb3').textContent=est;
+  document.getElementById('bdist').textContent=dt;
+  if(dist<15)document.getElementById('arrived').classList.add('show');
+  else document.getElementById('arrived').classList.remove('show');
+}
+
+// ===== STREET VIEW =====
+function openSV(){
+  if(!activeItem)return;
+  document.getElementById('svtitle').textContent='Street View – '+activeItem.id;
+  document.getElementById('svsub').textContent=activeItem.area+' · Lantai '+activeItem.floor;
+  document.getElementById('svtag').textContent=activeItem.id;
+  document.getElementById('svmeta').textContent=activeItem.type+' · '+activeItem.area+' · Lantai '+activeItem.floor;
+  goTo('sv');
+}
+
+// ===== GPS =====
+function startGPS(){
+  const badge=document.getElementById('gpsBadge'),lbl=document.getElementById('gpsLbl');
+  if(!navigator.geolocation){badge.className='gps-badge err';lbl.textContent='GPS Tidak Tersedia';return;}
+  watchId=navigator.geolocation.watchPosition(pos=>{
+    myLat=pos.coords.latitude;myLon=pos.coords.longitude;
+    myMapX=Math.max(.05,Math.min(.95,(myLon-PLANT.lonMin)/(PLANT.lonMax-PLANT.lonMin)));
+    myMapY=Math.max(.05,Math.min(.95,1-(myLat-PLANT.latMin)/(PLANT.latMax-PLANT.latMin)));
+    badge.className='gps-badge';lbl.textContent='GPS Aktif';
+    if(navigating)updateNavUI();
+    drawMap();
+  },err=>{
+    badge.className='gps-badge err';
+    lbl.textContent=err.code===1?'Izin GPS Ditolak':'GPS Lemah';
+  },{enableHighAccuracy:true,maximumAge:3000,timeout:10000});
+}
+
+// ===== CANVAS =====
+const canvas=document.getElementById('mapCanvas');
+const ctx=canvas.getContext('2d');
+function W(){return canvas.width/window.devicePixelRatio;}
+function H(){return canvas.height/window.devicePixelRatio;}
+function wx(mx){return mx*W()*sc;}
+function wy(my){return my*H()*sc;}
+
+function initMap(){
+  const p=canvas.parentElement.getBoundingClientRect();
+  canvas.width=p.width*window.devicePixelRatio;
+  canvas.height=p.height*window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  drawMap();
+  if(!watchId)startGPS();
+}
+
+function drawMap(){
+  const w=W(),h=H();
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#162336';ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='rgba(255,255,255,0.025)';ctx.lineWidth=1;
+  for(let x=0;x<w;x+=36)ln(x,0,x,h);
+  for(let y=0;y<h;y+=36)ln(0,y,w,y);
+  ctx.fillStyle='rgba(200,175,100,0.18)';
+  ctx.fillRect(wx(.05),wy(.43),w*.90*sc,h*.07*sc);
+  ctx.fillRect(wx(.36),wy(.04),w*.12*sc,h*.80*sc);
+  ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;ctx.setLineDash([8,8]);
+  ln(wx(.05),wy(.465),wx(.95),wy(.465));ln(wx(.42),wy(.04),wx(.42),wy(.84));
+  ctx.setLineDash([]);
+  rr(wx(.05),wy(.04),w*.90*sc,h*.80*sc,10,'rgba(255,255,255,0.04)','rgba(255,255,255,0.14)',1.5);
+  rr(wx(.07),wy(.06),w*.27*sc,h*.34*sc,6,'rgba(0,84,166,0.22)','rgba(0,84,166,0.55)',1);
+  lbl(wx(.20),wy(.11),'AREA 1','#7ab8ff',10);
+  rr(wx(.50),wy(.06),w*.43*sc,h*.34*sc,6,'rgba(255,106,19,0.16)','rgba(255,106,19,0.52)',1);
+  lbl(wx(.70),wy(.11),'AREA 2','#ffb07a',10);
+  rr(wx(.07),wy(.52),w*.27*sc,h*.28*sc,6,'rgba(34,197,94,0.16)','rgba(34,197,94,0.42)',1);
+  lbl(wx(.20),wy(.57),'AREA 3','#86efac',10);
+  rr(wx(.50),wy(.52),w*.43*sc,h*.28*sc,6,'rgba(168,85,247,0.16)','rgba(168,85,247,0.42)',1);
+  lbl(wx(.70),wy(.57),'AREA 4','#c4b5fd',10);
+  bld(wx(.09),wy(.08),w*.11*sc,h*.12*sc,'#1b3660');bld(wx(.22),wy(.08),w*.10*sc,h*.16*sc,'#1b3660');
+  bld(wx(.09),wy(.24),w*.09*sc,h*.13*sc,'#1b3660');bld(wx(.52),wy(.08),w*.14*sc,h*.19*sc,'#45200a');
+  bld(wx(.70),wy(.08),w*.20*sc,h*.13*sc,'#45200a');bld(wx(.52),wy(.30),w*.11*sc,h*.09*sc,'#45200a');
+  bld(wx(.09),wy(.54),w*.12*sc,h*.14*sc,'#174228');bld(wx(.52),wy(.54),w*.18*sc,h*.22*sc,'#2b1a48');
+  bld(wx(.74),wy(.54),w*.16*sc,h*.12*sc,'#2b1a48');
+  tk(wx(.84),wy(.13),13*sc,'#2a4a7a');tk(wx(.90),wy(.13),13*sc,'#2a4a7a');
+  tk(wx(.84),wy(.25),17*sc,'#5a2e0e');tk(wx(.28),wy(.58),10*sc,'#1a4228');
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=2.5*sc;
+  ln(wx(.07),wy(.20),wx(.36),wy(.20));ln(wx(.50),wy(.20),wx(.93),wy(.20));
+  ctx.lineWidth=1.5*sc;ln(wx(.18),wy(.06),wx(.18),wy(.43));ln(wx(.64),wy(.06),wx(.64),wy(.43));
+  ctx.lineWidth=1*sc;ln(wx(.07),wy(.65),wx(.36),wy(.65));ln(wx(.50),wy(.65),wx(.93),wy(.65));
+  if(activeItem){
+    const tx=wx(activeItem.mx),ty=wy(activeItem.my),ux=wx(myMapX),uy=wy(myMapY);
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle=navigating?'rgba(255,106,19,0.75)':'rgba(255,106,19,0.35)';
+    ctx.lineWidth=navigating?2.5:1.8;
+    ctx.beginPath();ctx.moveTo(ux,uy);ctx.lineTo(tx,ty);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ITEMS.forEach(item=>{
+    if(activeItem&&activeItem.id===item.id)return;
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.beginPath();ctx.arc(wx(item.mx),wy(item.my),3.5,0,Math.PI*2);ctx.fill();
+  });
+  if(activeItem){
+    const x=wx(activeItem.mx),y=wy(activeItem.my);
+    ctx.shadowColor='rgba(255,40,0,0.65)';ctx.shadowBlur=18;
+    ctx.fillStyle='#FF3B30';
+    ctx.beginPath();ctx.arc(x,y-2,11*sc,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(x-5.5*sc,y+6*sc);ctx.lineTo(x+5.5*sc,y+6*sc);ctx.lineTo(x,y+17*sc);ctx.closePath();ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(255,255,255,0.9)';ctx.beginPath();ctx.arc(x,y-2,4*sc,0,Math.PI*2);ctx.fill();
+    ctx.font=`bold ${10.5*sc}px Barlow Condensed,sans-serif`;
+    const tw=ctx.measureText(activeItem.id).width,bw=tw+14,bh=17*sc,bx=x-bw/2,by=y-34*sc;
+    rr(bx,by,bw,bh,4,'white',null,0);
+    ctx.fillStyle='#1f2937';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(activeItem.id,x,by+bh/2);
+  }
+  const ux=wx(myMapX),uy=wy(myMapY);
+  ctx.fillStyle='rgba(0,84,166,0.18)';ctx.beginPath();ctx.arc(ux,uy,20*sc,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(ux,uy,9*sc,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#0054A6';ctx.beginPath();ctx.arc(ux,uy,6*sc,0,Math.PI*2);ctx.fill();
+}
+
+function rr(x,y,w,h,r,fill,stroke,sw){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw||1;ctx.stroke();}}
+function bld(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h);ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=0.5;ctx.strokeRect(x,y,w,h);}
+function tk(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();}
+function ln(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+function lbl(x,y,t,c,s){ctx.fillStyle=c;ctx.font=`bold ${s}px Barlow Condensed,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,x,y);}
+function zoom(f){sc=Math.max(0.6,Math.min(3.5,sc*f));drawMap();}
+function centerMe(){drawMap();}
+function itemLL(item){return{lat:PLANT.latMin+(1-item.my)*(PLANT.latMax-PLANT.latMin),lon:PLANT.lonMin+item.mx*(PLANT.lonMax-PLANT.lonMin)};}
+function haversine(la1,lo1,la2,lo2){const R=6371000,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function bearing(la1,lo1,la2,lo2){const dO=(lo2-lo1)*Math.PI/180,y=Math.sin(dO)*Math.cos(la2*Math.PI/180),x=Math.cos(la1*Math.PI/180)*Math.sin(la2*Math.PI/180)-Math.sin(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.cos(dO);return(Math.atan2(y,x)*180/Math.PI+360)%360;}
+function bearingName(d){const a=['↑ Utara','↗️ Timur Laut','→ Timur','↘️ Tenggara','↓ Selatan','↙️ Barat Daya','← Barat','↖️ Barat Laut'];return a[Math.round(d/45)%8];}
+function distText(m){return m>=1000?(m/1000).toFixed(1)+' km':Math.round(m)+' m';}
+function estimate(m){const s=m/1.2;return s<60?'<1 min':Math.ceil(s/60)+' min';}
+
+renderItemList(ITEMS);
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-wrap'))document.getElementById('home-results').classList.remove('show');
+  if(!e.target.closest('.map-search-row'))document.getElementById('map-sdd').classList.remove('show');
+});
+window.addEventListener('resize',()=>{if(document.getElementById('screen-map').classList.contains('active'))initMap();});
+</script>
+</body>
+</html>
