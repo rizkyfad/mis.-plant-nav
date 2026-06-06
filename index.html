@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PlantNav – Pupuk Kaltim</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root{
   --or:#FF6A13;--ord:#e05500;--orl:#fff4ee;
@@ -186,7 +188,14 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
 
 /* ===== MAP ===== */
 #screen-map{position:relative;background:#162336;}
-canvas#mapCanvas{width:100%;height:100%;display:block;position:absolute;inset:0;}
+#leafmap{width:100%;height:100%;position:absolute;inset:0;background:#162336;z-index:1;}
+.leaflet-container{font-family:'Inter',sans-serif;}
+.item-pin{display:flex;flex-direction:column;align-items:center;}
+.item-pin .ip-tag{background:#fff;color:#1f2937;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;padding:1px 6px;border-radius:5px;box-shadow:0 1px 5px rgba(0,0,0,.4);white-space:nowrap;margin-bottom:2px;}
+.item-pin .ip-dot{width:13px;height:13px;border-radius:50% 50% 50% 0;background:#FF3B30;transform:rotate(45deg);border:2px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.5);}
+.item-pin.active .ip-dot{background:#FF6A13;width:18px;height:18px;}
+.item-pin.active .ip-tag{background:#FF6A13;color:#fff;font-size:13px;}
+.me-dot{width:18px;height:18px;border-radius:50%;background:#0054A6;border:3px solid #fff;box-shadow:0 0 0 6px rgba(0,84,166,.25),0 1px 6px rgba(0,0,0,.4);}
 .map-topbar{position:absolute;top:0;left:0;right:0;z-index:50;padding:12px 14px 0;pointer-events:none;}
 .map-search-row{display:flex;gap:8px;pointer-events:all;}
 .map-sbox{flex:1;display:flex;align-items:center;gap:9px;background:#fff;border-radius:14px;padding:11px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.28);}
@@ -241,15 +250,15 @@ canvas#mapCanvas{width:100%;height:100%;display:block;position:absolute;inset:0;
 .nv-tag{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:0.5px;line-height:1;}
 .nv-sub{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;}
 .nvcompass{position:absolute;bottom:185px;left:14px;background:rgba(8,17,31,0.88);backdrop-filter:blur(12px);border-radius:18px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;align-items:center;gap:8px;min-width:92px;}
-.cring{width:64px;height:64px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;position:relative;animation:cspin 8s linear infinite;}
-@keyframes cspin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.cring{width:64px;height:64px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;position:relative;}
 .crd{position:absolute;font-size:9px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;}
 .crd.n{top:2px;left:50%;transform:translateX(-50%);color:rgba(255,106,19,0.9);}
 .crd.s{bottom:2px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.3);}
 .crd.e{right:3px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);}
 .crd.w{left:3px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);}
-.cinner{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,rgba(255,106,19,0.15),transparent);display:flex;align-items:center;justify-content:center;animation:cspin 8s linear infinite reverse;}
-.carrow{font-size:24px;filter:drop-shadow(0 0 8px rgba(255,106,19,0.8));}
+.cinner{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,rgba(255,106,19,0.15),transparent);display:flex;align-items:center;justify-content:center;}
+.carrow{font-size:26px;filter:drop-shadow(0 0 8px rgba(255,106,19,0.8));transition:transform 0.25s ease-out;}
+.nvhint{font-size:9px;color:rgba(255,255,255,0.4);text-align:center;max-width:88px;line-height:1.3;}
 .nvdist{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:#fff;line-height:1;text-align:center;}
 .nvdist span{font-size:12px;color:rgba(255,255,255,0.4);font-family:'Inter',sans-serif;font-weight:400;}
 .nvdir{font-size:11px;color:var(--or);font-weight:600;text-align:center;}
@@ -299,10 +308,11 @@ canvas#mapCanvas{width:100%;height:100%;display:block;position:absolute;inset:0;
   </div>
   <div class="login-card">
     <h2>Selamat Datang</h2>
-    <p>Masuk menggunakan NPK & No. HP kamu</p>
-    <div class="form-group"><label>NPK</label><input type="text" placeholder="Contoh: 123456"></div>
-    <div class="form-group"><label>No. HP</label><input type="tel" placeholder="Contoh: 081234567890"></div>
-    <button class="btn-login" onclick="goTo('pabrik')">Masuk →</button>
+    <p>Masuk untuk melanjutkan</p>
+    <div class="form-group"><label>Username</label><input type="text" id="login-user" placeholder="admin" autocapitalize="off" autocomplete="username"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <p id="login-err" style="display:none;color:#e02424;font-size:12px;margin:-8px 0 14px;">Username atau password salah.</p>
+    <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <p class="login-note">🔒 Akun hanya bisa dibuat oleh admin</p>
   </div>
 </div>
@@ -477,7 +487,7 @@ canvas#mapCanvas{width:100%;height:100%;display:block;position:absolute;inset:0;
 
 <!-- ===== MAP ===== -->
 <div id="screen-map" class="screen">
-  <canvas id="mapCanvas"></canvas>
+  <div id="leafmap"></div>
   <div class="map-topbar">
     <div class="map-search-row">
       <div class="map-back-btn" onclick="goTo('home')">←</div>
@@ -527,10 +537,11 @@ canvas#mapCanvas{width:100%;height:100%;display:block;position:absolute;inset:0;
       <div class="cring">
         <span class="crd n">U</span><span class="crd s">S</span>
         <span class="crd e">T</span><span class="crd w">B</span>
-        <div class="cinner"><div class="carrow">🧭</div></div>
+        <div class="cinner"><div class="carrow" id="navArrow">⬆️</div></div>
       </div>
       <div class="nvdist" id="nvdist">—<span> m</span></div>
       <div class="nvdir" id="nvdir">—</div>
+      <div class="nvhint" id="nvhint">Pegang HP datar &amp; jalan</div>
     </div>
     <div class="arrived" id="arrived"><p>✅ Sudah dekat! <b id="arrivedTag">—</b> ada di sekitarmu.</p></div>
     <button class="nvstop" onclick="stopNav()">✕ Stop</button>
@@ -611,6 +622,19 @@ function lockedTap(){
   el.style.transform='translateX(6px)';
   setTimeout(()=>{el.style.transform='translateX(-4px)';},80);
   setTimeout(()=>{el.style.transform='';},160);
+}
+
+// ===== LOGIN =====
+const USERS={admin:'admin'}; // ganti / tambah akun di sini: {admin:'admin', operator:'1234'}
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  if(USERS[u]!==undefined && USERS[u]===p){
+    document.getElementById('login-err').style.display='none';
+    goTo('pabrik');
+  }else{
+    document.getElementById('login-err').style.display='block';
+  }
 }
 
 // ===== SCREENS =====
@@ -714,7 +738,7 @@ function showPop(item){
   const il=itemLL(item);
   document.getElementById('bdist').textContent=(myLat!==null)?distText(haversine(myLat,myLon,il.lat,il.lon)):'—';
   document.getElementById('bpop').classList.add('show');
-  drawMap();
+  focusItem(item);
 }
 
 function closePop(){
@@ -722,7 +746,7 @@ function closePop(){
   activeItem=null;
   document.getElementById('map-search').value='';
   document.getElementById('map-clear').style.display='none';
-  drawMap();
+  highlightMarkers();
 }
 
 // ===== NAV =====
@@ -732,10 +756,11 @@ function startNav(){
   document.getElementById('nvtag').textContent=activeItem.id;
   document.getElementById('nvsub').textContent=activeItem.area+' · Lantai '+activeItem.floor;
   document.getElementById('arrivedTag').textContent=activeItem.id;
+  startCompass();
   updateNavUI();
   document.getElementById('novo').classList.add('active');
   document.getElementById('bpop').classList.remove('show');
-  drawMap();
+  focusItem(activeItem);
 }
 
 function stopNav(){
@@ -743,24 +768,34 @@ function stopNav(){
   document.getElementById('novo').classList.remove('active');
   document.getElementById('arrived').classList.remove('show');
   if(activeItem) document.getElementById('bpop').classList.add('show');
-  drawMap();
 }
 
 function updateNavUI(){
   if(!activeItem)return;
   const il=itemLL(activeItem);
-  let dist,dirStr;
-  if(myLat!==null){dist=haversine(myLat,myLon,il.lat,il.lon);dirStr=bearingName(bearing(myLat,myLon,il.lat,il.lon));}
-  else{dist=47;dirStr='↗️ Timur Laut';}
+  let dist,brg;
+  if(myLat!==null){dist=haversine(myLat,myLon,il.lat,il.lon);brg=bearing(myLat,myLon,il.lat,il.lon);}
+  else{dist=47;brg=45;}
+  targetBearing=brg;
   const dt=distText(dist),est=estimate(dist);
   document.getElementById('nvdist').innerHTML=Math.round(dist<1000?dist:dist/1000)+'<span>'+(dist<1000?' m':' km')+'</span>';
-  document.getElementById('nvdir').textContent=dirStr;
+  document.getElementById('nvdir').textContent=bearingName(brg);
   document.getElementById('nvb1').textContent=dt;
   document.getElementById('nvb2').textContent='Lt. '+activeItem.floor;
   document.getElementById('nvb3').textContent=est;
   document.getElementById('bdist').textContent=dt;
+  updateArrow();
   if(dist<15)document.getElementById('arrived').classList.add('show');
   else document.getElementById('arrived').classList.remove('show');
+}
+
+// arrow points toward target relative to the direction the phone faces
+function updateArrow(){
+  const a=document.getElementById('navArrow');
+  if(!a)return;
+  const rot=(heading!==null)?(targetBearing-heading):targetBearing;
+  a.style.transform='rotate('+rot+'deg)';
+  document.getElementById('nvhint').textContent=(heading!==null)?'Ikuti arah panah':'Pegang HP datar & jalan';
 }
 
 // ===== STREET VIEW =====
@@ -773,114 +808,85 @@ function openSV(){
   goTo('sv');
 }
 
+// ===== MAP (Leaflet + satelit gratis) =====
+// Kotak area Ammonia P2. Ganti 4 angka di PLANT untuk menggeser/memperluas batas area.
+const BOX=[[PLANT.latMin,PLANT.lonMin],[PLANT.latMax,PLANT.lonMax]];
+let map=null, markers={}, meMarker=null;
+let heading=null, targetBearing=0;
+
+function itemLL(item){return{lat:PLANT.latMin+(1-item.my)*(PLANT.latMax-PLANT.latMin),lon:PLANT.lonMin+item.mx*(PLANT.lonMax-PLANT.lonMin)};}
+
+function initMap(){
+  if(map){ setTimeout(()=>map.invalidateSize(),60); return; }
+  map=L.map('leafmap',{zoomControl:false,attributionControl:false,
+    maxBounds:BOX, maxBoundsViscosity:1.0, minZoom:16, maxZoom:21});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {maxNativeZoom:19, maxZoom:21}).addTo(map);
+  map.fitBounds(BOX);
+  ITEMS.forEach(item=>{
+    const il=itemLL(item);
+    const icon=L.divIcon({className:'',html:
+      '<div class="item-pin"><span class="ip-tag">'+item.id+'</span><span class="ip-dot"></span></div>',
+      iconSize:[40,40], iconAnchor:[20,40]});
+    const mk=L.marker([il.lat,il.lon],{icon}).addTo(map);
+    mk.on('click',()=>showPop(item));
+    markers[item.id]=mk;
+  });
+  meMarker=L.marker([PLANT.latMin,PLANT.lonMin],{interactive:false,zIndexOffset:1000,
+    icon:L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]})});
+  startGPS();
+  setTimeout(()=>map.invalidateSize(),80);
+}
+
+function highlightMarkers(){
+  ITEMS.forEach(item=>{
+    const mk=markers[item.id]; if(!mk)return;
+    const el=mk.getElement(); if(!el)return;
+    const pin=el.querySelector('.item-pin');
+    if(pin) pin.classList.toggle('active', !!(activeItem&&activeItem.id===item.id));
+  });
+}
+
+function focusItem(item){
+  if(!map)return;
+  const il=itemLL(item);
+  map.setView([il.lat,il.lon], Math.max(map.getZoom(),19), {animate:true});
+  highlightMarkers();
+}
+
+function zoom(f){ if(!map)return; f>1?map.zoomIn():map.zoomOut(); }
+function centerMe(){ if(!map)return; (myLat!==null)?map.setView([myLat,myLon],Math.max(map.getZoom(),19),{animate:true}):map.fitBounds(BOX); }
+
 // ===== GPS =====
 function startGPS(){
   const badge=document.getElementById('gpsBadge'),lbl=document.getElementById('gpsLbl');
   if(!navigator.geolocation){badge.className='gps-badge err';lbl.textContent='GPS Tidak Tersedia';return;}
   watchId=navigator.geolocation.watchPosition(pos=>{
     myLat=pos.coords.latitude;myLon=pos.coords.longitude;
-    myMapX=Math.max(.05,Math.min(.95,(myLon-PLANT.lonMin)/(PLANT.lonMax-PLANT.lonMin)));
-    myMapY=Math.max(.05,Math.min(.95,1-(myLat-PLANT.latMin)/(PLANT.latMax-PLANT.latMin)));
     badge.className='gps-badge';lbl.textContent='GPS Aktif';
+    if(map&&meMarker){meMarker.setLatLng([myLat,myLon]); if(!map.hasLayer(meMarker))meMarker.addTo(map);}
     if(navigating)updateNavUI();
-    drawMap();
   },err=>{
     badge.className='gps-badge err';
     lbl.textContent=err.code===1?'Izin GPS Ditolak':'GPS Lemah';
   },{enableHighAccuracy:true,maximumAge:3000,timeout:10000});
 }
 
-// ===== CANVAS =====
-const canvas=document.getElementById('mapCanvas');
-const ctx=canvas.getContext('2d');
-function W(){return canvas.width/window.devicePixelRatio;}
-function H(){return canvas.height/window.devicePixelRatio;}
-function wx(mx){return mx*W()*sc;}
-function wy(my){return my*H()*sc;}
-
-function initMap(){
-  const p=canvas.parentElement.getBoundingClientRect();
-  canvas.width=p.width*window.devicePixelRatio;
-  canvas.height=p.height*window.devicePixelRatio;
-  ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
-  drawMap();
-  if(!watchId)startGPS();
-}
-
-function drawMap(){
-  const w=W(),h=H();
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='#162336';ctx.fillRect(0,0,w,h);
-  ctx.strokeStyle='rgba(255,255,255,0.025)';ctx.lineWidth=1;
-  for(let x=0;x<w;x+=36)ln(x,0,x,h);
-  for(let y=0;y<h;y+=36)ln(0,y,w,y);
-  ctx.fillStyle='rgba(200,175,100,0.18)';
-  ctx.fillRect(wx(.05),wy(.43),w*.90*sc,h*.07*sc);
-  ctx.fillRect(wx(.36),wy(.04),w*.12*sc,h*.80*sc);
-  ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;ctx.setLineDash([8,8]);
-  ln(wx(.05),wy(.465),wx(.95),wy(.465));ln(wx(.42),wy(.04),wx(.42),wy(.84));
-  ctx.setLineDash([]);
-  rr(wx(.05),wy(.04),w*.90*sc,h*.80*sc,10,'rgba(255,255,255,0.04)','rgba(255,255,255,0.14)',1.5);
-  rr(wx(.07),wy(.06),w*.27*sc,h*.34*sc,6,'rgba(0,84,166,0.22)','rgba(0,84,166,0.55)',1);
-  lbl(wx(.20),wy(.11),'AREA 1','#7ab8ff',10);
-  rr(wx(.50),wy(.06),w*.43*sc,h*.34*sc,6,'rgba(255,106,19,0.16)','rgba(255,106,19,0.52)',1);
-  lbl(wx(.70),wy(.11),'AREA 2','#ffb07a',10);
-  rr(wx(.07),wy(.52),w*.27*sc,h*.28*sc,6,'rgba(34,197,94,0.16)','rgba(34,197,94,0.42)',1);
-  lbl(wx(.20),wy(.57),'AREA 3','#86efac',10);
-  rr(wx(.50),wy(.52),w*.43*sc,h*.28*sc,6,'rgba(168,85,247,0.16)','rgba(168,85,247,0.42)',1);
-  lbl(wx(.70),wy(.57),'AREA 4','#c4b5fd',10);
-  bld(wx(.09),wy(.08),w*.11*sc,h*.12*sc,'#1b3660');bld(wx(.22),wy(.08),w*.10*sc,h*.16*sc,'#1b3660');
-  bld(wx(.09),wy(.24),w*.09*sc,h*.13*sc,'#1b3660');bld(wx(.52),wy(.08),w*.14*sc,h*.19*sc,'#45200a');
-  bld(wx(.70),wy(.08),w*.20*sc,h*.13*sc,'#45200a');bld(wx(.52),wy(.30),w*.11*sc,h*.09*sc,'#45200a');
-  bld(wx(.09),wy(.54),w*.12*sc,h*.14*sc,'#174228');bld(wx(.52),wy(.54),w*.18*sc,h*.22*sc,'#2b1a48');
-  bld(wx(.74),wy(.54),w*.16*sc,h*.12*sc,'#2b1a48');
-  tk(wx(.84),wy(.13),13*sc,'#2a4a7a');tk(wx(.90),wy(.13),13*sc,'#2a4a7a');
-  tk(wx(.84),wy(.25),17*sc,'#5a2e0e');tk(wx(.28),wy(.58),10*sc,'#1a4228');
-  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=2.5*sc;
-  ln(wx(.07),wy(.20),wx(.36),wy(.20));ln(wx(.50),wy(.20),wx(.93),wy(.20));
-  ctx.lineWidth=1.5*sc;ln(wx(.18),wy(.06),wx(.18),wy(.43));ln(wx(.64),wy(.06),wx(.64),wy(.43));
-  ctx.lineWidth=1*sc;ln(wx(.07),wy(.65),wx(.36),wy(.65));ln(wx(.50),wy(.65),wx(.93),wy(.65));
-  if(activeItem){
-    const tx=wx(activeItem.mx),ty=wy(activeItem.my),ux=wx(myMapX),uy=wy(myMapY);
-    ctx.setLineDash([5,4]);
-    ctx.strokeStyle=navigating?'rgba(255,106,19,0.75)':'rgba(255,106,19,0.35)';
-    ctx.lineWidth=navigating?2.5:1.8;
-    ctx.beginPath();ctx.moveTo(ux,uy);ctx.lineTo(tx,ty);ctx.stroke();
-    ctx.setLineDash([]);
+// ===== KOMPAS (arah hadap HP) =====
+function startCompass(){
+  if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+    DeviceOrientationEvent.requestPermission().then(s=>{ if(s==='granted'){window.addEventListener('deviceorientation',onOrient);} }).catch(()=>{});
+  } else {
+    window.addEventListener('deviceorientationabsolute',onOrient,true);
+    window.addEventListener('deviceorientation',onOrient,true);
   }
-  ITEMS.forEach(item=>{
-    if(activeItem&&activeItem.id===item.id)return;
-    ctx.fillStyle='rgba(255,255,255,0.5)';
-    ctx.beginPath();ctx.arc(wx(item.mx),wy(item.my),3.5,0,Math.PI*2);ctx.fill();
-  });
-  if(activeItem){
-    const x=wx(activeItem.mx),y=wy(activeItem.my);
-    ctx.shadowColor='rgba(255,40,0,0.65)';ctx.shadowBlur=18;
-    ctx.fillStyle='#FF3B30';
-    ctx.beginPath();ctx.arc(x,y-2,11*sc,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.moveTo(x-5.5*sc,y+6*sc);ctx.lineTo(x+5.5*sc,y+6*sc);ctx.lineTo(x,y+17*sc);ctx.closePath();ctx.fill();
-    ctx.shadowBlur=0;
-    ctx.fillStyle='rgba(255,255,255,0.9)';ctx.beginPath();ctx.arc(x,y-2,4*sc,0,Math.PI*2);ctx.fill();
-    ctx.font=`bold ${10.5*sc}px Barlow Condensed,sans-serif`;
-    const tw=ctx.measureText(activeItem.id).width,bw=tw+14,bh=17*sc,bx=x-bw/2,by=y-34*sc;
-    rr(bx,by,bw,bh,4,'white',null,0);
-    ctx.fillStyle='#1f2937';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(activeItem.id,x,by+bh/2);
-  }
-  const ux=wx(myMapX),uy=wy(myMapY);
-  ctx.fillStyle='rgba(0,84,166,0.18)';ctx.beginPath();ctx.arc(ux,uy,20*sc,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='white';ctx.beginPath();ctx.arc(ux,uy,9*sc,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#0054A6';ctx.beginPath();ctx.arc(ux,uy,6*sc,0,Math.PI*2);ctx.fill();
 }
-
-function rr(x,y,w,h,r,fill,stroke,sw){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw||1;ctx.stroke();}}
-function bld(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h);ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=0.5;ctx.strokeRect(x,y,w,h);}
-function tk(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();}
-function ln(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
-function lbl(x,y,t,c,s){ctx.fillStyle=c;ctx.font=`bold ${s}px Barlow Condensed,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,x,y);}
-function zoom(f){sc=Math.max(0.6,Math.min(3.5,sc*f));drawMap();}
-function centerMe(){drawMap();}
-function itemLL(item){return{lat:PLANT.latMin+(1-item.my)*(PLANT.latMax-PLANT.latMin),lon:PLANT.lonMin+item.mx*(PLANT.lonMax-PLANT.lonMin)};}
+function onOrient(e){
+  let h=null;
+  if(typeof e.webkitCompassHeading==='number') h=e.webkitCompassHeading;
+  else if(e.absolute && typeof e.alpha==='number') h=(360-e.alpha)%360;
+  if(h!==null && !isNaN(h)){ heading=h; updateArrow(); }
+}
 function haversine(la1,lo1,la2,lo2){const R=6371000,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function bearing(la1,lo1,la2,lo2){const dO=(lo2-lo1)*Math.PI/180,y=Math.sin(dO)*Math.cos(la2*Math.PI/180),x=Math.cos(la1*Math.PI/180)*Math.sin(la2*Math.PI/180)-Math.sin(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.cos(dO);return(Math.atan2(y,x)*180/Math.PI+360)%360;}
 function bearingName(d){const a=['↑ Utara','↗️ Timur Laut','→ Timur','↘️ Tenggara','↓ Selatan','↙️ Barat Daya','← Barat','↖️ Barat Laut'];return a[Math.round(d/45)%8];}
@@ -893,6 +899,21 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.map-search-row'))document.getElementById('map-sdd').classList.remove('show');
 });
 window.addEventListener('resize',()=>{if(document.getElementById('screen-map').classList.contains('active'))initMap();});
+
+// ===== SWIPE pop-up bawah ke bawah untuk hide =====
+(function(){
+  const pop=document.getElementById('bpop');
+  const card=pop.querySelector('.bcard');
+  let startY=0, curY=0, dragging=false;
+  function down(y){ startY=y; curY=y; dragging=true; pop.style.transition='none'; }
+  function move(y){ if(!dragging)return; curY=y; const dy=Math.max(0,curY-startY); pop.style.transform='translateY('+dy+'px)'; }
+  function up(){ if(!dragging)return; dragging=false; pop.style.transition=''; const dy=curY-startY;
+    if(dy>90){ pop.style.transform=''; closePop(); } else { pop.style.transform=''; } }
+  card.addEventListener('touchstart',e=>down(e.touches[0].clientY),{passive:true});
+  card.addEventListener('touchmove', e=>move(e.touches[0].clientY),{passive:true});
+  card.addEventListener('touchend', up);
+})();
+
 </script>
 </body>
 </html>
