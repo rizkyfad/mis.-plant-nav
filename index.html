@@ -490,15 +490,15 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
       <div class="area-chip" onclick="filterArea(this,'103JT/101JA')">103JT/101JA</div>
     </div>
 
-    <div class="section-title">Item Terbaru Dicari</div>
+    <div class="section-title" id="list-title">Item Terbaru Dicari</div>
     <div class="item-list" id="item-list"></div>
   </div>
 
   <div class="bottom-nav">
-    <div class="nav-tab active"><div class="tab-icon">🏠</div><div class="tab-label">Home</div></div>
+    <div class="nav-tab active" id="tab-home" onclick="goTo('home')"><div class="tab-icon">🏠</div><div class="tab-label">Home</div></div>
     <div class="nav-tab" onclick="goTo('map');initMap()"><div class="tab-icon">🗺️</div><div class="tab-label">Peta</div></div>
-    <div class="nav-tab"><div class="tab-icon-wrap"><div class="tab-icon">📋</div><div class="tab-dot"></div></div><div class="tab-label">Semua Item</div></div>
-    <div class="nav-tab"><div class="tab-icon">⚙️</div><div class="tab-label">Admin</div></div>
+    <div class="nav-tab" id="tab-all" onclick="showAllItems()"><div class="tab-icon-wrap"><div class="tab-icon">📋</div><div class="tab-dot"></div></div><div class="tab-label">Semua Item</div></div>
+    <div class="nav-tab" onclick="alert('Menu Admin segera hadir')"><div class="tab-icon">⚙️</div><div class="tab-label">Admin</div></div>
   </div>
 </div>
 
@@ -683,9 +683,25 @@ function goTo(id){
     const label='Pabrik '+selectedPabrik+' · '+selectedArea.charAt(0).toUpperCase()+selectedArea.slice(1);
     document.getElementById('topbar-sub-label').textContent=label;
     document.getElementById('apb-name').textContent=label;
+    document.getElementById('list-title').textContent='Item Terbaru Dicari';
+    setTab('tab-home');
     renderItemList(ITEMS);
   }
   if(id==='map') setTimeout(initMap,40);
+}
+
+function setTab(id){
+  document.querySelectorAll('.bottom-nav .nav-tab').forEach(t=>t.classList.remove('active'));
+  const t=document.getElementById(id); if(t)t.classList.add('active');
+}
+
+function showAllItems(){
+  document.querySelectorAll('.area-chip').forEach(c=>c.classList.remove('active'));
+  const first=document.querySelector('.area-chip'); if(first)first.classList.add('active');
+  renderItemList(ITEMS);
+  document.getElementById('list-title').textContent='Semua Item ('+ITEMS.length+')';
+  setTab('tab-all');
+  document.getElementById('list-title').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ===== HOME SEARCH =====
@@ -784,7 +800,7 @@ function closePop(){
   activeItem=null;
   document.getElementById('map-search').value='';
   document.getElementById('map-clear').style.display='none';
-  highlightMarkers();
+  clearMapSelection();
 }
 
 // ===== NAV =====
@@ -799,12 +815,15 @@ function startNav(){
   document.getElementById('novo').classList.add('active');
   document.getElementById('bpop').classList.remove('show');
   focusItem(activeItem);
+  if(map&&myLat!==null){const il=itemLL(activeItem);map.fitBounds([[myLat,myLon],[il.lat,il.lon]],{padding:[70,70],maxZoom:20});}
+  updateNavLine();
 }
 
 function stopNav(){
   navigating=false;
   document.getElementById('novo').classList.remove('active');
   document.getElementById('arrived').classList.remove('show');
+  updateNavLine();
   if(activeItem) document.getElementById('bpop').classList.add('show');
 }
 
@@ -823,6 +842,7 @@ function updateNavUI(){
   document.getElementById('nvb3').textContent=est;
   document.getElementById('bdist').textContent=dt;
   updateArrow();
+  updateNavLine();
   if(dist<15)document.getElementById('arrived').classList.add('show');
   else document.getElementById('arrived').classList.remove('show');
 }
@@ -849,7 +869,7 @@ function openSV(){
 // ===== MAP (Leaflet + satelit gratis) =====
 // Kotak area Ammonia P2. Ganti 4 angka di PLANT untuk menggeser/memperluas batas area.
 const BOX=[[PLANT.latMin,PLANT.lonMin],[PLANT.latMax,PLANT.lonMax]];
-let map=null, markers={}, meMarker=null;
+let map=null, markers={}, meMarker=null, navLine=null;
 let heading=null, targetBearing=0;
 
 function itemLL(item){return{lat:PLANT.latMin+(1-item.my)*(PLANT.latMax-PLANT.latMin),lon:PLANT.lonMin+item.mx*(PLANT.lonMax-PLANT.lonMin)};}
@@ -866,7 +886,7 @@ function initMap(){
     const icon=L.divIcon({className:'',html:
       '<div class="item-pin"><span class="ip-tag">'+item.id+'</span><span class="ip-dot"></span></div>',
       iconSize:[40,40], iconAnchor:[20,40]});
-    const mk=L.marker([il.lat,il.lon],{icon}).addTo(map);
+    const mk=L.marker([il.lat,il.lon],{icon});   // belum ditampilkan; muncul saat dicari/dipilih
     mk.on('click',()=>showPop(item));
     markers[item.id]=mk;
   });
@@ -874,6 +894,33 @@ function initMap(){
     icon:L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]})});
   startGPS();
   setTimeout(()=>map.invalidateSize(),80);
+}
+
+function showOnlyActive(){
+  if(!map)return;
+  ITEMS.forEach(item=>{
+    const mk=markers[item.id]; if(!mk)return;
+    const isA=activeItem&&activeItem.id===item.id;
+    if(isA){ if(!map.hasLayer(mk)) mk.addTo(map); }
+    else { if(map.hasLayer(mk)) map.removeLayer(mk); }
+  });
+  highlightMarkers();
+}
+
+function clearMapSelection(){
+  if(!map)return;
+  ITEMS.forEach(item=>{const mk=markers[item.id]; if(mk&&map.hasLayer(mk))map.removeLayer(mk);});
+  if(navLine&&map.hasLayer(navLine))map.removeLayer(navLine);
+}
+
+function updateNavLine(){
+  if(!map)return;
+  if(navigating&&activeItem&&myLat!==null){
+    const il=itemLL(activeItem);
+    const pts=[[myLat,myLon],[il.lat,il.lon]];
+    if(!navLine){ navLine=L.polyline(pts,{color:'#FF6A13',weight:3,dashArray:'2,9',lineCap:'round',opacity:.95}).addTo(map); }
+    else { navLine.setLatLngs(pts); if(!map.hasLayer(navLine))navLine.addTo(map); }
+  } else if(navLine&&map.hasLayer(navLine)){ map.removeLayer(navLine); }
 }
 
 function highlightMarkers(){
@@ -887,9 +934,9 @@ function highlightMarkers(){
 
 function focusItem(item){
   if(!map)return;
+  showOnlyActive();
   const il=itemLL(item);
   map.setView([il.lat,il.lon], Math.max(map.getZoom(),19), {animate:true});
-  highlightMarkers();
 }
 
 function zoom(f){ if(!map)return; f>1?map.zoomIn():map.zoomOut(); }
