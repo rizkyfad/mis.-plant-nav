@@ -197,6 +197,8 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
 .item-pin.active .ip-dot{background:#FF6A13;width:18px;height:18px;}
 .item-pin.active .ip-tag{background:#FF6A13;color:#fff;font-size:13px;}
 .me-dot{width:18px;height:18px;border-radius:50%;background:#0054A6;border:3px solid #fff;box-shadow:0 0 0 6px rgba(0,84,166,.25),0 1px 6px rgba(0,0,0,.4);}
+.zone-label{background:rgba(0,0,0,.55)!important;border:none!important;box-shadow:none!important;color:#fff!important;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;padding:2px 8px!important;border-radius:6px;}
+.zone-label::before{display:none!important;}
 .map-topbar{position:absolute;top:0;left:0;right:0;z-index:50;padding:12px 14px 0;pointer-events:none;}
 .map-search-row{display:flex;gap:8px;pointer-events:all;}
 .map-sbox{flex:1;display:flex;align-items:center;gap:9px;background:#fff;border-radius:14px;padding:11px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.28);}
@@ -407,26 +409,24 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
         <div class="atc-badge aktif">● Aktif</div>
       </div>
 
-      <!-- Urea LOCKED -->
-      <div class="area-type-card locked" onclick="lockedTap()">
+      <!-- Urea AKTIF -->
+      <div class="area-type-card" id="atc-urea" onclick="selectArea('urea')">
         <div class="atc-icon urea">🌱</div>
         <div class="atc-info">
           <div class="atc-name">Urea</div>
           <div class="atc-desc">Unit produksi urea,<br>granulator, prilling tower</div>
         </div>
-        <div class="atc-badge soon">Segera</div>
-        <div class="atc-lock">🔒</div>
+        <div class="atc-badge aktif">● Aktif</div>
       </div>
 
-      <!-- Utility LOCKED -->
-      <div class="area-type-card locked" onclick="lockedTap()">
+      <!-- Utility AKTIF -->
+      <div class="area-type-card" id="atc-utility" onclick="selectArea('utility')">
         <div class="atc-icon utility">⚡</div>
         <div class="atc-info">
           <div class="atc-name">Utility</div>
           <div class="atc-desc">Power plant, water treatment,<br>steam system, instrument air</div>
         </div>
-        <div class="atc-badge soon">Segera</div>
-        <div class="atc-lock">🔒</div>
+        <div class="atc-badge aktif">● Aktif</div>
       </div>
 
     </div>
@@ -480,15 +480,7 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
     </div>
 
     <div class="section-title">Area Pabrik</div>
-    <div class="area-scroll">
-      <div class="area-chip active" onclick="filterArea(this,'all')">Semua</div>
-      <div class="area-chip" onclick="filterArea(this,'Reformer')">Reformer</div>
-      <div class="area-chip" onclick="filterArea(this,'CO2 Removal')">CO2 Removal</div>
-      <div class="area-chip" onclick="filterArea(this,'HRU 1/2')">HRU 1/2</div>
-      <div class="area-chip" onclick="filterArea(this,'Synloop &amp; Refrigerant')">Synloop &amp; Refrigerant</div>
-      <div class="area-chip" onclick="filterArea(this,'101JT/105JT')">101JT/105JT</div>
-      <div class="area-chip" onclick="filterArea(this,'103JT/101JA')">103JT/101JA</div>
-    </div>
+    <div class="area-scroll" id="area-scroll"></div>
 
     <div class="section-title" id="list-title">Item Terbaru Dicari</div>
     <div class="item-list" id="item-list"></div>
@@ -520,6 +512,11 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
     <div class="mc-btn" onclick="zoom(1.3)">＋</div>
     <div class="mc-btn" onclick="zoom(0.77)">－</div>
     <div class="mc-btn" onclick="centerMe()">📍</div>
+    <div class="mc-btn" id="calibBtn" onclick="toggleCalib()" title="Mode kalibrasi koordinat">⌖</div>
+  </div>
+  <div id="calibBox" style="display:none;position:absolute;top:120px;left:14px;right:14px;z-index:55;background:rgba(8,17,31,.92);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;color:#fff;font-size:12px;line-height:1.5;">
+    <b>Mode Kalibrasi aktif.</b> Tap sudut zona di peta → koordinat muncul di sini untuk disalin.
+    <div id="calibOut" style="margin-top:6px;font-family:monospace;color:#86efac;word-break:break-all;">—</div>
   </div>
   <div class="gps-badge searching" id="gpsBadge">
     <div class="gps-dot"></div><span id="gpsLbl">Mencari GPS…</span>
@@ -603,20 +600,29 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
 </div>
 <script>
 const ITEMS=[
-  {id:'FV-3',  name:'Flow Valve 3',            type:'Flow Valve',          area:'Reformer',floor:3,icon:'🔧',cls:'valve',  hint:'Naik tangga utama Reformer, belok kiri setelah kolom C-201. Item di sisi kanan platform.',mx:.46,my:.40},
-  {id:'FV-12', name:'Flow Valve 12',            type:'Flow Valve',          area:'CO2 Removal',floor:1,icon:'🔧',cls:'valve',  hint:'Dekat pintu masuk CO2 Removal, sebelah kanan pompa P-101.',                              mx:.38,my:.52},
-  {id:'PT-101',name:'Pressure Transmitter 101', type:'Pressure Transmitter',area:'HRU 1/2',floor:2,icon:'📡',cls:'instrument',hint:'Platform lantai 2 HRU, di sebelah kiri tangga naik dari lantai 1.',                    mx:.58,my:.46},
-  {id:'P-201', name:'Pompa 201',                type:'Centrifugal Pump',    area:'Synloop & Refrigerant',floor:1,icon:'⚙️',cls:'pump',hint:'Lantai dasar Synloop, baris pompa utama, urutan ke-3 dari kiri.',                 mx:.52,my:.58},
-  {id:'T-401', name:'Tangki Ammonia 401',       type:'Storage Tank',        area:'101JT/105JT',floor:1,icon:'🛢️',cls:'tank', hint:'Ujung barat 101JT, tangki besar. Terlihat dari jalan utama.',                            mx:.60,my:.36},
-  {id:'LV-5',  name:'Level Valve 5',            type:'Level Valve',         area:'103JT/101JA',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 dekat tangki T-202.',                                                mx:.50,my:.50},
-  {id:'CV-8',  name:'Control Valve 8',          type:'Control Valve',       area:'Reformer',floor:1,icon:'🔧',cls:'valve',  hint:'Lantai dasar Reformer, jalur pipa utama.',                                               mx:.44,my:.54},
-  {id:'TIC-5', name:'Temp Indicator 5',         type:'Instrument',          area:'CO2 Removal',floor:4,icon:'📡',cls:'instrument',hint:'Platform lantai 4, panel instrumen barat.',                                        mx:.40,my:.44},
-  {id:'XV-10', name:'Shutdown Valve 10',        type:'Shutdown Valve',      area:'HRU 1/2',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 HRU, dekat flare knock drum.',                                         mx:.56,my:.56},
+  // ===== AMMONIA =====
+  {id:'FV-3',  name:'Flow Valve 3',            type:'Flow Valve',          plant:'ammonia',area:'Reformer',floor:3,icon:'🔧',cls:'valve',  hint:'Naik tangga utama Reformer, belok kiri setelah kolom C-201. Item di sisi kanan platform.',mx:.46,my:.40},
+  {id:'FV-12', name:'Flow Valve 12',            type:'Flow Valve',          plant:'ammonia',area:'CO2 Removal',floor:1,icon:'🔧',cls:'valve',  hint:'Dekat pintu masuk CO2 Removal, sebelah kanan pompa P-101.',                              mx:.38,my:.52},
+  {id:'PT-101',name:'Pressure Transmitter 101', type:'Pressure Transmitter',plant:'ammonia',area:'HRU 1/2',floor:2,icon:'📡',cls:'instrument',hint:'Platform lantai 2 HRU, di sebelah kiri tangga naik dari lantai 1.',                    mx:.58,my:.46},
+  {id:'P-201', name:'Pompa 201',                type:'Centrifugal Pump',    plant:'ammonia',area:'Synloop & Refrigerant',floor:1,icon:'⚙️',cls:'pump',hint:'Lantai dasar Synloop, baris pompa utama, urutan ke-3 dari kiri.',                 mx:.52,my:.58},
+  {id:'T-401', name:'Tangki Ammonia 401',       type:'Storage Tank',        plant:'ammonia',area:'101JT/105JT',floor:1,icon:'🛢️',cls:'tank', hint:'Ujung barat 101JT, tangki besar. Terlihat dari jalan utama.',                            mx:.60,my:.36},
+  {id:'LV-5',  name:'Level Valve 5',            type:'Level Valve',         plant:'ammonia',area:'103JT/101JA',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 dekat tangki T-202.',                                                mx:.50,my:.50},
+  {id:'CV-8',  name:'Control Valve 8',          type:'Control Valve',       plant:'ammonia',area:'Reformer',floor:1,icon:'🔧',cls:'valve',  hint:'Lantai dasar Reformer, jalur pipa utama.',                                               mx:.44,my:.54},
+  {id:'TIC-5', name:'Temp Indicator 5',         type:'Instrument',          plant:'ammonia',area:'CO2 Removal',floor:4,icon:'📡',cls:'instrument',hint:'Platform lantai 4, panel instrumen barat.',                                        mx:.40,my:.44},
+  {id:'XV-10', name:'Shutdown Valve 10',        type:'Shutdown Valve',      plant:'ammonia',area:'HRU 1/2',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 HRU, dekat flare knock drum.',                                         mx:.56,my:.56},
+  // ===== UTILITY (contoh) =====
+  {id:'BFW-1', name:'BFW Pump 1',               type:'Centrifugal Pump',    plant:'utility',area:'WHB',floor:1,icon:'⚙️',cls:'pump',   hint:'(contoh) Ruang pompa boiler, baris depan.',                                              mx:.62,my:.18},
+  {id:'PCV-22',name:'Pressure Control Valve 22',type:'Control Valve',       plant:'utility',area:'SHP',floor:2,icon:'🔧',cls:'valve',hint:'(contoh) Header steam lantai 2.',                                                       mx:.74,my:.24},
+  {id:'CT-3',  name:'Pompa FCW 3',              type:'Centrifugal Pump',    plant:'utility',area:'FCW',floor:1,icon:'⚙️',cls:'pump',hint:'(contoh) Rumah pompa FCW.',                                                              mx:.82,my:.32},
+  // ===== UREA (contoh) =====
+  {id:'PR-1',  name:'Prill Distributor 1',      type:'Instrument',          plant:'urea',   area:'Prilling Tower',floor:6,icon:'🌱',cls:'tank',hint:'(contoh) Puncak prilling tower.',                                          mx:.66,my:.66},
+  {id:'UR-PV5',name:'Pressure Valve 5',         type:'Pressure Valve',      plant:'urea',   area:'Synthesa',floor:2,icon:'🔧',cls:'valve',  hint:'(contoh) Platform synthesa lantai 2.',                                            mx:.72,my:.70},
+  {id:'PT-77', name:'Pressure Transmitter 77',  type:'Pressure Transmitter',plant:'urea',   area:'CO2 Compressor',floor:2,icon:'📡',cls:'instrument',hint:'(contoh) Area CO2 compressor, dekat panel.',                          mx:.78,my:.74},
 ];
 
 let activeItem=null,navigating=false,sc=1;
 let myLat=null,myLon=null,myMapX=.50,myMapY=.62,watchId=null;
-const PLANT={latMin:0.1790,latMax:0.1840,lonMin:117.4882,lonMax:117.4932};
+const PLANT={latMin:0.1775,latMax:0.1855,lonMin:117.4875,lonMax:117.4955};
 
 // ===== PABRIK & AREA SELECTION =====
 let selectedPabrik=2, selectedArea='ammonia';
@@ -685,7 +691,8 @@ function goTo(id){
     document.getElementById('apb-name').textContent=label;
     document.getElementById('list-title').textContent='Item Terbaru Dicari';
     setTab('tab-home');
-    renderItemList(ITEMS);
+    buildAreaChips();
+    renderItemList(plantItems());
   }
   if(id==='map') setTimeout(initMap,40);
 }
@@ -695,11 +702,25 @@ function setTab(id){
   const t=document.getElementById(id); if(t)t.classList.add('active');
 }
 
+function plantItems(){ return ITEMS.filter(i=>i.plant===selectedArea); }
+
+const AREAS={
+  ammonia:['Reformer','CO2 Removal','HRU 1/2','Synloop & Refrigerant','101JT/105JT','103JT/101JA'],
+  utility:['Pompa Laut','FCW','SHP','Desal','Demin','PKB','IA/PA','Daerator','WHB','GTG','UFC'],
+  urea:['CO2 Compressor','Pump & WWT','Synthesa','Prilling Tower'],
+};
+
+function buildAreaChips(){
+  const subs=AREAS[selectedArea]||[...new Set(plantItems().map(i=>i.area))];
+  let html='<div class="area-chip active" onclick="filterArea(this,\'all\')">Semua</div>';
+  subs.forEach(s=>{ const safe=s.replace(/'/g,"\\'"); html+='<div class="area-chip" onclick="filterArea(this,\''+safe+'\')">'+s+'</div>'; });
+  document.getElementById('area-scroll').innerHTML=html;
+}
+
 function showAllItems(){
-  document.querySelectorAll('.area-chip').forEach(c=>c.classList.remove('active'));
-  const first=document.querySelector('.area-chip'); if(first)first.classList.add('active');
-  renderItemList(ITEMS);
-  document.getElementById('list-title').textContent='Semua Item ('+ITEMS.length+')';
+  buildAreaChips();
+  renderItemList(plantItems());
+  document.getElementById('list-title').textContent='Semua Item '+selectedArea.charAt(0).toUpperCase()+selectedArea.slice(1)+' ('+plantItems().length+')';
   setTab('tab-all');
   document.getElementById('list-title').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -709,7 +730,7 @@ function homeSearch(v){
   const el=document.getElementById('home-results');
   if(!v.trim()){el.classList.remove('show');return;}
   const q=v.trim().toUpperCase();
-  const res=ITEMS.filter(i=>i.id.includes(q)||i.name.toUpperCase().includes(q)||i.type.toUpperCase().includes(q));
+  const res=plantItems().filter(i=>i.id.includes(q)||i.name.toUpperCase().includes(q)||i.type.toUpperCase().includes(q));
   el.innerHTML=res.length
     ?res.map(i=>`<div class="search-result-item" onclick="goToMapItem('${i.id}')">
       <div class="sri-icon">${i.icon}</div>
@@ -721,14 +742,14 @@ function homeSearch(v){
 
 function homeSearchEnter(){
   const v=document.getElementById('home-search').value.trim().toUpperCase();
-  const found=ITEMS.find(i=>i.id===v)||ITEMS.find(i=>i.id.startsWith(v));
+  const found=plantItems().find(i=>i.id===v)||plantItems().find(i=>i.id.startsWith(v));
   if(found) goToMapItem(found.id);
 }
 
 function filterArea(el,area){
   document.querySelectorAll('.area-chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
-  renderItemList(area==='all'?ITEMS:ITEMS.filter(i=>i.area===area));
+  renderItemList(area==='all'?plantItems():plantItems().filter(i=>i.area===area));
 }
 
 function renderItemList(list){
@@ -754,7 +775,7 @@ function mapSearch(v){
   document.getElementById('map-clear').style.display=v?'block':'none';
   if(!v.trim()){dd.classList.remove('show');return;}
   const q=v.trim().toUpperCase();
-  const res=ITEMS.filter(i=>i.id.includes(q)||i.name.toUpperCase().includes(q));
+  const res=plantItems().filter(i=>i.id.includes(q)||i.name.toUpperCase().includes(q));
   dd.innerHTML=res.length
     ?res.map(i=>`<div class="map-sdi" onclick="mapPickItem('${i.id}')">
       <div class="map-sdico">${i.icon}</div>
@@ -874,6 +895,25 @@ let heading=null, targetBearing=0;
 
 function itemLL(item){return{lat:PLANT.latMin+(1-item.my)*(PLANT.latMax-PLANT.latMin),lon:PLANT.lonMin+item.mx*(PLANT.lonMax-PLANT.lonMin)};}
 
+// fx=0 kiri..1 kanan, fy=0 atas..1 bawah  -> [lat,lon]
+function f2ll(fx,fy){return [PLANT.latMax-fy*(PLANT.latMax-PLANT.latMin), PLANT.lonMin+fx*(PLANT.lonMax-PLANT.lonMin)];}
+
+// ===== MODE KALIBRASI =====
+let calibMode=false;
+function toggleCalib(){
+  calibMode=!calibMode;
+  document.getElementById('calibBox').style.display=calibMode?'block':'none';
+  document.getElementById('calibBtn').style.background=calibMode?'#FF6A13':'#fff';
+  document.getElementById('calibBtn').style.color=calibMode?'#fff':'';
+}
+function onMapClick(e){
+  if(!calibMode)return;
+  const lat=e.latlng.lat.toFixed(7), lon=e.latlng.lng.toFixed(7);
+  const out=document.getElementById('calibOut');
+  out.textContent=lat+','+lon+'   ← salin ke kolom Koordinat';
+  console.log('KALIBRASI:',lat+','+lon);
+}
+
 function initMap(){
   if(map){ setTimeout(()=>map.invalidateSize(),60); return; }
   map=L.map('leafmap',{zoomControl:false,attributionControl:false,
@@ -881,6 +921,7 @@ function initMap(){
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {maxNativeZoom:19, maxZoom:21}).addTo(map);
   map.fitBounds(BOX);
+  map.on('click',onMapClick);
   ITEMS.forEach(item=>{
     const il=itemLL(item);
     const icon=L.divIcon({className:'',html:
@@ -978,7 +1019,7 @@ function bearingName(d){const a=['↑ Utara','↗️ Timur Laut','→ Timur','�
 function distText(m){return m>=1000?(m/1000).toFixed(1)+' km':Math.round(m)+' m';}
 function estimate(m){const s=m/1.2;return s<60?'<1 min':Math.ceil(s/60)+' min';}
 
-renderItemList(ITEMS);
+renderItemList(plantItems());
 document.addEventListener('click',e=>{
   if(!e.target.closest('.search-wrap'))document.getElementById('home-results').classList.remove('show');
   if(!e.target.closest('.map-search-row'))document.getElementById('map-sdd').classList.remove('show');
