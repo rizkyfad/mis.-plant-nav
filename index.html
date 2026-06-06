@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PlantNav – Pupuk Kaltim</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{
   --or:#FF6A13;--ord:#e05500;--orl:#fff4ee;
@@ -18,6 +18,7 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:flex;justify-content:center;}
 .phone{width:100%;max-width:420px;min-height:100vh;background:var(--w);position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,0.15);}
+@media (min-width:480px){ body{align-items:stretch;} .phone{max-width:100%;height:100vh;box-shadow:none;} }
 .screen{display:none;flex-direction:column;height:100vh;overflow:hidden;}
 .screen.active{display:flex;}
 
@@ -308,14 +309,28 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
   </div>
   <div class="login-card">
     <h2>Selamat Datang</h2>
-    <p>Masuk untuk melanjutkan</p>
-    <div class="form-group"><label>Username</label><input type="text" id="login-user" placeholder="admin" autocapitalize="off" autocomplete="username"></div>
+    <p>Masuk dengan NPK & Password</p>
+    <div class="form-group"><label>NPK</label><input type="text" id="login-user" placeholder="admin" autocapitalize="off" autocomplete="username"></div>
     <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <p id="login-err" style="display:none;color:#e02424;font-size:12px;margin:-8px 0 14px;">Username atau password salah.</p>
+    <p id="login-err" style="display:none;color:#e02424;font-size:12px;margin:-8px 0 14px;">NPK atau password salah.</p>
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
-    <p class="login-note">🔒 Akun hanya bisa dibuat oleh admin</p>
+    <p class="login-note" style="cursor:pointer;color:var(--bl)" onclick="openPwdModal()">🔑 Ubah Password</p>
   </div>
 </div>
+
+<!-- MODAL UBAH PASSWORD -->
+<div id="pwdModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;">
+  <div class="login-card" style="max-width:340px;">
+    <h2>Ubah Password</h2>
+    <p>Masukkan NPK & password lama</p>
+    <div class="form-group"><label>NPK</label><input type="text" id="pw-npk" placeholder="admin" autocapitalize="off"></div>
+    <div class="form-group"><label>Password Lama</label><input type="password" id="pw-old" placeholder="••••••"></div>
+    <div class="form-group"><label>Password Baru</label><input type="password" id="pw-new" placeholder="minimal 4 karakter"></div>
+    <div class="form-group"><label>Konfirmasi Password Baru</label><input type="password" id="pw-new2" placeholder="ulangi password baru"></div>
+    <p id="pw-msg" style="display:none;font-size:12px;margin:-8px 0 14px;"></p>
+    <button class="btn-login" onclick="savePwd()">Simpan</button>
+    <p class="login-note" style="cursor:pointer" onclick="closePwdModal()">Batal</p>
+  </div>
 
 <!-- ===== PILIH PABRIK ===== -->
 <div id="screen-pabrik" class="screen">
@@ -466,11 +481,12 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
     <div class="section-title">Area Pabrik</div>
     <div class="area-scroll">
       <div class="area-chip active" onclick="filterArea(this,'all')">Semua</div>
-      <div class="area-chip" onclick="filterArea(this,'Area 1')">Area 1</div>
-      <div class="area-chip" onclick="filterArea(this,'Area 2')">Area 2</div>
-      <div class="area-chip" onclick="filterArea(this,'Area 3')">Area 3</div>
-      <div class="area-chip" onclick="filterArea(this,'Area 4')">Area 4</div>
-      <div class="area-chip" onclick="filterArea(this,'Area 5')">Area 5</div>
+      <div class="area-chip" onclick="filterArea(this,'Reformer')">Reformer</div>
+      <div class="area-chip" onclick="filterArea(this,'CO2 Removal')">CO2 Removal</div>
+      <div class="area-chip" onclick="filterArea(this,'HRU 1/2')">HRU 1/2</div>
+      <div class="area-chip" onclick="filterArea(this,'Synloop &amp; Refrigerant')">Synloop &amp; Refrigerant</div>
+      <div class="area-chip" onclick="filterArea(this,'101JT/105JT')">101JT/105JT</div>
+      <div class="area-chip" onclick="filterArea(this,'103JT/101JA')">103JT/101JA</div>
     </div>
 
     <div class="section-title">Item Terbaru Dicari</div>
@@ -586,15 +602,15 @@ body{font-family:'Inter',sans-serif;background:#e8edf2;min-height:100vh;display:
 </div>
 <script>
 const ITEMS=[
-  {id:'FV-3',  name:'Flow Valve 3',            type:'Flow Valve',          area:'Area 2',floor:3,icon:'🔧',cls:'valve',  hint:'Naik tangga utama Area 2, belok kiri setelah kolom C-201. Item di sisi kanan platform.',mx:.42,my:.30},
-  {id:'FV-12', name:'Flow Valve 12',            type:'Flow Valve',          area:'Area 1',floor:1,icon:'🔧',cls:'valve',  hint:'Dekat pintu masuk Area 1, sebelah kanan pompa P-101.',                                  mx:.20,my:.52},
-  {id:'PT-101',name:'Pressure Transmitter 101', type:'Pressure Transmitter',area:'Area 3',floor:2,icon:'📡',cls:'instrument',hint:'Platform lantai 2 Area 3, di sebelah kiri tangga naik dari lantai 1.',              mx:.64,my:.44},
-  {id:'P-201', name:'Pompa 201',                type:'Centrifugal Pump',    area:'Area 1',floor:1,icon:'⚙️',cls:'pump',   hint:'Lantai dasar Area 1, baris pompa utama, urutan ke-3 dari kiri.',                        mx:.26,my:.66},
-  {id:'T-401', name:'Tangki Ammonia 401',       type:'Storage Tank',        area:'Area 4',floor:1,icon:'🛢️',cls:'tank',   hint:'Area 4 ujung barat, tangki besar. Terlihat dari jalan utama.',                          mx:.74,my:.26},
-  {id:'LV-5',  name:'Level Valve 5',            type:'Level Valve',         area:'Area 2',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 Area 2, dekat tangki T-202.',                                         mx:.50,my:.48},
-  {id:'CV-8',  name:'Control Valve 8',          type:'Control Valve',       area:'Area 3',floor:1,icon:'🔧',cls:'valve',  hint:'Lantai dasar Area 3, jalur pipa utama ammonia.',                                        mx:.62,my:.62},
-  {id:'TIC-5', name:'Temp Indicator 5',         type:'Instrument',          area:'Area 5',floor:4,icon:'📡',cls:'instrument',hint:'Platform lantai 4 Area 5, panel instrumen barat.',                                  mx:.16,my:.26},
-  {id:'XV-10', name:'Shutdown Valve 10',        type:'Shutdown Valve',      area:'Area 4',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 Area 4, dekat flare knock drum.',                                     mx:.80,my:.58},
+  {id:'FV-3',  name:'Flow Valve 3',            type:'Flow Valve',          area:'Reformer',floor:3,icon:'🔧',cls:'valve',  hint:'Naik tangga utama Reformer, belok kiri setelah kolom C-201. Item di sisi kanan platform.',mx:.46,my:.40},
+  {id:'FV-12', name:'Flow Valve 12',            type:'Flow Valve',          area:'CO2 Removal',floor:1,icon:'🔧',cls:'valve',  hint:'Dekat pintu masuk CO2 Removal, sebelah kanan pompa P-101.',                              mx:.38,my:.52},
+  {id:'PT-101',name:'Pressure Transmitter 101', type:'Pressure Transmitter',area:'HRU 1/2',floor:2,icon:'📡',cls:'instrument',hint:'Platform lantai 2 HRU, di sebelah kiri tangga naik dari lantai 1.',                    mx:.58,my:.46},
+  {id:'P-201', name:'Pompa 201',                type:'Centrifugal Pump',    area:'Synloop & Refrigerant',floor:1,icon:'⚙️',cls:'pump',hint:'Lantai dasar Synloop, baris pompa utama, urutan ke-3 dari kiri.',                 mx:.52,my:.58},
+  {id:'T-401', name:'Tangki Ammonia 401',       type:'Storage Tank',        area:'101JT/105JT',floor:1,icon:'🛢️',cls:'tank', hint:'Ujung barat 101JT, tangki besar. Terlihat dari jalan utama.',                            mx:.60,my:.36},
+  {id:'LV-5',  name:'Level Valve 5',            type:'Level Valve',         area:'103JT/101JA',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 dekat tangki T-202.',                                                mx:.50,my:.50},
+  {id:'CV-8',  name:'Control Valve 8',          type:'Control Valve',       area:'Reformer',floor:1,icon:'🔧',cls:'valve',  hint:'Lantai dasar Reformer, jalur pipa utama.',                                               mx:.44,my:.54},
+  {id:'TIC-5', name:'Temp Indicator 5',         type:'Instrument',          area:'CO2 Removal',floor:4,icon:'📡',cls:'instrument',hint:'Platform lantai 4, panel instrumen barat.',                                        mx:.40,my:.44},
+  {id:'XV-10', name:'Shutdown Valve 10',        type:'Shutdown Valve',      area:'HRU 1/2',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 HRU, dekat flare knock drum.',                                         mx:.56,my:.56},
 ];
 
 let activeItem=null,navigating=false,sc=1;
@@ -625,16 +641,37 @@ function lockedTap(){
 }
 
 // ===== LOGIN =====
-const USERS={admin:'admin'}; // ganti / tambah akun di sini: {admin:'admin', operator:'1234'}
+const NPK_VALID='admin'; // NPK yang diterima (sementara). Nanti diganti daftar NPK asli.
+function getPass(){ try{return localStorage.getItem('pn_pass')||'admin';}catch(e){return 'admin';} }
 function doLogin(){
   const u=document.getElementById('login-user').value.trim();
   const p=document.getElementById('login-pass').value;
-  if(USERS[u]!==undefined && USERS[u]===p){
+  if(u===NPK_VALID && p===getPass()){
     document.getElementById('login-err').style.display='none';
     goTo('pabrik');
   }else{
     document.getElementById('login-err').style.display='block';
   }
+}
+function openPwdModal(){ document.getElementById('pwdModal').style.display='flex'; }
+function closePwdModal(){
+  document.getElementById('pwdModal').style.display='none';
+  ['pw-npk','pw-old','pw-new','pw-new2'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pw-msg').style.display='none';
+}
+function savePwd(){
+  const msg=document.getElementById('pw-msg');
+  const npk=document.getElementById('pw-npk').value.trim();
+  const old=document.getElementById('pw-old').value;
+  const n1=document.getElementById('pw-new').value;
+  const n2=document.getElementById('pw-new2').value;
+  function show(t,ok){msg.textContent=t;msg.style.color=ok?'#16a34a':'#e02424';msg.style.display='block';}
+  if(npk!==NPK_VALID || old!==getPass()){ show('NPK atau password lama salah.',false); return; }
+  if(n1.length<4){ show('Password baru minimal 4 karakter.',false); return; }
+  if(n1!==n2){ show('Konfirmasi password tidak cocok.',false); return; }
+  try{ localStorage.setItem('pn_pass',n1); }catch(e){ show('Gagal menyimpan (storage diblokir).',false); return; }
+  show('✅ Password berhasil diubah.',true);
+  setTimeout(closePwdModal,1200);
 }
 
 // ===== SCREENS =====
