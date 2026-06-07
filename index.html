@@ -347,6 +347,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .mt-arrow{color:var(--g400);font-size:22px;flex-shrink:0;}
 .mng-act{flex-shrink:0;width:38px;height:38px;border-radius:10px;background:var(--g100);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;margin-left:6px;}
 .mng-act:active{transform:scale(.92);}
+#itemModal{align-items:flex-end;}
+.sheet{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:440px;padding:16px 18px 22px;max-height:88vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3);}
+.sheet-grip{width:42px;height:5px;border-radius:3px;background:var(--g200);margin:0 auto 14px;}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.sheet-tag{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--g800);line-height:1;}
+.sheet-name{font-size:14px;color:var(--g600);margin-top:3px;}
+.sheet-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;}
+.st-aktif{background:#dcfce7;color:#15803d;}
+.st-non{background:#fee2e2;color:#b91c1c;}
+.sheet-body{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
+.srow{display:flex;gap:10px;font-size:13px;}
+.srow .k{color:var(--g400);min-width:96px;}
+.srow .v{color:var(--g800);font-weight:500;flex:1;word-break:break-word;}
+.sheet-actions{display:flex;gap:10px;}
+.btn-ghost{flex:1;padding:12px;border:1.5px solid var(--g200);background:var(--g50);border-radius:12px;font-size:14px;font-weight:600;color:var(--g800);cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-ghost:active{transform:scale(.97);}
+.mng-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:8px;}
+.sheet-img{width:100%;border-radius:12px;margin-top:6px;}
 .pend-badge{font-size:9px;font-weight:700;background:#fde8c8;color:#b25e00;padding:2px 6px;border-radius:6px;letter-spacing:.4px;}
 .empty{text-align:center;color:var(--g400);font-size:13px;padding:36px 10px;}
 .mi-search{margin-top:12px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 12px;}
@@ -469,9 +487,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="topbar-user" onclick="toggleAdminMenu(event)">👤</div>
     <div id="adminMenu" class="admin-menu">
       <div class="am-head"><b id="am-role">Master Admin</b><span id="am-npk">NPK: admin</span></div>
-      <div class="am-item" onclick="closeAdminMenu();openAddItem()">➕ Tambah Item</div>
-      <div class="am-item" onclick="closeAdminMenu();openOpModal()">👥 Tambah Operator</div>
-      <div class="am-item" onclick="closeAdminMenu();goTo('manage')">🗂️ Kelola Item (edit/hapus)</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();openAddItem()">➕ Tambah Item</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();openOpModal()">👥 Tambah Operator</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();goTo('manage')">📋 All Item List (kelola)</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('pending')">⏳ Pending</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('maint')">🛠️ Maintenance</div>
       <div class="am-sep"></div>
@@ -632,11 +650,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 <!-- ===== KELOLA ITEM ===== -->
 <div id="screen-manage" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🗂️ Kelola Item</div><div style="width:44px"></div></div>
-    <p class="ph-sub" id="mng-sub">Edit atau hapus item</p>
-    <div class="mi-search"><input id="mng-search" placeholder="Cari item…" oninput="renderManage()"><span>🔎</span></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📋 Semua Item</div><div style="width:44px"></div></div>
+    <p class="ph-sub" id="mng-sub">Termasuk item non-aktif · ketuk untuk detail</p>
+    <div class="mi-search"><input id="mng-search" placeholder="Cari item…" oninput="renderAllItems()"><span>🔎</span></div>
   </div>
   <div class="page-body"><div id="mng-list" class="mt-list"></div></div>
+</div>
+
+<!-- MODAL DETAIL ITEM -->
+<div id="itemModal" class="modal-bg" style="display:none;">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <div><div class="sheet-tag" id="im-tag">—</div><div class="sheet-name" id="im-name">—</div></div>
+      <span class="sheet-status" id="im-status">—</span>
+    </div>
+    <div class="sheet-body" id="im-body"></div>
+    <div class="sheet-actions admin-only">
+      <button class="btn-ghost" onclick="editFromModal()">✏️ Edit</button>
+      <button class="btn-ghost" id="im-toggle" onclick="toggleStatusFromModal()">Non-aktifkan</button>
+    </div>
+    <p class="login-note" style="cursor:pointer;text-align:center;margin-top:10px;" onclick="closeItemModal()">Tutup</p>
+  </div>
 </div>
 
 <!-- MODAL KONFIRMASI NPK -->
@@ -644,7 +679,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
   <div class="login-card" style="max-width:340px;">
     <h2 id="npk-title">Konfirmasi</h2>
     <p id="npk-desc">Masukkan NPK Anda untuk melanjutkan.</p>
-    <div class="form-group"><label>NPK (angka)</label><input id="npk-in" inputmode="numeric" placeholder="mis. 123456" onkeydown="if(event.key==='Enter')npkConfirm()"></div>
+    <div class="form-group"><label>NPK (angka)</label><input id="npk-in" inputmode="numeric" placeholder="mis. 4254863" onkeydown="if(event.key==='Enter')npkConfirm()"></div>
     <p id="npk-msg" style="display:none;font-size:12px;margin:-8px 0 14px;color:#e02424;"></p>
     <button class="btn-login" id="npk-btn" onclick="npkConfirm()">Konfirmasi</button>
     <p class="login-note" style="cursor:pointer" onclick="closeNpk()">Batal</p>
@@ -815,7 +850,7 @@ function selectPabrik(id,name){
   const info=document.getElementById('pabrikInfo'); if(info){const pp=info.querySelector('p'); if(pp)pp.innerHTML='<b>'+selectedPlantName+'</b> dipilih \u2014 Ketuk Lanjut untuk memilih area';}
 }
 
-let selectedUnit=null, selectedUnitName='', areaMap={}, myId=null;
+let selectedUnit=null, selectedUnitName='', areaMap={}, areaById={}, myId=null, editingDbId=null, allItemsCache=[], detailRow=null;
 function unitIcon(n){n=(n||'').toLowerCase(); if(n.includes('urea'))return '\ud83c\udf31'; if(n.includes('utility'))return '\u26a1'; if(n.includes('boiler'))return '\ud83d\udd25'; if(n.includes('storage'))return '\ud83d\udee2\ufe0f'; if(n.includes('ppu'))return '\ud83d\udd27'; return '\ud83e\uddea';}
 function unitCls(n){n=(n||'').toLowerCase(); if(n.includes('urea'))return 'urea'; if(n.includes('utility'))return 'utility'; return 'ammonia';}
 async function loadUnits(){
@@ -849,8 +884,7 @@ async function enterArea(){
   goTo('home');
 }
 async function loadItemsForUnit(){
-  areaMap={};
-  let areaById={}; let names=[];
+  areaMap={}; areaById={}; let names=[];
   try{
     const {data:areas}=await sb.from('areas').select('id,name').eq('unit_id',selectedUnit).order('sort');
     (areas||[]).forEach(a=>{ areaById[a.id]=a.name; areaMap[a.name]=a.id; names.push(a.name); });
@@ -858,7 +892,7 @@ async function loadItemsForUnit(){
   AREAS[selectedArea]=names;
   ITEMS.length=0;
   try{
-    const {data:items}=await sb.from('items').select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).order('tag');
+    const {data:items}=await sb.from('items').select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).eq('is_active',true).order('tag');
     (items||[]).forEach(r=>{
       const fl=(r.floor===''||r.floor==null)?0:(isNaN(+r.floor)?r.floor:+r.floor);
       ITEMS.push({_dbid:r.id,id:r.tag,name:r.name,func:r.func||'',type:r.type||'',plant:selectedArea,
@@ -901,6 +935,8 @@ async function afterLogin(user){
   const {data,error}=await sb.from('profiles').select('npk,name,role,plant_id').eq('id',user.id).single();
   if(error||!data){ if(err){err.textContent='Profil tidak ditemukan. Hubungi admin.';err.style.color='#e02424';err.style.display='block';} await sb.auth.signOut(); return; }
   profile=data; myId=user.id;
+  const isAdmin=(data.role==='master'||data.role==='plant_admin');
+  document.querySelectorAll('.admin-only').forEach(el=>{ el.style.display=isAdmin?'':'none'; });
   if(err)err.style.display='none';
   const amr=document.getElementById('am-role'); if(amr)amr.textContent=roleLabel(data);
   const amn=document.getElementById('am-npk'); if(amn)amn.textContent='NPK: '+data.npk;
@@ -976,7 +1012,7 @@ function goTo(id){
   if(id==='map') setTimeout(initMap,40);
   if(id==='pending'){ const s=document.getElementById('pend-search'); if(s)s.value=''; renderPending(); }
   if(id==='maint'){ const s=document.getElementById('maint-search'); if(s)s.value=''; renderMaint(); }
-  if(id==='manage'){ const s=document.getElementById('mng-search'); if(s)s.value=''; renderManage(); }
+  if(id==='manage'){ const s=document.getElementById('mng-search'); if(s)s.value=''; renderAllItems(); }
 }
 
 function setTab(id){
@@ -1138,7 +1174,7 @@ function openAddItem(){
 }
 function openEditItem(id){
   const it=itemById(id); if(!it.id)return;
-  editingId=id;
+  editingId=id; editingDbId=it._dbid;
   document.getElementById('add-title').textContent='Edit Item';
   document.getElementById('ai-type').innerHTML=TYPES.map(t=>`<option ${t===it.type?'selected':''}>${t}</option>`).join('');
   document.getElementById('ai-area').innerHTML='<option value="">(tanpa area)</option>'+(AREAS[selectedArea]||[]).map(a=>`<option ${a===it.area?'selected':''}>${a}</option>`).join('');
@@ -1178,9 +1214,10 @@ function saveNewItem(){
   if(editingId){
     askNpk('Konfirmasi Edit','Masukkan NPK Anda untuk menyimpan perubahan item '+tag+'.','Simpan Perubahan',function(npk){
       info('Menyimpan\u2026');
-      sb.from('items').update(payload).eq('id',itemById(editingId)._dbid).then(async ({error})=>{
+      sb.from('items').update(payload).eq('id',editingDbId).then(async ({error})=>{
         if(error){ err('Gagal: '+error.message); return; }
-        await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems()); renderManage();
+        logAudit('edit_item',tag,'edit data',npk);
+        await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems()); try{await renderAllItems();}catch(e){}
         closeAddItem();
       });
     });
@@ -1225,6 +1262,82 @@ function askDelete(id){
   });
 }
 
+// ===== ALL ITEM LIST + POP-UP DETAIL =====
+function flNum(f){ return (f===''||f==null)?0:(isNaN(+f)?f:+f); }
+async function renderAllItems(){
+  const listEl=document.getElementById('mng-list');
+  listEl.innerHTML='<div class="empty">Memuat\u2026</div>';
+  try{
+    const {data:items,error}=await sb.from('items')
+      .select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id,is_active')
+      .eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).order('tag');
+    if(error) throw error;
+    allItemsCache=items||[];
+  }catch(e){ listEl.innerHTML='<div class="empty">Gagal memuat item.</div>'; return; }
+  let list=allItemsCache;
+  const q=(document.getElementById('mng-search')?.value||'').trim().toLowerCase();
+  if(q) list=list.filter(i=>((i.tag||'')+' '+(i.name||'')).toLowerCase().includes(q));
+  document.getElementById('mng-sub').textContent=allItemsCache.length+' item (termasuk non-aktif) \u00b7 ketuk untuk detail';
+  listEl.innerHTML=list.length?list.map(i=>`
+    <div class="mt-card" onclick="openItemDetail('${i.id}')">
+      <div class="mt-ic">${iconForType(i.type)}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="mt-tag">${i.tag}${i.is_active?'':'<span class="mng-badge st-non">NON-AKTIF</span>'}</div>
+        <div class="mt-name">${i.name||''}</div>
+        <div class="mt-meta">${areaById[i.area_id]||'(tanpa area)'} \u00b7 Lt. ${floorTxt(flNum(i.floor))}</div>
+      </div>
+      <div class="mt-arrow">\u203a</div>
+    </div>`).join(''):'<div class="empty">Tidak ada item.</div>';
+}
+function srow(k,v){ return '<div class="srow"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
+function openItemDetail(dbid){
+  const r=allItemsCache.find(x=>x.id===dbid); if(!r)return; detailRow=r;
+  document.getElementById('im-tag').textContent=r.tag;
+  document.getElementById('im-name').textContent=r.name||'';
+  const st=document.getElementById('im-status');
+  st.textContent=r.is_active?'AKTIF':'NON-AKTIF'; st.className='sheet-status '+(r.is_active?'st-aktif':'st-non');
+  let body=srow('Fungsi',r.func||'-')+srow('Tipe',r.type||'-')+srow('Area',areaById[r.area_id]||'(tanpa area)')
+    +srow('Lantai',floorTxt(flNum(r.floor)))
+    +srow('Koordinat',(r.lat!=null&&r.lon!=null)?(r.lat+', '+r.lon):'-')
+    +srow('Petunjuk',r.hint||'-');
+  if(r.photo_path) body+=srow('Foto',r.photo_path);
+  if(r.sv_path) body+=srow('Street View',r.sv_path);
+  document.getElementById('im-body').innerHTML=body;
+  document.getElementById('im-toggle').textContent=r.is_active?'Non-aktifkan':'Aktifkan';
+  document.getElementById('itemModal').style.display='flex';
+}
+function closeItemModal(){ document.getElementById('itemModal').style.display='none'; detailRow=null; }
+function editFromModal(){ if(!detailRow)return; const r=detailRow; closeItemModal(); openEditRow(r); }
+function openEditRow(r){
+  editingId=r.tag; editingDbId=r.id;
+  document.getElementById('add-title').textContent='Edit Item';
+  document.getElementById('ai-type').innerHTML=TYPES.map(t=>`<option ${t===r.type?'selected':''}>${t}</option>`).join('');
+  const aName=areaById[r.area_id]||'';
+  document.getElementById('ai-area').innerHTML='<option value="">(tanpa area)</option>'+(AREAS[selectedArea]||[]).map(a=>`<option ${a===aName?'selected':''}>${a}</option>`).join('');
+  document.getElementById('ai-tag').value=r.tag; document.getElementById('ai-tag').readOnly=true;
+  document.getElementById('ai-name').value=r.name||'';
+  document.getElementById('ai-func').value=r.func||'';
+  document.getElementById('ai-floor').value=((r.floor===''||r.floor==null)?'':r.floor);
+  document.getElementById('ai-coord').value=(r.lat!=null&&r.lon!=null)?(r.lat+','+r.lon):'';
+  document.getElementById('ai-hint').value=(r.hint&&r.hint!=='(belum ada petunjuk)')?r.hint:'';
+  setDropName('photo',r.photo_path||''); setDropName('sv',r.sv_path||'');
+  document.getElementById('ai-msg').style.display='none';
+  document.getElementById('addModal').style.display='flex';
+}
+function toggleStatusFromModal(){
+  if(!detailRow)return; const r=detailRow; const na=!r.is_active;
+  const verb=na?'mengaktifkan':'menon-aktifkan';
+  askNpk((na?'Aktifkan':'Non-aktifkan')+' Item','Masukkan NPK Anda untuk '+verb+' item '+r.tag+'. Riwayat tetap tersimpan.',(na?'Aktifkan':'Non-aktifkan'),function(npk){
+    sb.from('items').update({is_active:na}).eq('id',r.id).then(async ({error})=>{
+      if(error){ alert('Gagal: '+error.message); return; }
+      logAudit(na?'restore_item':'archive_item', r.tag, verb, npk);
+      closeItemModal();
+      await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
+      await renderAllItems();
+    });
+  });
+}
+
 // ===== KONFIRMASI NPK =====
 let npkAction=null;
 function askNpk(title,desc,btn,action){
@@ -1237,13 +1350,20 @@ function askNpk(title,desc,btn,action){
   document.getElementById('npkModal').style.display='flex';
 }
 function closeNpk(){ document.getElementById('npkModal').style.display='none'; npkAction=null; }
-function npkConfirm(){
+async function npkConfirm(){
   const v=document.getElementById('npk-in').value.trim();
   const msg=document.getElementById('npk-msg');
-  if(!/^\d+$/.test(v)){ msg.textContent='NPK harus berupa angka.'; msg.style.display='block'; return; }
+  if(!/^\d+$/.test(v)){ msg.style.color='#e02424'; msg.textContent='NPK harus berupa angka.'; msg.style.display='block'; return; }
+  msg.style.color='#6b7280'; msg.textContent='Memeriksa NPK\u2026'; msg.style.display='block';
+  try{
+    const {data,error}=await sb.rpc('npk_exists',{p:v});
+    if(error){ msg.style.color='#e02424'; msg.textContent='Gagal memeriksa NPK.'; return; }
+    if(!data){ msg.style.color='#e02424'; msg.textContent='NPK tidak terdaftar \u2014 tidak bisa melanjutkan.'; return; }
+  }catch(e){ msg.style.color='#e02424'; msg.textContent='Gangguan koneksi.'; return; }
   const act=npkAction; closeNpk();
   if(act) act(v);
 }
+function logAudit(action,target,detail,npk){ try{ sb.from('audit_log').insert({actor_npk:npk||null,actor_id:myId,action:action,target:target,plant_id:selectedPlant,detail:detail||null}); }catch(e){} }
 
 // ===== LAPISAN DATA: edit & hapus tersimpan (prototipe) =====
 const EDITS_KEY='pn_item_edits', DEL_KEY='pn_item_deleted';
