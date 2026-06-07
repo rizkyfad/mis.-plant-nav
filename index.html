@@ -152,7 +152,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 
 /* ===== HOME ===== */
 #screen-home{background:var(--bg);}
-.home-content{flex:1;overflow-y:auto;padding:20px 16px 8px;}
+.home-content{flex:1;overflow-y:auto;padding:20px 16px 84px;}
 .greeting{margin-bottom:20px;}
 .greeting h3{font-family:'Barlow',sans-serif;font-size:22px;font-weight:700;color:var(--g800);}
 .greeting p{font-size:13px;color:var(--g400);margin-top:2px;}
@@ -207,7 +207,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .badge-floor{font-size:10px;color:var(--g400);}
 
 /* BOTTOM NAV */
-.bottom-nav{background:var(--w);border-top:1px solid var(--g100);padding:8px 0 14px;display:grid;grid-template-columns:repeat(4,1fr);position:sticky;bottom:0;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:50;flex-shrink:0;}
+.bottom-nav{background:var(--w);border-top:1px solid var(--g100);padding:8px 0 14px;display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:440px;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:200;}
 .nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
 .nav-tab .tab-icon{font-size:22px;}
 .nav-tab .tab-label{font-size:10px;font-weight:500;color:var(--g400);}
@@ -335,7 +335,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .ph-back{font-size:14px;color:rgba(255,255,255,.85);cursor:pointer;}
 .ph-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:.5px;}
 .ph-sub{font-size:12px;color:rgba(255,255,255,.7);margin-top:6px;}
-.page-body{flex:1;overflow-y:auto;padding:16px;}
+.page-body{flex:1;overflow-y:auto;padding:16px 16px 84px;}
 .btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--or),var(--ord));color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;margin-bottom:14px;box-shadow:0 4px 14px rgba(255,106,19,.3);}
 .mt-list,.hist-list{display:flex;flex-direction:column;gap:10px;}
 .mt-card{background:var(--w);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;}
@@ -347,7 +347,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .mt-arrow{color:var(--g400);font-size:22px;flex-shrink:0;}
 .mng-act{flex-shrink:0;width:38px;height:38px;border-radius:10px;background:var(--g100);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;margin-left:6px;}
 .mng-act:active{transform:scale(.92);}
-#itemModal{align-items:flex-end;}
+#itemModal,#wrSheet{align-items:flex-end;}
 .sheet{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:440px;padding:16px 18px 22px;max-height:88vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3);}
 .sheet-grip{width:42px;height:5px;border-radius:3px;background:var(--g200);margin:0 auto 14px;}
 .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;}
@@ -365,6 +365,34 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .btn-ghost:active{transform:scale(.97);}
 .mng-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:8px;}
 .sheet-img{width:100%;border-radius:12px;margin-top:6px;}
+.op-sep{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;margin:18px 0 8px;border-top:1px solid var(--g100);padding-top:12px;}
+.op-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.op-row{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--g100);border-radius:10px;background:var(--g50);}
+.op-npk{font-weight:700;color:var(--g800);font-size:14px;}
+.op-tag{font-size:10px;font-weight:700;color:var(--bl);background:#eef4ff;padding:2px 6px;border-radius:6px;margin-left:4px;}
+.op-name{font-size:12px;color:var(--g600);}
+.op-btn{border:none;background:#fff;border:1px solid var(--g200);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:14px;}
+.op-btn:active{transform:scale(.9);}
+.op-row{flex-direction:column;align-items:stretch;gap:0;}
+.op-head{display:flex;flex-direction:column;}
+.op-acts{display:flex;gap:6px;margin-top:8px;}
+.op-acts .op-btn{flex:1;text-align:center;}
+.coord-pin{width:46px;flex:0 0 auto;border:1px solid var(--g200);background:var(--g50);border-radius:10px;font-size:18px;cursor:pointer;}
+.coord-pin:active{transform:scale(.92);}
+.dz-act{margin-top:6px;font-size:12px;}
+.dz-act span{color:#e02424;cursor:pointer;font-weight:600;}
+.area-type-card.locked{opacity:.45;filter:grayscale(.6);}
+.atc-badge.lock{background:#f3f4f6;color:#9ca3af;}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle;flex:0 0 auto;}
+.dot-red{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.15);}
+.dot-green{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15);}
+.mng-filterbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.filt-btn{padding:7px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;}
+.filt-btn.on{background:#fff;color:var(--bl);border-color:#fff;}
+.filt-panel{background:#fff;border:1px solid var(--g100);border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:0 6px 20px rgba(0,0,0,.08);}
+.filt-sec{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;margin:4px 0 6px;}
+.filt-chk{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;margin:3px 6px 3px 0;font-size:13px;color:var(--g800);cursor:pointer;border:1.5px solid var(--g200);border-radius:10px;background:var(--g50);}
+.filt-chk.sel{border-color:var(--bl);background:#eef4ff;color:var(--bl);font-weight:600;}
 .pend-badge{font-size:9px;font-weight:700;background:#fde8c8;color:#b25e00;padding:2px 6px;border-radius:6px;letter-spacing:.4px;}
 .empty{text-align:center;color:var(--g400);font-size:13px;padding:36px 10px;}
 .mi-search{margin-top:12px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 12px;}
@@ -488,8 +516,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div id="adminMenu" class="admin-menu">
       <div class="am-head"><b id="am-role">Master Admin</b><span id="am-npk">NPK: admin</span></div>
       <div class="am-item admin-only" onclick="closeAdminMenu();openAddItem()">➕ Tambah Item</div>
-      <div class="am-item admin-only" onclick="closeAdminMenu();openOpModal()">👥 Tambah Operator</div>
-      <div class="am-item admin-only" onclick="closeAdminMenu();goTo('manage')">📋 All Item List (kelola)</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();openOpModal()">👥 Data Karyawan</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('pending')">⏳ Pending</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('maint')">🛠️ Maintenance</div>
       <div class="am-sep"></div>
@@ -538,12 +565,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="item-list" id="item-list"></div>
   </div>
 
-  <div class="bottom-nav">
-    <div class="nav-tab active" id="tab-home" onclick="goTo('home')"><div class="tab-icon">🏠</div><div class="tab-label">Home</div></div>
-    <div class="nav-tab" onclick="goTo('map');initMap()"><div class="tab-icon">🗺️</div><div class="tab-label">Peta</div></div>
-    <div class="nav-tab" onclick="goTo('pending')"><div class="tab-icon-wrap"><div class="tab-icon">⏳</div><div class="tab-dot" id="pendDot" style="display:none;"></div></div><div class="tab-label">Pending</div></div>
-    <div class="nav-tab" onclick="goTo('maint')"><div class="tab-icon">🛠️</div><div class="tab-label">Maintenance</div></div>
-  </div>
 </div>
 
 <!-- ===== PENDING ===== -->
@@ -554,7 +575,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="mi-search"><input id="pend-search" placeholder="Cari item pending…" oninput="renderPending()"><span>🔎</span></div>
   </div>
   <div class="page-body">
-    <button class="btn-primary" onclick="openWRModal()">+ Buat WR Baru</button>
+    <button class="btn-primary admin-only" onclick="openWRModal()">+ Buat WR Baru</button>
     <div id="pend-list" class="mt-list"></div>
   </div>
 </div>
@@ -587,6 +608,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="form-group"><label>Item</label><select id="wr-item"></select></div>
     <div class="form-group"><label>No. WR</label><input id="wr-no" placeholder="mis. 00011122233344" inputmode="numeric"></div>
     <div class="form-group"><label>Deskripsi Masalah</label><textarea id="wr-prob" rows="3" placeholder="mis. Bocor di bonnet"></textarea></div>
+    <div class="form-group"><label>Foto (opsional)</label>
+      <div class="dropzone" id="dz-wr"><input type="file" id="file-wr" accept="image/*" hidden><div class="dz-text" id="dz-wr-text">📷 Pilih file atau seret ke sini</div></div>
+      <input type="hidden" id="wr-photo"></div>
     <p id="wr-msg" style="display:none;font-size:12px;margin:-8px 0 14px;"></p>
     <button class="btn-login" onclick="saveWR()">Simpan (jadi Pending)</button>
     <p class="login-note" style="cursor:pointer" onclick="closeWRModal()">Batal</p>
@@ -608,6 +632,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
   </div>
 </div>
 
+<!-- MODAL DETAIL WR (pending & riwayat) -->
+<div id="wrSheet" class="modal-bg" style="display:none;">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <div><div class="sheet-tag" id="wrs-tag">—</div><div class="sheet-name" id="wrs-name">—</div></div>
+      <span class="sheet-status" id="wrs-status">—</span>
+    </div>
+    <div class="sheet-body" id="wrs-body"></div>
+    <div class="sheet-actions admin-only" id="wrs-actions"></div>
+    <p class="login-note" style="cursor:pointer;text-align:center;margin-top:10px;" onclick="closeWrSheet()">Tutup</p>
+  </div>
+</div>
+
 <!-- MODAL TAMBAH ITEM -->
 <div id="addModal" class="modal-bg" style="display:none;">
   <div class="login-card" style="max-width:380px;max-height:88vh;overflow-y:auto;">
@@ -619,13 +657,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="form-group"><label>Tipe</label><select id="ai-type"></select></div>
     <div class="form-group"><label>Area</label><select id="ai-area"></select></div>
     <div class="form-group"><label>Lantai / Elevasi</label><input id="ai-floor" placeholder="0 = lantai dasar, 1, 2 …" inputmode="numeric"></div>
-    <div class="form-group"><label>Koordinat (lat,lon) *</label><input id="ai-coord" placeholder="0.1812345,117.4901230" inputmode="text"></div>
+    <div class="form-group"><label>Koordinat (lat,lon)</label>
+      <div style="display:flex;gap:8px;">
+        <input id="ai-coord" placeholder="0.1812345,117.4901230" inputmode="text" style="flex:1;">
+        <button type="button" class="coord-pin" title="Pakai lokasi saya sekarang" onclick="useMyLocation()">📍</button>
+      </div>
+      <p id="coord-hint" style="font-size:11px;color:#9ca3af;margin:6px 0 0;"></p></div>
     <div class="form-group"><label>Petunjuk Lokasi</label><textarea id="ai-hint" rows="2" placeholder="Arah/patokan menuju item"></textarea></div>
     <div class="form-group"><label>Foto Item</label>
       <div class="dropzone" id="dz-photo"><input type="file" id="file-photo" accept="image/*" hidden><div class="dz-text" id="dz-photo-text">📷 Pilih file atau seret ke sini</div></div>
+      <div class="dz-act" id="dz-photo-act" style="display:none;"><span onclick="clearPhotoField('photo')">🗑️ Hapus foto</span></div>
       <input type="hidden" id="ai-photo"></div>
     <div class="form-group"><label>Foto Street View</label>
       <div class="dropzone" id="dz-sv"><input type="file" id="file-sv" accept="image/*" hidden><div class="dz-text" id="dz-sv-text">🌐 Pilih file atau seret ke sini</div></div>
+      <div class="dz-act" id="dz-sv-act" style="display:none;"><span onclick="clearPhotoField('sv')">🗑️ Hapus foto</span></div>
       <input type="hidden" id="ai-sv"></div>
     <p id="ai-msg" style="display:none;font-size:12px;margin:-8px 0 14px;"></p>
     <button class="btn-login" onclick="saveNewItem()">Simpan Item</button>
@@ -635,15 +680,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 
 <!-- MODAL TAMBAH OPERATOR -->
 <div id="opModal" class="modal-bg" style="display:none;">
-  <div class="login-card" style="max-width:360px;">
-    <h2>Tambah Operator</h2>
+  <div class="login-card" id="opCard" style="max-width:380px;max-height:88vh;overflow-y:auto;">
+    <h2 id="op-title">Data Karyawan</h2>
     <p>Daftarkan karyawan. Password awal = NPK (bisa diubah karyawan nanti).</p>
     <div class="form-group"><label>NPK (angka)</label><input id="op-npk" inputmode="numeric" placeholder="mis. 4254863"></div>
     <div class="form-group"><label>Nama Karyawan</label><input id="op-name" placeholder="Nama lengkap"></div>
-    <div class="form-group"><label>Pabrik</label><select id="op-plant"></select></div>
+    <div class="form-group"><label>Pabrik</label><select id="op-plant" onchange="onOpPlantChange()"></select></div>
+    <div class="form-group"><label>Unit (khusus operator)</label><select id="op-unit"></select></div>
     <p id="op-msg" style="display:none;font-size:12px;margin:-8px 0 14px;"></p>
-    <button class="btn-login" onclick="saveOperator()">Daftarkan</button>
-    <p class="login-note" style="cursor:pointer" onclick="closeOpModal()">Batal</p>
+    <button class="btn-login" id="op-save-btn" onclick="saveOperator()">Daftarkan</button>
+    <p id="op-cancel" class="login-note" style="display:none;cursor:pointer;text-align:center;" onclick="cancelEdit()">Batal edit</p>
+    <div class="op-sep">Daftar karyawan</div>
+    <div id="op-list" class="op-list"><div class="empty">Memuat…</div></div>
+    <p class="login-note" style="cursor:pointer" onclick="closeOpModal()">Tutup</p>
   </div>
 </div>
 
@@ -653,8 +702,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📋 Semua Item</div><div style="width:44px"></div></div>
     <p class="ph-sub" id="mng-sub">Termasuk item non-aktif · ketuk untuk detail</p>
     <div class="mi-search"><input id="mng-search" placeholder="Cari item…" oninput="renderAllItems()"><span>🔎</span></div>
+    <div class="mng-filterbar">
+      <button class="filt-btn" id="filt-toggle" onclick="toggleMngPanel()">⚙ Filter</button>
+      <button class="filt-btn" id="filt-inc" onclick="toggleFiltInc()">🔴 Belum lengkap</button>
+      <button class="filt-btn" id="filt-reset" onclick="resetFilt()" style="display:none">Reset</button>
+    </div>
   </div>
-  <div class="page-body"><div id="mng-list" class="mt-list"></div></div>
+  <div class="page-body"><div id="mng-top"></div><div id="mng-list" class="mt-list"></div></div>
 </div>
 
 <!-- MODAL DETAIL ITEM -->
@@ -790,6 +844,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
   </div>
 </div>
 
+  <!-- MENU BAWAH GLOBAL -->
+  <div class="bottom-nav" id="globalNav" style="display:none;">
+    <div class="nav-tab" id="tab-home" onclick="goTo('home')"><div class="tab-icon">🏠</div><div class="tab-label">Home</div></div>
+    <div class="nav-tab" id="tab-map" onclick="goTo('map');initMap()"><div class="tab-icon">🗺️</div><div class="tab-label">Peta</div></div>
+    <div class="nav-tab" id="tab-pending" onclick="goTo('pending')"><div class="tab-icon-wrap"><div class="tab-icon">⏳</div><div class="tab-dot" id="pendDot" style="display:none;"></div></div><div class="tab-label">Pending</div></div>
+    <div class="nav-tab" id="tab-maint" onclick="goTo('maint')"><div class="tab-icon">🛠️</div><div class="tab-label">Maint.</div></div>
+    <div class="nav-tab" id="tab-allitem" onclick="goTo('manage')"><div class="tab-icon">📋</div><div class="tab-label">All Item</div></div>
+  </div>
+
 </div>
 <script>
 const ITEMS=[
@@ -831,7 +894,7 @@ async function loadPabrik(){
     const isAdmin = profile && (profile.role==='master'||profile.role==='plant_admin');
     grid.innerHTML=plants.map(p=>{
       const has=plantHasData.has(p.id);
-      const locked=!isAdmin && !has;
+      let locked; if(isAdmin) locked=false; else if(profile && profile.role==='operator' && profile.plant_id) locked=(p.id!==profile.plant_id); else locked=!has;
       const click = locked ? 'lockedTap()' : ("selectPabrik('"+p.id+"','"+(p.name||'').replace(/'/g,'')+"')");
       return '<div class=\"pabrik-card'+(locked?' locked':'')+'\" id=\"pc-'+p.id+'\" onclick=\"'+click+'\">'
         + (locked?'<div class=\"pc-lock\">\ud83d\udd12</div>':'')
@@ -862,14 +925,20 @@ async function loadUnits(){
     const {data:units,error}=await sb.from('units').select('id,name').eq('plant_id',selectedPlant).order('sort');
     if(error) throw error;
     if(!units.length){ wrap.innerHTML='<div style=\"text-align:center;color:#9ca3af;padding:24px;\">Belum ada unit.</div>'; return; }
+    const isOp = profile && profile.role==='operator';
+    const opUnit = profile && profile.unit_id;
     wrap.innerHTML=units.map(u=>{
       const nm=(u.name||'').replace(/'/g,'');
-      return '<div class=\"area-type-card\" id=\"atc-'+u.id+'\" onclick=\"selectArea(\''+u.id+'\',\''+nm+'\')\">'
+      const locked = isOp && opUnit && u.id!==opUnit;
+      const click = locked ? 'lockedTap()' : ('selectArea(\''+u.id+'\',\''+nm+'\')');
+      return '<div class=\"area-type-card'+(locked?' locked':'')+'\" id=\"atc-'+u.id+'\" onclick=\"'+click+'\">'
         +'<div class=\"atc-icon '+unitCls(u.name)+'\">'+unitIcon(u.name)+'</div>'
         +'<div class=\"atc-info\"><div class=\"atc-name\">'+u.name+'</div></div>'
-        +'<div class=\"atc-badge aktif\">\u25cf Aktif</div></div>';
+        +'<div class=\"atc-badge '+(locked?'lock':'aktif')+'\">'+(locked?'\ud83d\udd12':'\u25cf Aktif')+'</div></div>';
     }).join('');
-    const first=wrap.querySelector('.area-type-card'); if(first) first.click();
+    let target = (isOp && opUnit) ? wrap.querySelector('#atc-'+opUnit) : null;
+    if(!target) target = wrap.querySelector('.area-type-card:not(.locked)');
+    if(target) target.click();
   }catch(e){ wrap.innerHTML='<div style=\"text-align:center;color:#e02424;padding:24px;\">Gagal memuat unit.</div>'; }
 }
 function selectArea(id,name){
@@ -900,7 +969,7 @@ async function loadItemsForUnit(){
         hint:r.hint||'(belum ada petunjuk)',lat:r.lat,lon:r.lon,photo:r.photo_path||'',sv:r.sv_path||''});
     });
   }catch(e){}
-  if(map){ for(const k in markers){ try{ if(map.hasLayer(markers[k]))map.removeLayer(markers[k]); }catch(e){} delete markers[k]; } ITEMS.forEach(it=>makeMarker(it)); }
+  if(map){ for(const k in markers){ try{ if(map.hasLayer(markers[k]))map.removeLayer(markers[k]); }catch(e){} delete markers[k]; } ITEMS.forEach(it=>{ if(hasCoord(it)) makeMarker(it); }); }
 }
 
 function lockedTap(){
@@ -932,7 +1001,7 @@ async function doLogin(){
 }
 async function afterLogin(user){
   const err=document.getElementById('login-err');
-  const {data,error}=await sb.from('profiles').select('npk,name,role,plant_id').eq('id',user.id).single();
+  const {data,error}=await sb.from('profiles').select('npk,name,role,plant_id,unit_id').eq('id',user.id).single();
   if(error||!data){ if(err){err.textContent='Profil tidak ditemukan. Hubungi admin.';err.style.color='#e02424';err.style.display='block';} await sb.auth.signOut(); return; }
   profile=data; myId=user.id;
   const isAdmin=(data.role==='master'||data.role==='plant_admin');
@@ -1013,6 +1082,9 @@ function goTo(id){
   if(id==='pending'){ const s=document.getElementById('pend-search'); if(s)s.value=''; renderPending(); }
   if(id==='maint'){ const s=document.getElementById('maint-search'); if(s)s.value=''; renderMaint(); }
   if(id==='manage'){ const s=document.getElementById('mng-search'); if(s)s.value=''; renderAllItems(); }
+  const NAVMAP={home:'tab-home',map:'tab-map',pending:'tab-pending',maint:'tab-maint',manage:'tab-allitem'};
+  const gnav=document.getElementById('globalNav');
+  if(gnav){ if(NAVMAP[id]){ gnav.style.display='grid'; setTab(NAVMAP[id]); } else { gnav.style.display='none'; } }
 }
 
 function setTab(id){
@@ -1022,110 +1094,104 @@ function setTab(id){
 function floorTxt(f){return (f===0||f==='0')?'Dasar':f;}
 
 // ===== MAINTENANCE & PENDING (prototipe, data contoh, tersimpan sementara di perangkat) =====
-const WR_KEY='pn_wr_v1';
-const WR_SEED=[
- {wr:'00011122233344',itemId:'FV-3',plant:'ammonia',problem:'Bocor di bonnet',created:'2026-05-28',status:'selesai',done:'2026-05-30',note:'Ganti packing',photo:'FV-3_wr1.jpg'},
- {wr:'00011122233355',itemId:'FV-3',plant:'ammonia',problem:'Stem macet saat dibuka',created:'2026-03-12',status:'selesai',done:'2026-03-13',note:'Ganti gland packing & lubrikasi stem',photo:''},
- {wr:'00011122233366',itemId:'P-201',plant:'ammonia',problem:'Vibrasi tinggi',created:'2026-06-01',status:'selesai',done:'2026-06-02',note:'Balancing & ganti bearing',photo:''},
- {wr:'00011122233377',itemId:'PT-101',plant:'ammonia',problem:'Pembacaan drift / tidak akurat',created:'2026-06-04',status:'pending',done:'',note:'',photo:''},
- {wr:'00011122233388',itemId:'CV-8',plant:'ammonia',problem:'Tidak menutup penuh',created:'2026-06-05',status:'pending',done:'',note:'',photo:''},
-];
-function getWRs(){ try{const r=localStorage.getItem(WR_KEY); if(r)return JSON.parse(r);}catch(e){} try{localStorage.setItem(WR_KEY,JSON.stringify(WR_SEED));}catch(e){} return JSON.parse(JSON.stringify(WR_SEED)); }
-function saveWRs(a){ try{localStorage.setItem(WR_KEY,JSON.stringify(a));}catch(e){} }
+// ===== STORAGE FOTO =====
+let pendingFiles={photo:null,sv:null,done:null,wr:null};
+async function uploadPhoto(file,folder){
+  if(!file) return '';
+  const ext=((file.name||'img').split('.').pop()||'jpg').toLowerCase();
+  const path=(folder||'misc')+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
+  const {error}=await sb.storage.from('photos').upload(path,file,{upsert:false});
+  if(error) throw error;
+  return path;
+}
+function photoUrl(path){ if(!path) return ''; if(/^https?:/.test(path)) return path; try{ const {data}=sb.storage.from('photos').getPublicUrl(path); return data.publicUrl; }catch(e){ return ''; } }
+
+// ===== HELPER =====
 function itemById(id){ return ITEMS.find(i=>i.id===id)||{}; }
-function fmtDate(d){ if(!d)return '-'; const p=d.split('-'); const bl=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des']; return p[2]+' '+bl[parseInt(p[1])-1]+' '+p[0]; }
-function daysSince(d){ return Math.max(0,Math.round((new Date()-new Date(d))/86400000)); }
 function today(){ return new Date().toISOString().slice(0,10); }
+function fmtTS(ts){ if(!ts)return '-'; const d=new Date(ts); const bl=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des']; return d.getDate()+' '+bl[d.getMonth()]+' '+d.getFullYear(); }
+function daysSinceTS(ts){ if(!ts)return 0; return Math.max(0,Math.round((Date.now()-new Date(ts))/86400000)); }
 
-function updatePendDot(){
-  const n=getWRs().filter(w=>w.status==='pending'&&w.plant===selectedArea).length;
-  const dot=document.getElementById('pendDot'); if(dot)dot.style.display=n>0?'block':'none';
+// ===== MAINTENANCE & PENDING (work_requests DB) =====
+let wrCache=[], maintCache=[], curWR=null, curMaintItem=null;
+
+async function fetchWR(status){
+  const {data,error}=await sb.from('work_requests')
+    .select('id,wr_no,problem,status,created_at,reporter_npk,done_npk,repair_note,done_at,photo_path,done_photo_path,item_id, items!inner(tag,name,type,unit_id)')
+    .eq('plant_id',selectedPlant).eq('status',status).eq('items.unit_id',selectedUnit)
+    .order(status==='pending'?'created_at':'done_at',{ascending:false});
+  if(error) throw error; return data||[];
 }
-
-function renderPending(){
-  let list=getWRs().filter(w=>w.status==='pending'&&w.plant===selectedArea).sort((a,b)=>a.created<b.created?1:-1);
+async function updatePendDot(){
+  try{ const list=await fetchWR('pending'); wrCache=list; const dot=document.getElementById('pendDot'); if(dot)dot.style.display=list.length>0?'block':'none'; }catch(e){}
+}
+async function renderPending(){
+  const el=document.getElementById('pend-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
+  try{ wrCache=await fetchWR('pending'); }catch(e){ el.innerHTML='<div class="empty">Gagal memuat.</div>'; return; }
+  let list=wrCache;
   const q=(document.getElementById('pend-search')?.value||'').trim().toLowerCase();
-  if(q) list=list.filter(w=>{const it=itemById(w.itemId);return (w.itemId+' '+(it.name||'')+' '+w.problem).toLowerCase().includes(q);});
-  document.getElementById('pend-sub').textContent=list.length+' item menunggu perbaikan';
-  document.getElementById('pend-list').innerHTML=list.length?list.map(w=>{const it=itemById(w.itemId);return `
-    <div class="mt-card" onclick="openDone('${w.wr}')">
-      <div class="mt-ic">${it.icon||'🔧'}</div>
+  if(q) list=list.filter(w=>((w.items?.tag||'')+' '+(w.items?.name||'')+' '+(w.problem||'')).toLowerCase().includes(q));
+  document.getElementById('pend-sub').textContent=wrCache.length+' menunggu perbaikan';
+  el.innerHTML=list.length?list.map(w=>`
+    <div class="mt-card" onclick="openPendDetail('${w.id}')">
+      <div class="mt-ic">${iconForType(w.items?.type)}</div>
       <div style="flex:1;min-width:0;">
-        <div class="mt-tag">${w.itemId} <span class="pend-badge">PENDING</span></div>
-        <div class="mt-name">${w.problem}</div>
-        <div class="mt-meta">WR ${w.wr} · ${fmtDate(w.created)} · ${daysSince(w.created)} hari</div>
+        <div class="mt-tag">${w.items?.tag||'?'} <span class="pend-badge">PENDING</span></div>
+        <div class="mt-name">${w.problem||''}</div>
+        <div class="mt-meta">WR ${w.wr_no} \u00b7 ${fmtTS(w.created_at)} \u00b7 ${daysSinceTS(w.created_at)} hari</div>
       </div>
-      <div class="mt-arrow">›</div>
-    </div>`;}).join(''):'<div class="empty">Tidak ada item pending 🎉</div>';
-  updatePendDot();
+      <div class="mt-arrow">\u203a</div>
+    </div>`).join(''):'<div class="empty">Tidak ada item pending \ud83c\udf89</div>';
+  const dot=document.getElementById('pendDot'); if(dot)dot.style.display=wrCache.length>0?'block':'none';
 }
-
-function renderMaint(){
-  const wrs=getWRs().filter(w=>w.status==='selesai'&&w.plant===selectedArea);
-  let ids=[...new Set(wrs.map(w=>w.itemId))];
-  const q=(document.getElementById('maint-search')?.value||'').trim().toLowerCase();
-  if(q) ids=ids.filter(id=>{const it=itemById(id);return (id+' '+(it.name||'')).toLowerCase().includes(q);});
-  document.getElementById('maint-list').innerHTML=ids.length?ids.map(id=>{
-    const it=itemById(id);
-    const recs=wrs.filter(w=>w.itemId===id).sort((a,b)=>a.done<b.done?1:-1);
-    return `<div class="mt-card" onclick="openMaintItem('${id}')">
-      <div class="mt-ic">${it.icon||'🔧'}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="mt-tag">${id}</div>
-        <div class="mt-name">${it.name||''}</div>
-        <div class="mt-meta">${recs.length} riwayat · terakhir ${fmtDate(recs[0].done)}</div>
-      </div>
-      <div class="mt-arrow">›</div>
-    </div>`;}).join(''):'<div class="empty">Belum ada riwayat perbaikan.</div>';
+function openPendDetail(id){
+  const w=wrCache.find(x=>x.id===id); if(!w)return; curWR=w;
+  document.getElementById('wrs-tag').textContent=w.items?.tag||'?';
+  document.getElementById('wrs-name').textContent=w.items?.name||'';
+  const st=document.getElementById('wrs-status'); st.textContent='PENDING'; st.className='sheet-status st-non';
+  let body=srow('No. WR',w.wr_no)+srow('Masalah',w.problem||'-')+srow('Tanggal lapor',fmtTS(w.created_at))+srow('Pelapor (NPK)',w.reporter_npk||'-')+srow('Umur',daysSinceTS(w.created_at)+' hari');
+  if(w.photo_path) body+='<div class="srow"><div class="k">Foto</div><div class="v"><img class="sheet-img" src="'+photoUrl(w.photo_path)+'"></div></div>';
+  document.getElementById('wrs-body').innerHTML=body;
+  document.getElementById('wrs-actions').innerHTML='<button class="btn-ghost" onclick="openDone()">\u2705 Selesaikan</button>';
+  document.getElementById('wrSheet').style.display='flex';
 }
+function closeWrSheet(){ document.getElementById('wrSheet').style.display='none'; curWR=null; }
 
-let curMaintItem=null;
-function openMaintItem(id){ curMaintItem=id; goTo('maint-item'); document.getElementById('mi-search-in').value=''; renderMaintItem(); }
-function renderMaintItem(){
-  const it=itemById(curMaintItem);
-  document.getElementById('mi-title').textContent=curMaintItem;
-  document.getElementById('mi-sub').textContent=(it.name||'')+' · '+(it.area||'');
-  const q=document.getElementById('mi-search-in').value.trim().toLowerCase();
-  let recs=getWRs().filter(w=>w.itemId===curMaintItem&&w.status==='selesai');
-  if(q) recs=recs.filter(w=>(w.problem+' '+w.note).toLowerCase().includes(q));
-  recs.sort((a,b)=>a.done<b.done?1:-1);
-  document.getElementById('mi-list').innerHTML=recs.length?recs.map(w=>`
-    <div class="hist-card">
-      <div class="hist-top"><span class="wr-chip">WR ${w.wr}</span><span class="hist-date">${fmtDate(w.done)}</span></div>
-      <div class="hist-prob"><b>Masalah:</b> ${w.problem}</div>
-      <div class="hist-note"><b>Perbaikan:</b> ${w.note||'-'}</div>
-      <div class="hist-meta">Dibuat ${fmtDate(w.created)} → Selesai ${fmtDate(w.done)}${w.photo?' · 📷 '+w.photo:''}</div>
-    </div>`).join(''):'<div class="empty">Tidak ada riwayat yang cocok.</div>';
-}
-
-// Buat WR baru
+// Buat WR
 function openWRModal(){
-  document.getElementById('wr-item').innerHTML=plantItems().map(i=>`<option value="${i.id}">${i.id} — ${i.name}</option>`).join('');
+  const items=plantItems();
+  document.getElementById('wr-item').innerHTML=items.length?items.map(i=>`<option value="${i._dbid}">${i.id} \u2014 ${i.name}</option>`).join(''):'<option value="">(belum ada item aktif)</option>';
   document.getElementById('wr-no').value=''; document.getElementById('wr-prob').value='';
+  setDropName('wr',''); pendingFiles.wr=null;
   document.getElementById('wr-msg').style.display='none';
   document.getElementById('wrModal').style.display='flex';
 }
 function closeWRModal(){ document.getElementById('wrModal').style.display='none'; }
 function saveWR(){
   const msg=document.getElementById('wr-msg');
-  const itemId=document.getElementById('wr-item').value;
-  const wr=document.getElementById('wr-no').value.trim();
-  const prob=document.getElementById('wr-prob').value.trim();
   function err(t){msg.textContent=t;msg.style.color='#e02424';msg.style.display='block';}
-  if(!wr) return err('No. WR wajib diisi.');
-  const all=getWRs();
-  if(all.some(w=>w.wr===wr)) return err('No. WR sudah ada.');
+  const itemDbId=document.getElementById('wr-item').value;
+  const wrno=document.getElementById('wr-no').value.trim();
+  const prob=document.getElementById('wr-prob').value.trim();
+  if(!itemDbId) return err('Pilih item dulu.');
+  if(!wrno) return err('No. WR wajib diisi.');
   if(!prob) return err('Deskripsi masalah wajib diisi.');
-  all.push({wr,itemId,plant:selectedArea,problem:prob,created:today(),status:'pending',done:'',note:'',photo:''});
-  saveWRs(all); closeWRModal(); renderPending();
+  askNpk('Buat WR','Masukkan NPK Anda sebagai pelapor WR '+wrno+'.','Simpan',async function(npk){
+    let ph='';
+    try{ if(pendingFiles.wr){ msg.style.color='#6b7280'; msg.textContent='Mengunggah foto\u2026'; msg.style.display='block'; ph=await uploadPhoto(pendingFiles.wr,'wr'); } }
+    catch(e){ err('Gagal unggah foto: '+e.message); return; }
+    const {error}=await sb.from('work_requests').insert({wr_no:wrno,item_id:itemDbId,plant_id:selectedPlant,problem:prob,status:'pending',photo_path:ph||null,created_by:myId,reporter_npk:npk});
+    if(error){ err((error.code==='23505'||(error.message||'').includes('duplicate'))?'No. WR sudah ada.':('Gagal: '+error.message)); return; }
+    logAudit('create_wr', null, 'WR '+wrno, npk);
+    pendingFiles.wr=null; closeWRModal(); renderPending();
+  });
 }
 
 // Selesaikan WR
-let curDoneWR=null;
-function openDone(wr){
-  curDoneWR=wr; const w=getWRs().find(x=>x.wr===wr); if(!w)return;
-  document.getElementById('done-head').textContent=w.itemId+' · '+w.problem+'  (WR '+w.wr+')';
-  document.getElementById('done-note').value=''; setDropName('done','');
+function openDone(){
+  if(!curWR)return;
+  document.getElementById('done-head').textContent=(curWR.items?.tag||'?')+' \u00b7 '+(curWR.problem||'')+' (WR '+curWR.wr_no+')';
+  document.getElementById('done-note').value=''; setDropName('done',''); pendingFiles.done=null;
   document.getElementById('done-msg').style.display='none';
   document.getElementById('doneModal').style.display='flex';
 }
@@ -1133,10 +1199,76 @@ function closeDoneModal(){ document.getElementById('doneModal').style.display='n
 function confirmDone(){
   const note=document.getElementById('done-note').value.trim();
   const msg=document.getElementById('done-msg');
-  if(!note){ msg.textContent='Catatan perbaikan wajib diisi.'; msg.style.color='#e02424'; msg.style.display='block'; return; }
-  const all=getWRs(); const w=all.find(x=>x.wr===curDoneWR); if(!w)return;
-  w.status='selesai'; w.done=today(); w.note=note; w.photo=document.getElementById('done-photo').value.trim();
-  saveWRs(all); closeDoneModal(); renderPending();
+  function err(t){msg.textContent=t;msg.style.color='#e02424';msg.style.display='block';}
+  if(!note) return err('Catatan perbaikan wajib diisi.');
+  const w=curWR; if(!w)return;
+  askNpk('Selesaikan WR','Masukkan NPK Anda untuk menutup WR '+w.wr_no+'.','Tandai Selesai',async function(npk){
+    let dphoto='';
+    try{ if(pendingFiles.done){ msg.style.color='#6b7280'; msg.textContent='Mengunggah foto\u2026'; msg.style.display='block'; dphoto=await uploadPhoto(pendingFiles.done,'wr'); } }
+    catch(e){ err('Gagal unggah foto: '+e.message); return; }
+    const {error}=await sb.from('work_requests').update({status:'selesai',repair_note:note,done_photo_path:dphoto||null,done_by:myId,done_npk:npk,done_at:new Date().toISOString()}).eq('id',w.id);
+    if(error){ err('Gagal: '+error.message); return; }
+    logAudit('done_wr', w.items?.tag||null, 'WR '+w.wr_no+' selesai', npk);
+    pendingFiles.done=null; closeDoneModal(); closeWrSheet(); renderPending();
+  });
+}
+
+// Riwayat Maintenance (per item)
+async function renderMaint(){
+  const el=document.getElementById('maint-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
+  let data;
+  try{ data=await fetchWR('selesai'); }catch(e){ el.innerHTML='<div class="empty">Gagal memuat.</div>'; return; }
+  const byItem={};
+  data.forEach(w=>{ const k=w.item_id; (byItem[k]=byItem[k]||{tag:w.items?.tag,name:w.items?.name,type:w.items?.type,recs:[]}).recs.push(w); });
+  let ids=Object.keys(byItem);
+  const q=(document.getElementById('maint-search')?.value||'').trim().toLowerCase();
+  if(q) ids=ids.filter(k=>((byItem[k].tag||'')+' '+(byItem[k].name||'')).toLowerCase().includes(q));
+  el.innerHTML=ids.length?ids.map(k=>{const g=byItem[k];return `
+    <div class="mt-card" onclick="openMaintItem('${k}')">
+      <div class="mt-ic">${iconForType(g.type)}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="mt-tag">${g.tag||'?'}</div>
+        <div class="mt-name">${g.name||''}</div>
+        <div class="mt-meta">${g.recs.length} riwayat \u00b7 terakhir ${fmtTS(g.recs[0].done_at)}</div>
+      </div>
+      <div class="mt-arrow">\u203a</div>
+    </div>`;}).join(''):'<div class="empty">Belum ada riwayat perbaikan.</div>';
+}
+async function openMaintItem(itemDbId){ curMaintItem=itemDbId; goTo('maint-item'); document.getElementById('mi-search-in').value=''; await renderMaintItem(); }
+async function renderMaintItem(){
+  const el=document.getElementById('mi-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
+  let data;
+  try{
+    const r=await sb.from('work_requests')
+      .select('id,wr_no,problem,repair_note,created_at,done_at,reporter_npk,done_npk,photo_path,done_photo_path, items(tag,name)')
+      .eq('item_id',curMaintItem).eq('status','selesai').order('done_at',{ascending:false});
+    if(r.error) throw r.error; data=r.data||[];
+  }catch(e){ el.innerHTML='<div class="empty">Gagal memuat.</div>'; return; }
+  maintCache=data;
+  const it=data[0]?.items;
+  document.getElementById('mi-title').textContent=it?.tag||'Riwayat';
+  document.getElementById('mi-sub').textContent=it?.name||'';
+  const q=document.getElementById('mi-search-in').value.trim().toLowerCase();
+  let recs=data; if(q) recs=recs.filter(w=>((w.problem||'')+' '+(w.repair_note||'')).toLowerCase().includes(q));
+  el.innerHTML=recs.length?recs.map(w=>`
+    <div class="hist-card" onclick="openMaintDetail('${w.id}')">
+      <div class="hist-top"><span class="wr-chip">WR ${w.wr_no}</span><span class="hist-date">${fmtTS(w.done_at)}</span></div>
+      <div class="hist-prob"><b>Masalah:</b> ${w.problem||'-'}</div>
+      <div class="hist-note"><b>Perbaikan:</b> ${w.repair_note||'-'}</div>
+      <div class="hist-meta">Lapor ${fmtTS(w.created_at)} \u2192 Selesai ${fmtTS(w.done_at)}${(w.photo_path||w.done_photo_path)?' \u00b7 \ud83d\udcf7':''}</div>
+    </div>`).join(''):'<div class="empty">Tidak ada riwayat cocok.</div>';
+}
+function openMaintDetail(id){
+  const w=maintCache.find(x=>x.id===id); if(!w)return; curWR=w;
+  document.getElementById('wrs-tag').textContent=w.items?.tag||'?';
+  document.getElementById('wrs-name').textContent=w.items?.name||'';
+  const st=document.getElementById('wrs-status'); st.textContent='SELESAI'; st.className='sheet-status st-aktif';
+  let body=srow('No. WR',w.wr_no)+srow('Masalah',w.problem||'-')+srow('Perbaikan',w.repair_note||'-')+srow('Lapor',fmtTS(w.created_at)+' \u00b7 NPK '+(w.reporter_npk||'-'))+srow('Selesai',fmtTS(w.done_at)+' \u00b7 NPK '+(w.done_npk||'-'));
+  if(w.photo_path) body+='<div class="srow"><div class="k">Foto lapor</div><div class="v"><img class="sheet-img" src="'+photoUrl(w.photo_path)+'"></div></div>';
+  if(w.done_photo_path) body+='<div class="srow"><div class="k">Foto perbaikan</div><div class="v"><img class="sheet-img" src="'+photoUrl(w.done_photo_path)+'"></div></div>';
+  document.getElementById('wrs-body').innerHTML=body;
+  document.getElementById('wrs-actions').innerHTML='';
+  document.getElementById('wrSheet').style.display='flex';
 }
 
 // ===== ADMIN MENU + TAMBAH ITEM (master admin = admin/admin) =====
@@ -1168,6 +1300,7 @@ function openAddItem(){
   document.getElementById('ai-area').innerHTML='<option value="">(tanpa area)</option>'+(AREAS[selectedArea]||[]).map(a=>`<option>${a}</option>`).join('');
   ['ai-tag','ai-name','ai-func','ai-floor','ai-coord','ai-hint','ai-photo','ai-sv'].forEach(id=>document.getElementById(id).value='');
   setDropName('photo',''); setDropName('sv','');
+  { const ch=document.getElementById('coord-hint'); if(ch)ch.textContent=''; }
   document.getElementById('ai-tag').readOnly=false;
   document.getElementById('ai-msg').style.display='none';
   document.getElementById('addModal').style.display='flex';
@@ -1189,7 +1322,7 @@ function openEditItem(id){
   document.getElementById('addModal').style.display='flex';
 }
 function closeAddItem(){ document.getElementById('addModal').style.display='none'; editingId=null; }
-function saveNewItem(){
+async function saveNewItem(){
   const msg=document.getElementById('ai-msg');
   function err(t){msg.textContent=t;msg.style.color='#e02424';msg.style.display='block';}
   function info(t){msg.textContent=t;msg.style.color='#6b7280';msg.style.display='block';}
@@ -1200,24 +1333,27 @@ function saveNewItem(){
   if(!tag) return err('Tag/ID wajib diisi.');
   if(!editingId && ITEMS.some(i=>i.id.toLowerCase()===tag.toLowerCase())) return err('Tag/ID sudah ada di unit ini.');
   if(!name) return err('Nama Item wajib diisi.');
-  if(!coord) return err('Koordinat wajib diisi (lat,lon).');
-  const p=coord.split(','); const lat=parseFloat(p[0]), lon=parseFloat(p[1]);
-  if(p.length!==2 || isNaN(lat) || isNaN(lon)) return err('Format koordinat salah. Contoh: 0.1812345,117.4901230');
+  let lat=null, lon=null;
+  if(coord){ const p=coord.split(','); lat=parseFloat(p[0]); lon=parseFloat(p[1]); if(p.length!==2 || isNaN(lat) || isNaN(lon)) return err('Format koordinat salah. Contoh: 0.1812345,117.4901230'); }
   const type=document.getElementById('ai-type').value;
   const areaName=document.getElementById('ai-area').value;
   const fv=parseInt(document.getElementById('ai-floor').value); const floor=isNaN(fv)?0:fv;
+  let photoPath=document.getElementById('ai-photo').value.trim(), svPath=document.getElementById('ai-sv').value.trim();
+  try{
+    if(pendingFiles.photo){ info('Mengunggah foto\u2026'); photoPath=await uploadPhoto(pendingFiles.photo,'item'); }
+    if(pendingFiles.sv){ info('Mengunggah foto\u2026'); svPath=await uploadPhoto(pendingFiles.sv,'item'); }
+  }catch(e){ err('Gagal unggah foto: '+e.message); return; }
   const payload={tag,name,func:document.getElementById('ai-func').value.trim(),type,
     area_id:(areaMap[areaName]||null),floor:String(floor),lat,lon,
     hint:document.getElementById('ai-hint').value.trim(),
-    photo_path:document.getElementById('ai-photo').value.trim(),
-    sv_path:document.getElementById('ai-sv').value.trim()};
+    photo_path:photoPath||null, sv_path:svPath||null};
   if(editingId){
     askNpk('Konfirmasi Edit','Masukkan NPK Anda untuk menyimpan perubahan item '+tag+'.','Simpan Perubahan',function(npk){
       info('Menyimpan\u2026');
       sb.from('items').update(payload).eq('id',editingDbId).then(async ({error})=>{
         if(error){ err('Gagal: '+error.message); return; }
         logAudit('edit_item',tag,'edit data',npk);
-        await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems()); try{await renderAllItems();}catch(e){}
+        pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems()); try{await renderAllItems();}catch(e){}
         closeAddItem();
       });
     });
@@ -1226,7 +1362,7 @@ function saveNewItem(){
     const ins=Object.assign({plant_id:selectedPlant,unit_id:selectedUnit,created_by:myId},payload);
     sb.from('items').insert(ins).then(async ({error})=>{
       if(error){ err(error.code==='23505'?'Tag/ID sudah ada di pabrik ini.':('Gagal: '+error.message)); return; }
-      await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
+      pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
       ok('\u2705 Item '+tag+' tersimpan ke database.');
       setTimeout(closeAddItem,1000);
     });
@@ -1264,6 +1400,21 @@ function askDelete(id){
 
 // ===== ALL ITEM LIST + POP-UP DETAIL =====
 function flNum(f){ return (f===''||f==null)?0:(isNaN(+f)?f:+f); }
+let mngPanelOpen=false, mngFilt={inc:false, types:new Set()};
+function isComplete(r){ return r.lat!=null && r.lon!=null && r.lat!=='' && r.lon!==''; }
+function toggleMngPanel(){ mngPanelOpen=!mngPanelOpen; renderAllItems(); }
+function toggleFiltInc(){ mngFilt.inc=!mngFilt.inc; renderAllItems(); }
+function toggleFiltType(t){ if(mngFilt.types.has(t)) mngFilt.types.delete(t); else mngFilt.types.add(t); renderAllItems(); }
+function resetFilt(){ mngFilt={inc:false,types:new Set()}; renderAllItems(); }
+function buildFilterPanel(){
+  const types=[...new Set(allItemsCache.map(i=>i.type||'(tanpa tipe)'))].sort();
+  let h='<div class="filt-panel"><div class="filt-sec">Kelengkapan</div>';
+  h+=`<span class="filt-chk ${mngFilt.inc?'sel':''}" onclick="toggleFiltInc()">${mngFilt.inc?'☑':'☐'} 🔴 Belum lengkap saja</span>`;
+  h+='<div class="filt-sec" style="margin-top:10px">Jenis Item</div>';
+  h+=types.map(t=>`<span class="filt-chk ${mngFilt.types.has(t)?'sel':''}" onclick="toggleFiltType('${(t+'').replace(/'/g,"\\'")}')">${mngFilt.types.has(t)?'☑':'☐'} ${t}</span>`).join('');
+  h+='</div>';
+  return h;
+}
 async function renderAllItems(){
   const listEl=document.getElementById('mng-list');
   listEl.innerHTML='<div class="empty">Memuat\u2026</div>';
@@ -1274,20 +1425,33 @@ async function renderAllItems(){
     if(error) throw error;
     allItemsCache=items||[];
   }catch(e){ listEl.innerHTML='<div class="empty">Gagal memuat item.</div>'; return; }
-  let list=allItemsCache;
+  let list=allItemsCache.slice();
   const q=(document.getElementById('mng-search')?.value||'').trim().toLowerCase();
   if(q) list=list.filter(i=>((i.tag||'')+' '+(i.name||'')).toLowerCase().includes(q));
-  document.getElementById('mng-sub').textContent=allItemsCache.length+' item (termasuk non-aktif) \u00b7 ketuk untuk detail';
-  listEl.innerHTML=list.length?list.map(i=>`
-    <div class="mt-card" onclick="openItemDetail('${i.id}')">
+  if(mngFilt.inc) list=list.filter(i=>!isComplete(i));
+  if(mngFilt.types.size) list=list.filter(i=>mngFilt.types.has(i.type||'(tanpa tipe)'));
+  // incomplete first, then tag
+  list.sort((a,b)=>{ const ca=isComplete(a)?1:0, cb=isComplete(b)?1:0; if(ca!==cb)return ca-cb; return (a.tag||'').localeCompare(b.tag||''); });
+
+  const nIncomplete=allItemsCache.filter(i=>!isComplete(i)).length;
+  const nActiveFilters=(mngFilt.inc?1:0)+mngFilt.types.size;
+  document.getElementById('filt-toggle').className='filt-btn'+(mngPanelOpen?' on':''); document.getElementById('filt-toggle').textContent='⚙ Filter'+(nActiveFilters?(' ('+nActiveFilters+')'):'');
+  document.getElementById('filt-inc').className='filt-btn'+(mngFilt.inc?' on':'');
+  document.getElementById('filt-reset').style.display=nActiveFilters?'':'none';
+  document.getElementById('mng-top').innerHTML=mngPanelOpen?buildFilterPanel():'';
+  document.getElementById('mng-sub').textContent=allItemsCache.length+' item \u00b7 '+nIncomplete+' belum lengkap';
+
+  listEl.innerHTML=list.length?list.map(i=>{
+    const comp=isComplete(i);
+    return `<div class="mt-card" onclick="openItemDetail('${i.id}')">
       <div class="mt-ic">${iconForType(i.type)}</div>
       <div style="flex:1;min-width:0;">
-        <div class="mt-tag">${i.tag}${i.is_active?'':'<span class="mng-badge st-non">NON-AKTIF</span>'}</div>
+        <div class="mt-tag"><span class="dot ${comp?'dot-green':'dot-red'}" title="${comp?'Lengkap':'Belum lengkap (koordinat kosong)'}"></span>${i.tag}${i.is_active?'':'<span class="mng-badge st-non">NON-AKTIF</span>'}</div>
         <div class="mt-name">${i.name||''}</div>
-        <div class="mt-meta">${areaById[i.area_id]||'(tanpa area)'} \u00b7 Lt. ${floorTxt(flNum(i.floor))}</div>
+        <div class="mt-meta">${i.type||'(tanpa tipe)'} \u00b7 ${areaById[i.area_id]||'(tanpa area)'} \u00b7 Lt. ${floorTxt(flNum(i.floor))}</div>
       </div>
       <div class="mt-arrow">\u203a</div>
-    </div>`).join(''):'<div class="empty">Tidak ada item.</div>';
+    </div>`;}).join(''):'<div class="empty">Tidak ada item sesuai filter.</div>';
 }
 function srow(k,v){ return '<div class="srow"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
 function openItemDetail(dbid){
@@ -1296,7 +1460,8 @@ function openItemDetail(dbid){
   document.getElementById('im-name').textContent=r.name||'';
   const st=document.getElementById('im-status');
   st.textContent=r.is_active?'AKTIF':'NON-AKTIF'; st.className='sheet-status '+(r.is_active?'st-aktif':'st-non');
-  let body=srow('Fungsi',r.func||'-')+srow('Tipe',r.type||'-')+srow('Area',areaById[r.area_id]||'(tanpa area)')
+  let body=srow('Kelengkapan', isComplete(r)?'<span style="color:#15803d;font-weight:700">🟢 Lengkap</span>':'<span style="color:#b91c1c;font-weight:700">🔴 Belum lengkap</span> (koordinat kosong)')
+    +srow('Fungsi',r.func||'-')+srow('Tipe',r.type||'-')+srow('Area',areaById[r.area_id]||'(tanpa area)')
     +srow('Lantai',floorTxt(flNum(r.floor)))
     +srow('Koordinat',(r.lat!=null&&r.lon!=null)?(r.lat+', '+r.lon):'-')
     +srow('Petunjuk',r.hint||'-');
@@ -1321,6 +1486,7 @@ function openEditRow(r){
   document.getElementById('ai-coord').value=(r.lat!=null&&r.lon!=null)?(r.lat+','+r.lon):'';
   document.getElementById('ai-hint').value=(r.hint&&r.hint!=='(belum ada petunjuk)')?r.hint:'';
   setDropName('photo',r.photo_path||''); setDropName('sv',r.sv_path||'');
+  { const ch=document.getElementById('coord-hint'); if(ch)ch.textContent=''; }
   document.getElementById('ai-msg').style.display='none';
   document.getElementById('addModal').style.display='flex';
 }
@@ -1382,27 +1548,115 @@ function plantItems(){ return ITEMS.filter(i=>i.plant===selectedArea); }
 const PLANTS=[['P1A','Pabrik 1A'],['P2','Pabrik 2'],['P3','Pabrik 3'],['P4','Pabrik 4'],['P5','Pabrik 5'],['P6','Pabrik 6']];
 const OPS_KEY='pn_operators';
 function openOpModal(){
-  document.getElementById('op-plant').innerHTML=PLANTS.map(p=>`<option value="${p[0]}">${p[1]}</option>`).join('');
-  document.getElementById('op-npk').value=''; document.getElementById('op-name').value='';
+  const ps=document.getElementById('op-plant');
+  ps.innerHTML=PLANTS.map(p=>`<option value="${p[0]}">${p[1]}</option>`).join('');
+  if(profile && profile.role==='plant_admin' && profile.plant_id){ ps.value=profile.plant_id; ps.disabled=true; }
+  else { ps.disabled=false; }
+  cancelEdit();
   document.getElementById('op-msg').style.display='none';
   document.getElementById('opModal').style.display='flex';
+  fillOpUnits(ps.value,'');
+  loadOperators();
 }
 function closeOpModal(){ document.getElementById('opModal').style.display='none'; }
+function opMsg(t,ok){ const m=document.getElementById('op-msg'); m.textContent=t; m.style.color=ok?'#16a34a':'#e02424'; m.style.display='block'; }
+
+let editingNpk=null, opCache=[];
+async function fetchUnits(plant){ if(!plant) return []; try{ const {data}=await sb.from('units').select('id,name').eq('plant_id',plant).order('sort'); return data||[]; }catch(e){ return []; } }
+async function fillOpUnits(plant, selId){
+  const sel=document.getElementById('op-unit');
+  const units=await fetchUnits(plant);
+  sel.innerHTML='<option value="">(tidak dibatasi unit)</option>'+units.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  sel.value=selId||'';
+}
+function onOpPlantChange(){ fillOpUnits(document.getElementById('op-plant').value,''); }
+
+async function callAdminOps(payload){
+  const {data,error}=await sb.functions.invoke('admin-ops',{body:payload});
+  if(error) throw new Error('Gangguan koneksi ke server.');
+  if(data && data.error) throw new Error(data.error);
+  return data;
+}
+async function loadOperators(){
+  const el=document.getElementById('op-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
+  try{
+    const d=await callAdminOps({action:'list'});
+    opCache=(d.list||[]).filter(o=>o.role!=='master');
+    el.innerHTML=opCache.length?opCache.map(o=>{
+      const tag=o.role==='plant_admin'?('Admin '+o.plant_id):((o.plant_id||'')+(o.unit_name?(' \u00b7 '+o.unit_name):''));
+      return `<div class="op-row">
+        <div class="op-head">
+          <div class="op-npk">${o.npk} <span class="op-tag">${tag}</span></div>
+          <div class="op-name">${o.name||''}</div>
+        </div>
+        <div class="op-acts">
+          <button class="op-btn" title="Edit" onclick="editOp('${o.npk}')">\u270f\ufe0f</button>
+          <button class="op-btn" title="Reset password ke NPK" onclick="resetOp('${o.npk}')">\ud83d\udd11</button>
+          <button class="op-btn" title="Nonaktifkan" onclick="toggleOp('${o.npk}','deactivate')">\ud83d\udeab</button>
+          <button class="op-btn" title="Aktifkan" onclick="toggleOp('${o.npk}','activate')">\u2705</button>
+          <button class="op-btn" title="Hapus permanen" onclick="deleteOp('${o.npk}')">\ud83d\uddd1\ufe0f</button>
+        </div>
+      </div>`;}).join(''):'<div class="empty">Belum ada karyawan terdaftar.</div>';
+  }catch(e){ el.innerHTML='<div class="empty">'+e.message+'</div>'; }
+}
+function editOp(npk){
+  const o=opCache.find(x=>x.npk===npk); if(!o)return;
+  editingNpk=npk;
+  document.getElementById('op-title').textContent='Edit Karyawan';
+  const ni=document.getElementById('op-npk'); ni.value=npk; ni.readOnly=true;
+  document.getElementById('op-name').value=o.name||'';
+  const ps=document.getElementById('op-plant'); ps.value=o.plant_id||'';
+  ps.disabled=(profile && profile.role==='plant_admin');
+  fillOpUnits(o.plant_id, o.unit_id||'');
+  document.getElementById('op-save-btn').textContent='Simpan Perubahan';
+  document.getElementById('op-cancel').style.display='block';
+  document.getElementById('opCard').scrollTop=0;
+}
+function cancelEdit(){
+  editingNpk=null;
+  document.getElementById('op-title').textContent='Data Karyawan';
+  const ni=document.getElementById('op-npk'); ni.value=''; ni.readOnly=false;
+  document.getElementById('op-name').value='';
+  document.getElementById('op-save-btn').textContent='Daftarkan';
+  document.getElementById('op-cancel').style.display='none';
+  const ps=document.getElementById('op-plant');
+  if(profile && profile.role==='plant_admin' && profile.plant_id) ps.value=profile.plant_id;
+}
 function saveOperator(){
-  const msg=document.getElementById('op-msg');
-  function err(t){msg.textContent=t;msg.style.color='#e02424';msg.style.display='block';}
-  const npk=document.getElementById('op-npk').value.trim();
   const name=document.getElementById('op-name').value.trim();
   const plant=document.getElementById('op-plant').value;
-  if(!/^\d+$/.test(npk)) return err('NPK harus berupa angka.');
-  if(!name) return err('Nama wajib diisi.');
-  let ops=[]; try{ops=JSON.parse(localStorage.getItem(OPS_KEY)||'[]');}catch(e){}
-  if(ops.some(o=>o.npk===npk)) return err('NPK sudah terdaftar.');
-  ops.push({npk,name,plant,role:'operator'});
-  try{localStorage.setItem(OPS_KEY,JSON.stringify(ops));}catch(e){}
-  msg.textContent='✅ Operator '+name+' (NPK '+npk+') terdaftar di '+plant+'. Password awal = NPK.';
-  msg.style.color='#16a34a'; msg.style.display='block';
-  setTimeout(closeOpModal,1500);
+  const unit=document.getElementById('op-unit').value||null;
+  if(!name) return opMsg('Nama wajib diisi.',false);
+  if(editingNpk){
+    opMsg('Menyimpan perubahan\u2026',true);
+    callAdminOps({action:'update',npk:editingNpk,name,plant_id:plant,unit_id:unit})
+      .then(()=>{ opMsg('\u2705 Data NPK '+editingNpk+' diperbarui.',true); cancelEdit(); loadOperators(); })
+      .catch(e=>opMsg(e.message,false));
+    return;
+  }
+  const npk=document.getElementById('op-npk').value.trim();
+  if(!/^\d+$/.test(npk)) return opMsg('NPK harus berupa angka.',false);
+  opMsg('Membuat akun\u2026',true);
+  callAdminOps({action:'create',npk,name,plant_id:plant,unit_id:unit,role:'operator'})
+    .then(()=>{ opMsg('\u2705 '+name+' (NPK '+npk+') terdaftar. Password awal = NPK.',true);
+      document.getElementById('op-npk').value=''; document.getElementById('op-name').value=''; loadOperators(); })
+    .catch(e=>opMsg(e.message,false));
+}
+function resetOp(npk){
+  if(!confirm('Reset password NPK '+npk+' kembali ke NPK-nya?'))return;
+  opMsg('Memproses\u2026',true);
+  callAdminOps({action:'reset',npk}).then(()=>opMsg('\u2705 Password NPK '+npk+' direset ke NPK.',true)).catch(e=>opMsg(e.message,false));
+}
+function toggleOp(npk,act){
+  const label=act==='deactivate'?'menonaktifkan':'mengaktifkan';
+  if(!confirm('Yakin '+label+' akun NPK '+npk+'?'))return;
+  opMsg('Memproses\u2026',true);
+  callAdminOps({action:act,npk}).then(()=>opMsg('\u2705 Akun NPK '+npk+' '+(act==='deactivate'?'dinonaktifkan':'diaktifkan')+'.',true)).catch(e=>opMsg(e.message,false));
+}
+function deleteOp(npk){
+  if(!confirm('HAPUS permanen akun NPK '+npk+'?\nAkun login & profilnya dihapus. Riwayat WR yang sudah dibuat tetap tersimpan.'))return;
+  opMsg('Menghapus\u2026',true);
+  callAdminOps({action:'delete',npk}).then(()=>{ opMsg('\u2705 Akun NPK '+npk+' dihapus.',true); if(editingNpk===npk)cancelEdit(); loadOperators(); }).catch(e=>opMsg(e.message,false));
 }
 
 const AREAS={
@@ -1477,6 +1731,7 @@ function renderItemList(list){
 function goToMapItem(id){
   const item=ITEMS.find(i=>i.id===id);
   if(!item)return;
+  if(!hasCoord(item)){ alert('Item '+item.id+' belum punya koordinat. Lengkapi dulu lewat Edit (All Item List).'); return; }
   activeItem=item;
   goTo('map');
   setTimeout(()=>{initMap();showPop(item);},60);
@@ -1610,7 +1865,9 @@ function itemLL(item){
   if(item.lat!=null && item.lon!=null) return {lat:item.lat, lon:item.lon};
   return {lat:PLANT.latMin+(1-item.my)*(PLANT.latMax-PLANT.latMin),lon:PLANT.lonMin+item.mx*(PLANT.lonMax-PLANT.lonMin)};
 }
+function hasCoord(it){ return it.lat!=null && it.lon!=null && !isNaN(+it.lat) && !isNaN(+it.lon); }
 function makeMarker(item){
+  if(!hasCoord(item)) return null;
   const il=itemLL(item);
   const icon=L.divIcon({className:'',html:
     '<div class="item-pin"><span class="ip-tag">'+item.id+'</span><span class="ip-dot"></span></div>',
@@ -1648,7 +1905,7 @@ function initMap(){
     {maxNativeZoom:19, maxZoom:21}).addTo(map);
   map.fitBounds(BOX);
   map.on('click',onMapClick);
-  ITEMS.forEach(item=>{ makeMarker(item); });
+  ITEMS.forEach(item=>{ if(hasCoord(item)) makeMarker(item); });
   meMarker=L.marker([PLANT.latMin,PLANT.lonMin],{interactive:false,zIndexOffset:1000,
     icon:L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]})});
   startGPS();
@@ -1738,18 +1995,39 @@ function distText(m){return m>=1000?(m/1000).toFixed(1)+' km':Math.round(m)+' m'
 function estimate(m){const s=m/1.2;return s<60?'<1 min':Math.ceil(s/60)+' min';}
 
 // ===== UPLOAD FOTO (choose file / drag-drop, auto nama file + pratinjau) =====
-function hiddenOf(prefix){ return document.getElementById(prefix==='done'?'done-photo':'ai-'+prefix); }
+function dzActToggle(prefix,show){ const a=document.getElementById('dz-'+prefix+'-act'); if(a)a.style.display=show?'block':'none'; }
+function clearPhotoField(prefix){
+  try{ pendingFiles[prefix]=null; }catch(e){}
+  hiddenOf(prefix).value='';
+  setDropName(prefix,'');
+}
+function useMyLocation(){
+  const hint=document.getElementById('coord-hint');
+  if(!navigator.geolocation){ hint.style.color='#e02424'; hint.textContent='Perangkat/browser tidak mendukung lokasi.'; return; }
+  hint.style.color='#6b7280'; hint.textContent='Mengambil lokasi GPS\u2026 (izinkan akses lokasi)';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{ const la=pos.coords.latitude.toFixed(7), lo=pos.coords.longitude.toFixed(7);
+      document.getElementById('ai-coord').value=la+','+lo;
+      hint.style.color='#16a34a'; hint.textContent='\u2705 Terisi otomatis (akurasi \u00b1'+Math.round(pos.coords.accuracy)+' m). Pastikan kamu berdiri dekat item.'; },
+    err=>{ hint.style.color='#e02424'; hint.textContent=(err.code===1)?'Izin lokasi ditolak. Aktifkan izin lokasi untuk situs ini.':'Gagal ambil lokasi: '+(err.message||'coba lagi'); },
+    {enableHighAccuracy:true, timeout:12000, maximumAge:0}
+  );
+}
+function hiddenOf(prefix){ return document.getElementById(prefix==='done'?'done-photo':(prefix==='wr'?'wr-photo':'ai-'+prefix)); }
 function setFile(prefix,file){
   if(!file)return;
   const text=document.getElementById('dz-'+prefix+'-text');
-  hiddenOf(prefix).value=file.name;
+  hiddenOf(prefix).value=file.name; try{ pendingFiles[prefix]=file; }catch(e){}
   let thumb=''; try{ thumb='<img class="dz-thumb" src="'+URL.createObjectURL(file)+'">'; }catch(e){}
   text.innerHTML=thumb+'<span class="dz-has">✓ '+file.name+'</span>';
+  dzActToggle(prefix,true);
 }
 function setDropName(prefix,name){
-  const def={photo:'📷 Pilih file atau seret ke sini',sv:'🌐 Pilih file atau seret ke sini',done:'📷 Pilih file atau seret ke sini'};
+  const def={photo:'📷 Pilih file atau seret ke sini',sv:'🌐 Pilih file atau seret ke sini',done:'📷 Pilih file atau seret ke sini',wr:'📷 Pilih file atau seret ke sini'};
+  try{ if(!name) pendingFiles[prefix]=null; }catch(e){}
   hiddenOf(prefix).value=name||'';
   document.getElementById('dz-'+prefix+'-text').innerHTML = name ? '<span class="dz-has">✓ '+name+'</span>' : def[prefix];
+  dzActToggle(prefix, !!name);
 }
 function wireDrop(prefix){
   const zone=document.getElementById('dz-'+prefix), input=document.getElementById('file-'+prefix);
@@ -1760,7 +2038,7 @@ function wireDrop(prefix){
   zone.addEventListener('dragleave',()=>zone.classList.remove('over'));
   zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('over');setFile(prefix,e.dataTransfer.files[0]);});
 }
-['photo','sv','done'].forEach(wireDrop);
+['photo','sv','done','wr'].forEach(wireDrop);
 
 loadCustomItems();
 applyDataLayer();
