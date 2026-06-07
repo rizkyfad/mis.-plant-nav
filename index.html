@@ -43,6 +43,33 @@ body{background:#0d1117;min-height:100vh;display:flex;justify-content:center;}
 .ok h3{font-size:16px;color:var(--g800);margin-bottom:8px;}
 .ok p{font-size:13px;color:var(--g600);line-height:1.6;}
 .ok b{color:var(--g800);}
+.topleft{display:flex;align-items:center;gap:10px;}
+.backb{background:rgba(255,255,255,.18);border:none;color:#fff;width:32px;height:32px;border-radius:9px;font-size:20px;line-height:1;cursor:pointer;}
+.pane{display:none;}
+.pane.active{display:block;}
+.pane-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;color:var(--g800);margin-bottom:2px;}
+.pane-sub{font-size:13px;color:var(--g400);margin-bottom:16px;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr);}}
+.gcard{background:#fff;border-radius:16px;padding:18px 10px;text-align:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.06);border:2px solid transparent;transition:.15s;position:relative;}
+.gcard:active{transform:scale(.97);}
+.gcard:hover{border-color:var(--or);}
+.gcard .gc-ic{font-size:24px;}
+.gcard .gc-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--g800);margin-top:6px;line-height:1.1;}
+.gcard .gc-meta{font-size:11px;color:var(--g400);margin-top:3px;}
+.gcard.locked{opacity:.5;filter:grayscale(.7);cursor:not-allowed;}
+.gcard.locked:hover{border-color:transparent;}
+.gc-lock{position:absolute;top:8px;right:9px;font-size:12px;}
+.searchbar{background:#fff;border:1.5px solid var(--g200);border-radius:12px;display:flex;align-items:center;gap:8px;padding:0 14px;margin-bottom:14px;}
+.searchbar input{flex:1;border:none;outline:none;padding:13px 0;font-size:14px;color:var(--g800);background:transparent;}
+.list{display:flex;flex-direction:column;gap:10px;}
+.irow{background:#fff;border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.irow .ic{width:40px;height:40px;border-radius:10px;background:var(--g50);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.irow .tag{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;color:var(--g800);}
+.irow .nm{font-size:13px;color:var(--g600);}
+.irow .mt{font-size:11px;color:var(--g400);margin-top:2px;}
+.empty{text-align:center;color:var(--g400);font-size:13px;padding:40px 12px;}
+.loading{text-align:center;color:var(--g400);font-size:13px;padding:30px;}
 </style>
 </head>
 <body>
@@ -67,17 +94,35 @@ body{background:#0d1117;min-height:100vh;display:flex;justify-content:center;}
 
   <div id="screen-home" class="screen">
     <div class="top"><div class="top-in">
-      <div><div class="who" id="who">—</div><div class="role" id="whorole">—</div></div>
+      <div class="topleft">
+        <button id="backBtn" class="backb" onclick="goBack()" style="display:none;">‹</button>
+        <div><div class="who" id="who">—</div><div class="role" id="whorole">—</div></div>
+      </div>
       <button class="logout" onclick="logout()">Keluar</button>
     </div></div>
     <div class="body">
-      <div class="ok">
-        <h3>✅ Login berhasil &amp; terhubung database</h3>
-        <p>Selamat datang, <b id="who2">—</b>.<br>
-        Role: <b id="role2">—</b><br>
-        Data ini diambil langsung dari Supabase sesuai hak akses (RLS) Anda.</p>
+
+      <!-- PILIH PABRIK -->
+      <div id="pane-plant" class="pane active">
+        <h2 class="pane-title">Pilih Pabrik</h2>
+        <p class="pane-sub" id="plant-sub">Memuat…</p>
+        <div class="grid" id="plant-grid"></div>
       </div>
-      <p style="font-size:12px;color:var(--g400);margin-top:16px;text-align:center;">Langkah berikutnya: memindahkan menu Peta, Item, Pending &amp; Maintenance ke database.</p>
+
+      <!-- PILIH UNIT -->
+      <div id="pane-unit" class="pane">
+        <h2 class="pane-title" id="unit-title">Pilih Unit</h2>
+        <p class="pane-sub" id="unit-sub"></p>
+        <div class="grid" id="unit-grid"></div>
+      </div>
+
+      <!-- DAFTAR ITEM -->
+      <div id="pane-items" class="pane">
+        <h2 class="pane-title" id="items-title">Daftar Item</h2>
+        <div class="searchbar"><input id="item-search" placeholder="Cari tag / nama item…" oninput="renderItems()"><span>🔎</span></div>
+        <div id="item-list" class="list"></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -114,14 +159,104 @@ async function afterLogin(user){
     : ('Operator'+(data.plant_id?(' · '+data.plant_id):''));
   document.getElementById('who').textContent=data.name||data.npk;
   document.getElementById('whorole').textContent=role+' · NPK '+data.npk;
-  document.getElementById('who2').textContent=data.name||data.npk;
-  document.getElementById('role2').textContent=role;
   show('home');
+  goPane('plant');
+  loadPlants();
+}
+
+// ===== NAVIGASI ANTAR PANE =====
+const ICON={ammonia:'⚗️',urea:'🧪',utility:'⚙️',ppu:'🔧',boiler:'🔥','ammonia storage':'🛢️'};
+function unitIcon(n){return ICON[(n||'').toLowerCase()]||'🏭';}
+function floorTxt(f){return (f===0||f==='0')?'Dasar':f;}
+let curPane='plant', selPlant=null, selPlantName='', selUnit=null, selUnitName='', curItems=[];
+
+function goPane(id){
+  curPane=id;
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  document.getElementById('backBtn').style.display = id==='plant' ? 'none' : 'block';
+}
+function goBack(){ if(curPane==='items') goPane('unit'); else if(curPane==='unit') goPane('plant'); }
+
+// ===== PILIH PABRIK =====
+async function loadPlants(){
+  const grid=document.getElementById('plant-grid');
+  const sub=document.getElementById('plant-sub');
+  grid.innerHTML='<div class="loading">Memuat pabrik…</div>'; sub.textContent='';
+  try{
+    const {data:plants,error}=await sb.from('plants').select('id,name').order('sort');
+    if(error) throw error;
+    // pabrik yang sudah ada datanya (untuk penguncian operator)
+    const {data:rows}=await sb.from('items').select('plant_id');
+    const withData=new Set((rows||[]).map(r=>r.plant_id));
+    const isAdmin = profile.role==='master' || profile.role==='plant_admin';
+    sub.textContent = isAdmin ? 'Admin dapat membuka semua pabrik' : 'Pabrik tanpa data terkunci';
+    grid.innerHTML = plants.map(p=>{
+      const has=withData.has(p.id);
+      const locked = !isAdmin && !has;   // operator + belum ada data => terkunci
+      return `<div class="gcard${locked?' locked':''}" onclick="${locked?'lockedMsg()':`selectPlant('${p.id}','${p.name.replace(/'/g,"")}')`}">
+        ${locked?'<span class="gc-lock">🔒</span>':(has?'':'<span class="gc-lock" title="belum ada data">·</span>')}
+        <div class="gc-ic">🏭</div>
+        <div class="gc-name">${p.id}</div>
+        <div class="gc-meta">${has?'ada data':'kosong'}</div>
+      </div>`;
+    }).join('');
+  }catch(e){ grid.innerHTML='<div class="empty">Gagal memuat pabrik. Coba muat ulang.</div>'; }
+}
+function lockedMsg(){ alert('Pabrik ini belum memiliki data, jadi terkunci untuk operator.'); }
+
+// ===== PILIH UNIT =====
+async function selectPlant(id,name){
+  selPlant=id; selPlantName=name;
+  document.getElementById('unit-title').textContent='Pilih Unit · '+id;
+  document.getElementById('unit-sub').textContent='Memuat unit…';
+  document.getElementById('unit-grid').innerHTML='<div class="loading">Memuat…</div>';
+  goPane('unit');
+  try{
+    const {data:units,error}=await sb.from('units').select('id,name').eq('plant_id',id).order('sort');
+    if(error) throw error;
+    document.getElementById('unit-sub').textContent=units.length+' unit';
+    document.getElementById('unit-grid').innerHTML = units.length ? units.map(u=>
+      `<div class="gcard" onclick="selectUnit('${u.id}','${u.name.replace(/'/g,"")}')">
+        <div class="gc-ic">${unitIcon(u.name)}</div>
+        <div class="gc-name" style="font-size:16px;">${u.name}</div>
+      </div>`).join('') : '<div class="empty">Belum ada unit.</div>';
+  }catch(e){ document.getElementById('unit-grid').innerHTML='<div class="empty">Gagal memuat unit.</div>'; }
+}
+
+// ===== DAFTAR ITEM =====
+async function selectUnit(id,name){
+  selUnit=id; selUnitName=name;
+  document.getElementById('items-title').textContent=name+' · '+selPlant;
+  document.getElementById('item-search').value='';
+  document.getElementById('item-list').innerHTML='<div class="loading">Memuat item…</div>';
+  goPane('items');
+  try{
+    const {data:items,error}=await sb.from('items').select('tag,name,area_id,floor,type').eq('plant_id',selPlant).eq('unit_id',id).order('tag');
+    if(error) throw error;
+    curItems=items||[];
+    renderItems();
+  }catch(e){ document.getElementById('item-list').innerHTML='<div class="empty">Gagal memuat item.</div>'; }
+}
+function renderItems(){
+  const q=(document.getElementById('item-search').value||'').trim().toLowerCase();
+  let list=curItems;
+  if(q) list=list.filter(i=>((i.tag||'')+' '+(i.name||'')).toLowerCase().includes(q));
+  const el=document.getElementById('item-list');
+  if(!curItems.length){ el.innerHTML='<div class="empty">Belum ada item di unit ini.<br>Tambah item lewat menu admin (langkah berikutnya).</div>'; return; }
+  el.innerHTML = list.length ? list.map(i=>
+    `<div class="irow"><div class="ic">🔧</div>
+      <div style="flex:1;min-width:0;">
+        <div class="tag">${i.tag}</div>
+        <div class="nm">${i.name||''}</div>
+        <div class="mt">${i.type||'-'} · Lantai ${floorTxt(i.floor)}</div>
+      </div></div>`).join('') : '<div class="empty">Tidak ada item yang cocok.</div>';
 }
 
 async function logout(){
   await sb.auth.signOut();
   document.getElementById('npk').value=''; document.getElementById('pass').value='';
+  goPane('plant');
   show('login');
 }
 
