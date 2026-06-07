@@ -430,40 +430,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <p>Pabrik mana yang akan kamu jelajahi?</p>
   </div>
   <div class="pabrik-body">
-    <div class="pabrik-grid">
-      <!-- Pabrik 1A locked -->
-      <div class="pabrik-card locked" onclick="lockedTap()">
-        <div class="pc-lock">🔒</div>
-        <div class="pc-num">P1A</div>
-        <div class="pc-label">Pabrik 1A</div>
-      </div>
-      <!-- Pabrik 2 aktif -->
-      <div class="pabrik-card active" id="pc-2" onclick="selectPabrik(2)">
-        <div class="pc-num">P2</div>
-        <div class="pc-label">Pabrik 2</div>
-      </div>
-      <!-- Pabrik 3-6 locked -->
-      <div class="pabrik-card locked" onclick="lockedTap()">
-        <div class="pc-lock">🔒</div>
-        <div class="pc-num">P3</div>
-        <div class="pc-label">Pabrik 3</div>
-      </div>
-      <div class="pabrik-card locked" onclick="lockedTap()">
-        <div class="pc-lock">🔒</div>
-        <div class="pc-num">P4</div>
-        <div class="pc-label">Pabrik 4</div>
-      </div>
-      <div class="pabrik-card locked" onclick="lockedTap()">
-        <div class="pc-lock">🔒</div>
-        <div class="pc-num">P5</div>
-        <div class="pc-label">Pabrik 5</div>
-      </div>
-      <div class="pabrik-card locked" onclick="lockedTap()">
-        <div class="pc-lock">🔒</div>
-        <div class="pc-num">P6</div>
-        <div class="pc-label">Pabrik 6</div>
-      </div>
-    </div>
+    <div class="pabrik-grid" id="pabrik-grid"></div>
 
     <div class="pabrik-sep"></div>
 
@@ -484,37 +451,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <p id="area-pabrik-label">Pabrik 2 — pilih area yang ingin dijelajahi</p>
   </div>
   <div class="area-sel-body">
-    <div class="area-type-cards">
-
-      <!-- Ammonia AKTIF -->
-      <div class="area-type-card active" id="atc-ammonia" onclick="selectArea('ammonia')">
-        <div class="atc-icon ammonia">🧪</div>
-        <div class="atc-info">
-          <div class="atc-name">Ammonia</div>
-        </div>
-        <div class="atc-badge aktif">● Aktif</div>
-      </div>
-
-      <!-- Urea AKTIF -->
-      <div class="area-type-card" id="atc-urea" onclick="selectArea('urea')">
-        <div class="atc-icon urea">🌱</div>
-        <div class="atc-info">
-          <div class="atc-name">Urea</div>
-        </div>
-        <div class="atc-badge aktif">● Aktif</div>
-      </div>
-
-      <!-- Utility AKTIF -->
-      <div class="area-type-card" id="atc-utility" onclick="selectArea('utility')">
-        <div class="atc-icon utility">⚡</div>
-        <div class="atc-info">
-          <div class="atc-name">Utility</div>
-        </div>
-        <div class="atc-badge aktif">● Aktif</div>
-      </div>
-
-    </div>
-    <button class="btn-next" onclick="goTo('home')">Masuk ke Area →</button>
+    <div class="area-type-cards" id="area-cards"></div>
+    <button class="btn-next" onclick="enterArea()">Masuk ke Area →</button>
   </div>
 </div>
 
@@ -845,18 +783,90 @@ let myLat=null,myLon=null,myMapX=.50,myMapY=.62,watchId=null;
 const PLANT={latMin:0.1775,latMax:0.1855,lonMin:117.4875,lonMax:117.4955};
 
 // ===== PABRIK & AREA SELECTION =====
-let selectedPabrik=2, selectedArea='ammonia';
-
-function selectPabrik(n){
-  selectedPabrik=n;
-  document.querySelectorAll('.pabrik-card:not(.locked)').forEach(c=>c.classList.remove('active'));
-  document.getElementById('pc-'+n).classList.add('active');
+let selectedPabrik='P2', selectedArea='ammonia';
+let selectedPlant='P2', selectedPlantName='Pabrik 2', plantHasData=new Set();
+async function loadPabrik(){
+  const grid=document.getElementById('pabrik-grid');
+  grid.innerHTML='<div style=\"grid-column:1/-1;text-align:center;color:#9ca3af;padding:24px;\">Memuat pabrik\u2026</div>';
+  try{
+    const {data:plants,error}=await sb.from('plants').select('id,name').order('sort');
+    if(error) throw error;
+    const {data:rows}=await sb.from('items').select('plant_id');
+    plantHasData=new Set((rows||[]).map(r=>r.plant_id));
+    const isAdmin = profile && (profile.role==='master'||profile.role==='plant_admin');
+    grid.innerHTML=plants.map(p=>{
+      const has=plantHasData.has(p.id);
+      const locked=!isAdmin && !has;
+      const click = locked ? 'lockedTap()' : ("selectPabrik('"+p.id+"','"+(p.name||'').replace(/'/g,'')+"')");
+      return '<div class=\"pabrik-card'+(locked?' locked':'')+'\" id=\"pc-'+p.id+'\" onclick=\"'+click+'\">'
+        + (locked?'<div class=\"pc-lock\">\ud83d\udd12</div>':'')
+        + '<div class=\"pc-num\">'+p.id+'</div><div class=\"pc-label\">'+(p.name||'')+'</div></div>';
+    }).join('');
+    const prev=document.getElementById('pc-'+selectedPlant);
+    if(prev && !prev.classList.contains('locked')) selectPabrik(selectedPlant, selectedPlantName);
+    else { const first=document.querySelector('.pabrik-card:not(.locked)'); if(first) first.click(); }
+  }catch(e){ grid.innerHTML='<div style=\"grid-column:1/-1;text-align:center;color:#e02424;padding:24px;\">Gagal memuat pabrik.</div>'; }
 }
 
-function selectArea(a){
-  selectedArea=a;
-  document.querySelectorAll('.area-type-card:not(.locked)').forEach(c=>c.classList.remove('active'));
-  document.getElementById('atc-'+a).classList.add('active');
+function selectPabrik(id,name){
+  selectedPlant=id; selectedPabrik=id; selectedPlantName=name||('Pabrik '+String(id).replace('P',''));
+  document.querySelectorAll('.pabrik-card:not(.locked)').forEach(c=>c.classList.remove('active'));
+  const c=document.getElementById('pc-'+id); if(c)c.classList.add('active');
+  const info=document.getElementById('pabrikInfo'); if(info){const pp=info.querySelector('p'); if(pp)pp.innerHTML='<b>'+selectedPlantName+'</b> dipilih \u2014 Ketuk Lanjut untuk memilih area';}
+}
+
+let selectedUnit=null, selectedUnitName='', areaMap={}, myId=null;
+function unitIcon(n){n=(n||'').toLowerCase(); if(n.includes('urea'))return '\ud83c\udf31'; if(n.includes('utility'))return '\u26a1'; if(n.includes('boiler'))return '\ud83d\udd25'; if(n.includes('storage'))return '\ud83d\udee2\ufe0f'; if(n.includes('ppu'))return '\ud83d\udd27'; return '\ud83e\uddea';}
+function unitCls(n){n=(n||'').toLowerCase(); if(n.includes('urea'))return 'urea'; if(n.includes('utility'))return 'utility'; return 'ammonia';}
+async function loadUnits(){
+  const wrap=document.getElementById('area-cards');
+  const lbl=document.getElementById('area-pabrik-label'); if(lbl)lbl.textContent=selectedPlantName+' \u2014 pilih unit yang ingin dijelajahi';
+  wrap.innerHTML='<div style=\"text-align:center;color:#9ca3af;padding:24px;\">Memuat unit\u2026</div>';
+  selectedUnit=null;
+  try{
+    const {data:units,error}=await sb.from('units').select('id,name').eq('plant_id',selectedPlant).order('sort');
+    if(error) throw error;
+    if(!units.length){ wrap.innerHTML='<div style=\"text-align:center;color:#9ca3af;padding:24px;\">Belum ada unit.</div>'; return; }
+    wrap.innerHTML=units.map(u=>{
+      const nm=(u.name||'').replace(/'/g,'');
+      return '<div class=\"area-type-card\" id=\"atc-'+u.id+'\" onclick=\"selectArea(\''+u.id+'\',\''+nm+'\')\">'
+        +'<div class=\"atc-icon '+unitCls(u.name)+'\">'+unitIcon(u.name)+'</div>'
+        +'<div class=\"atc-info\"><div class=\"atc-name\">'+u.name+'</div></div>'
+        +'<div class=\"atc-badge aktif\">\u25cf Aktif</div></div>';
+    }).join('');
+    const first=wrap.querySelector('.area-type-card'); if(first) first.click();
+  }catch(e){ wrap.innerHTML='<div style=\"text-align:center;color:#e02424;padding:24px;\">Gagal memuat unit.</div>'; }
+}
+function selectArea(id,name){
+  selectedUnit=id; selectedUnitName=name;
+  document.querySelectorAll('.area-type-card').forEach(c=>c.classList.remove('active'));
+  const c=document.getElementById('atc-'+id); if(c)c.classList.add('active');
+}
+async function enterArea(){
+  if(!selectedUnit){ alert('Pilih unit dulu.'); return; }
+  selectedArea=selectedUnit;
+  await loadItemsForUnit();
+  goTo('home');
+}
+async function loadItemsForUnit(){
+  areaMap={};
+  let areaById={}; let names=[];
+  try{
+    const {data:areas}=await sb.from('areas').select('id,name').eq('unit_id',selectedUnit).order('sort');
+    (areas||[]).forEach(a=>{ areaById[a.id]=a.name; areaMap[a.name]=a.id; names.push(a.name); });
+  }catch(e){}
+  AREAS[selectedArea]=names;
+  ITEMS.length=0;
+  try{
+    const {data:items}=await sb.from('items').select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).order('tag');
+    (items||[]).forEach(r=>{
+      const fl=(r.floor===''||r.floor==null)?0:(isNaN(+r.floor)?r.floor:+r.floor);
+      ITEMS.push({_dbid:r.id,id:r.tag,name:r.name,func:r.func||'',type:r.type||'',plant:selectedArea,
+        area:areaById[r.area_id]||'',floor:fl,icon:iconForType(r.type),cls:'valve',
+        hint:r.hint||'(belum ada petunjuk)',lat:r.lat,lon:r.lon,photo:r.photo_path||'',sv:r.sv_path||''});
+    });
+  }catch(e){}
+  if(map){ for(const k in markers){ try{ if(map.hasLayer(markers[k]))map.removeLayer(markers[k]); }catch(e){} delete markers[k]; } ITEMS.forEach(it=>makeMarker(it)); }
 }
 
 function lockedTap(){
@@ -890,7 +900,7 @@ async function afterLogin(user){
   const err=document.getElementById('login-err');
   const {data,error}=await sb.from('profiles').select('npk,name,role,plant_id').eq('id',user.id).single();
   if(error||!data){ if(err){err.textContent='Profil tidak ditemukan. Hubungi admin.';err.style.color='#e02424';err.style.display='block';} await sb.auth.signOut(); return; }
-  profile=data;
+  profile=data; myId=user.id;
   if(err)err.style.display='none';
   const amr=document.getElementById('am-role'); if(amr)amr.textContent=roleLabel(data);
   const amn=document.getElementById('am-npk'); if(amn)amn.textContent='NPK: '+data.npk;
@@ -950,8 +960,10 @@ applyTheme(getTheme());
 function goTo(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
+  if(id==='pabrik') loadPabrik();
+  if(id==='area') loadUnits();
   if(id==='home'){
-    const label='Pabrik '+selectedPabrik+' · '+selectedArea.charAt(0).toUpperCase()+selectedArea.slice(1);
+    const label=selectedPlantName+' \u00b7 '+selectedUnitName;
     document.getElementById('topbar-sub-label').textContent=label;
     document.getElementById('apb-name').textContent=label;
     document.getElementById('list-title').textContent='Item Terbaru Dicari';
@@ -1117,7 +1129,7 @@ function openAddItem(){
   editingId=null;
   document.getElementById('add-title').textContent='Tambah Item';
   document.getElementById('ai-type').innerHTML=TYPES.map(t=>`<option>${t}</option>`).join('');
-  document.getElementById('ai-area').innerHTML=(AREAS[selectedArea]||[]).map(a=>`<option>${a}</option>`).join('');
+  document.getElementById('ai-area').innerHTML='<option value="">(tanpa area)</option>'+(AREAS[selectedArea]||[]).map(a=>`<option>${a}</option>`).join('');
   ['ai-tag','ai-name','ai-func','ai-floor','ai-coord','ai-hint','ai-photo','ai-sv'].forEach(id=>document.getElementById(id).value='');
   setDropName('photo',''); setDropName('sv','');
   document.getElementById('ai-tag').readOnly=false;
@@ -1129,7 +1141,7 @@ function openEditItem(id){
   editingId=id;
   document.getElementById('add-title').textContent='Edit Item';
   document.getElementById('ai-type').innerHTML=TYPES.map(t=>`<option ${t===it.type?'selected':''}>${t}</option>`).join('');
-  document.getElementById('ai-area').innerHTML=(AREAS[selectedArea]||[]).map(a=>`<option ${a===it.area?'selected':''}>${a}</option>`).join('');
+  document.getElementById('ai-area').innerHTML='<option value="">(tanpa area)</option>'+(AREAS[selectedArea]||[]).map(a=>`<option ${a===it.area?'selected':''}>${a}</option>`).join('');
   document.getElementById('ai-tag').value=it.id; document.getElementById('ai-tag').readOnly=true;
   document.getElementById('ai-name').value=it.name||'';
   document.getElementById('ai-func').value=it.func||'';
@@ -1144,36 +1156,43 @@ function closeAddItem(){ document.getElementById('addModal').style.display='none
 function saveNewItem(){
   const msg=document.getElementById('ai-msg');
   function err(t){msg.textContent=t;msg.style.color='#e02424';msg.style.display='block';}
+  function info(t){msg.textContent=t;msg.style.color='#6b7280';msg.style.display='block';}
+  function ok(t){msg.textContent=t;msg.style.color='#16a34a';msg.style.display='block';}
   const tag=document.getElementById('ai-tag').value.trim();
   const name=document.getElementById('ai-name').value.trim();
   const coord=document.getElementById('ai-coord').value.trim();
   if(!tag) return err('Tag/ID wajib diisi.');
-  if(!editingId && ITEMS.some(i=>i.id.toLowerCase()===tag.toLowerCase())) return err('Tag/ID sudah ada.');
+  if(!editingId && ITEMS.some(i=>i.id.toLowerCase()===tag.toLowerCase())) return err('Tag/ID sudah ada di unit ini.');
   if(!name) return err('Nama Item wajib diisi.');
   if(!coord) return err('Koordinat wajib diisi (lat,lon).');
   const p=coord.split(','); const lat=parseFloat(p[0]), lon=parseFloat(p[1]);
   if(p.length!==2 || isNaN(lat) || isNaN(lon)) return err('Format koordinat salah. Contoh: 0.1812345,117.4901230');
   const type=document.getElementById('ai-type').value;
-  const data={name,type,area:document.getElementById('ai-area').value,
-    floor:(function(){const v=parseInt(document.getElementById('ai-floor').value);return isNaN(v)?0:v;})(),
-    icon:iconForType(type),func:document.getElementById('ai-func').value.trim(),
-    hint:document.getElementById('ai-hint').value.trim()||'(belum ada petunjuk)',
-    lat,lon,photo:document.getElementById('ai-photo').value.trim(),sv:document.getElementById('ai-sv').value.trim()};
+  const areaName=document.getElementById('ai-area').value;
+  const fv=parseInt(document.getElementById('ai-floor').value); const floor=isNaN(fv)?0:fv;
+  const payload={tag,name,func:document.getElementById('ai-func').value.trim(),type,
+    area_id:(areaMap[areaName]||null),floor:String(floor),lat,lon,
+    hint:document.getElementById('ai-hint').value.trim(),
+    photo_path:document.getElementById('ai-photo').value.trim(),
+    sv_path:document.getElementById('ai-sv').value.trim()};
   if(editingId){
     askNpk('Konfirmasi Edit','Masukkan NPK Anda untuk menyimpan perubahan item '+tag+'.','Simpan Perubahan',function(npk){
-      const it=itemById(editingId); Object.assign(it,data); it.editedBy=npk;
-      saveEdit(editingId,data,npk);
-      if(map&&markers[editingId]){ map.removeLayer(markers[editingId]); delete markers[editingId]; if(mapExists())makeMarker(it); }
-      buildAreaChips(); updateStats(); renderItemList(plantItems()); renderManage();
-      closeAddItem();
+      info('Menyimpan\u2026');
+      sb.from('items').update(payload).eq('id',itemById(editingId)._dbid).then(async ({error})=>{
+        if(error){ err('Gagal: '+error.message); return; }
+        await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems()); renderManage();
+        closeAddItem();
+      });
     });
   }else{
-    const it=Object.assign({id:tag,plant:selectedArea,cls:'valve'},data);
-    ITEMS.push(it); persistCustomItem(it);
-    if(map) makeMarker(it);
-    buildAreaChips(); updateStats(); renderItemList(plantItems());
-    msg.textContent='✅ Item '+tag+' ditambahkan.'; msg.style.color='#16a34a'; msg.style.display='block';
-    setTimeout(closeAddItem,1100);
+    info('Menyimpan\u2026');
+    const ins=Object.assign({plant_id:selectedPlant,unit_id:selectedUnit,created_by:myId},payload);
+    sb.from('items').insert(ins).then(async ({error})=>{
+      if(error){ err(error.code==='23505'?'Tag/ID sudah ada di pabrik ini.':('Gagal: '+error.message)); return; }
+      await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
+      ok('\u2705 Item '+tag+' tersimpan ke database.');
+      setTimeout(closeAddItem,1000);
+    });
   }
 }
 function mapExists(){ return !!map; }
@@ -1197,11 +1216,12 @@ function renderManage(){
     </div>`).join(''):'<div class="empty">Tidak ada item.</div>';
 }
 function askDelete(id){
-  askNpk('Hapus Item','Masukkan NPK Anda untuk menghapus item '+id+'. Tindakan ini menghapus item dari daftar.','Hapus',function(npk){
-    const idx=ITEMS.findIndex(i=>i.id===id); if(idx>=0)ITEMS.splice(idx,1);
-    saveDeletion(id);
-    if(map&&markers[id]){ if(map.hasLayer(markers[id]))map.removeLayer(markers[id]); delete markers[id]; }
-    buildAreaChips(); updateStats(); renderItemList(plantItems()); renderManage();
+  askNpk('Hapus Item','Masukkan NPK Anda untuk menghapus item '+id+'. Item akan dihapus dari database.','Hapus',function(npk){
+    const it=itemById(id); if(!it._dbid){ alert('Item tidak valid.'); return; }
+    sb.from('items').delete().eq('id',it._dbid).then(async ({error})=>{
+      if(error){ alert('Gagal hapus: '+error.message); return; }
+      await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems()); renderManage();
+    });
   });
 }
 
