@@ -207,7 +207,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .badge-floor{font-size:10px;color:var(--g400);}
 
 /* BOTTOM NAV */
-.bottom-nav{background:var(--w);border-top:1px solid var(--g100);padding:8px 0 14px;display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:440px;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:200;}
+.bottom-nav{background:var(--w);border-top:1px solid var(--g100);padding:8px 0 14px;display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:200;}
+@media (min-width:480px){ .bottom-nav{max-width:100%;} }
 .nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
 .nav-tab .tab-icon{font-size:22px;}
 .nav-tab .tab-label{font-size:10px;font-weight:500;color:var(--g400);}
@@ -383,6 +384,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .dz-act span{color:#e02424;cursor:pointer;font-weight:600;}
 .area-type-card.locked{opacity:.45;filter:grayscale(.6);}
 .atc-badge.lock{background:#f3f4f6;color:#9ca3af;}
+.btn-ghost.danger{color:#b91c1c;border-color:#fecaca;background:#fef2f2;}
+.mng-del{border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;border-radius:8px;padding:6px 8px;font-size:14px;cursor:pointer;flex:0 0 auto;margin-right:4px;}
+.mng-del:active{transform:scale(.9);}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle;flex:0 0 auto;}
 .dot-red{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.15);}
 .dot-green{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15);}
@@ -723,6 +727,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="sheet-actions admin-only">
       <button class="btn-ghost" onclick="editFromModal()">✏️ Edit</button>
       <button class="btn-ghost" id="im-toggle" onclick="toggleStatusFromModal()">Non-aktifkan</button>
+      <button class="btn-ghost danger" onclick="deleteItemFromModal()">🗑️ Hapus permanen</button>
     </div>
     <p class="login-note" style="cursor:pointer;text-align:center;margin-top:10px;" onclick="closeItemModal()">Tutup</p>
   </div>
@@ -952,6 +957,17 @@ async function enterArea(){
   await loadItemsForUnit();
   goTo('home');
 }
+async function fetchAllRows(buildQuery){
+  const PAGE=1000; let from=0, all=[];
+  while(true){
+    const {data,error}=await buildQuery().range(from,from+PAGE-1);
+    if(error) throw error;
+    all=all.concat(data||[]);
+    if(!data || data.length<PAGE) break;
+    from+=PAGE;
+  }
+  return all;
+}
 async function loadItemsForUnit(){
   areaMap={}; areaById={}; let names=[];
   try{
@@ -961,7 +977,7 @@ async function loadItemsForUnit(){
   AREAS[selectedArea]=names;
   ITEMS.length=0;
   try{
-    const {data:items}=await sb.from('items').select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).eq('is_active',true).order('tag');
+    const items=await fetchAllRows(()=>sb.from('items').select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).eq('is_active',true).order('tag'));
     (items||[]).forEach(r=>{
       const fl=(r.floor===''||r.floor==null)?0:(isNaN(+r.floor)?r.floor:+r.floor);
       ITEMS.push({_dbid:r.id,id:r.tag,name:r.name,func:r.func||'',type:r.type||'',plant:selectedArea,
@@ -1419,10 +1435,9 @@ async function renderAllItems(){
   const listEl=document.getElementById('mng-list');
   listEl.innerHTML='<div class="empty">Memuat\u2026</div>';
   try{
-    const {data:items,error}=await sb.from('items')
+    const items=await fetchAllRows(()=>sb.from('items')
       .select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id,is_active')
-      .eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).order('tag');
-    if(error) throw error;
+      .eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).order('tag'));
     allItemsCache=items||[];
   }catch(e){ listEl.innerHTML='<div class="empty">Gagal memuat item.</div>'; return; }
   let list=allItemsCache.slice();
@@ -1443,6 +1458,7 @@ async function renderAllItems(){
 
   listEl.innerHTML=list.length?list.map(i=>{
     const comp=isComplete(i);
+    const adm = profile && (profile.role==='master'||profile.role==='plant_admin');
     return `<div class="mt-card" onclick="openItemDetail('${i.id}')">
       <div class="mt-ic">${iconForType(i.type)}</div>
       <div style="flex:1;min-width:0;">
@@ -1450,6 +1466,7 @@ async function renderAllItems(){
         <div class="mt-name">${i.name||''}</div>
         <div class="mt-meta">${i.type||'(tanpa tipe)'} \u00b7 ${areaById[i.area_id]||'(tanpa area)'} \u00b7 Lt. ${floorTxt(flNum(i.floor))}</div>
       </div>
+      ${adm?`<button class="mng-del" title="Hapus permanen" onclick="event.stopPropagation();deleteItemRow('${i.id}')">\ud83d\uddd1\ufe0f</button>`:''}
       <div class="mt-arrow">\u203a</div>
     </div>`;}).join(''):'<div class="empty">Tidak ada item sesuai filter.</div>';
 }
@@ -1504,8 +1521,24 @@ function toggleStatusFromModal(){
   });
 }
 
-// ===== KONFIRMASI NPK =====
-let npkAction=null;
+async function doDeleteItem(r, fast){
+  const {error}=await sb.from('items').delete().eq('id',r.id);
+  if(error){ alert('Gagal hapus: '+error.message); return false; }
+  try{ logAudit('delete_item', r.tag, 'hapus permanen'+(fast?' (cepat)':''), (profile&&profile.npk)||''); }catch(e){}
+  await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
+  await renderAllItems();
+  return true;
+}
+function deleteItemFromModal(){
+  if(!detailRow)return; const r=detailRow;
+  if(!confirm('HAPUS PERMANEN item '+r.tag+'?\n\nItem & semua riwayat WR-nya terhapus dari database dan TIDAK bisa dikembalikan.\n(Untuk menyimpan riwayat, pakai Non-aktifkan.)'))return;
+  doDeleteItem(r,false).then(ok=>{ if(ok) closeItemModal(); });
+}
+function deleteItemRow(dbid){
+  const r=allItemsCache.find(x=>x.id===dbid); if(!r)return;
+  if(!confirm('Hapus permanen item '+r.tag+'? Tidak bisa dikembalikan.'))return;
+  doDeleteItem(r,true);
+}
 function askNpk(title,desc,btn,action){
   npkAction=action;
   document.getElementById('npk-title').textContent=title;
