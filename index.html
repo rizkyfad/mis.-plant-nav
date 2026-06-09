@@ -60,6 +60,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .login-card{background:var(--w);border-radius:24px;padding:28px 24px;width:100%;z-index:1;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
 .login-card h2{font-family:'Barlow',sans-serif;font-size:20px;font-weight:700;color:var(--g800);margin-bottom:4px;}
 .login-card>p{font-size:13px;color:var(--g400);margin-bottom:24px;}
+.pw-wrap{position:relative;}
+.pw-wrap input{width:100%;padding-right:44px;}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:6px;border-radius:8px;}
+.pw-eye:active{transform:translateY(-50%) scale(.9);}
 .btn-install{width:100%;margin-top:10px;padding:12px;border:1.5px solid var(--bl);background:#fff;color:var(--bl);font-weight:700;font-size:14px;border-radius:12px;cursor:pointer;}
 .btn-install:active{transform:scale(.99);}
 #pwaHelp{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;}
@@ -487,7 +491,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <h2>Selamat Datang</h2>
     <p>Masuk dengan NPK & Password</p>
     <div class="form-group"><label>NPK</label><input type="text" id="login-user" placeholder="mis. 4112233" autocapitalize="off" autocomplete="username"></div>
-    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="form-group"><label>Password</label><div class="pw-wrap"><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-eye" onclick="togglePw('login-pass',this)" aria-label="Lihat password">👁️</button></div></div>
     <p id="login-err" style="display:none;color:#e02424;font-size:12px;margin:-8px 0 14px;">NPK atau password salah.</p>
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()">📲 Pasang ke Layar HP</button>
@@ -1126,6 +1130,7 @@ const SB_URL=CONFIG.url, SB_KEY=CONFIG.key;
 const sb=supabase.createClient(SB_URL,SB_KEY);
 let profile=null;
 function roleLabel(p){ return p.role==='master'?'Master Admin':p.role==='plant_admin'?('Admin Pabrik '+(p.plant_id||'').replace('P','')):('Operator'+(p.plant_id?(' \u00b7 '+p.plant_id):'')); }
+function togglePw(id,btn){ var el=document.getElementById(id); if(!el)return; if(el.type==='password'){ el.type='text'; if(btn)btn.textContent='\ud83d\ude48'; } else { el.type='password'; if(btn)btn.textContent='\ud83d\udc41\ufe0f'; } }
 async function doLogin(){
   const u=document.getElementById('login-user').value.trim().toLowerCase();
   const p=document.getElementById('login-pass').value;
@@ -1142,11 +1147,13 @@ async function doLogin(){
   try{
     const {data,error}=await sb.auth.signInWithPassword({email:u+'@plantnav.local',password:p});
     if(error){
-      if(noLock){ err.textContent='NPK atau password salah.'; err.style.color='#e02424'; err.style.display='block'; return; }
+      if(noLock){ err.textContent='Password salah.'; err.style.color='#e02424'; err.style.display='block'; return; }
+      let exists=true; try{ const r=await sb.rpc('npk_exists',{p:u}); if(r && typeof r.data==='boolean') exists=r.data; }catch(e){}
+      if(!exists){ err.textContent='NPK tidak terdaftar. Hubungi admin pabrik untuk didaftarkan.'; err.style.color='#e02424'; err.style.display='block'; return; }
       let n=0; try{ n=(parseInt(localStorage.getItem('pn_fail_'+u)||'0',10)||0)+1; localStorage.setItem('pn_fail_'+u,String(n)); }catch(e){}
       if(n>=5){ try{ localStorage.setItem(lkey,String(Date.now()+15*60000)); localStorage.removeItem('pn_fail_'+u); }catch(e){}
         err.textContent='Gagal 5 kali. Login dikunci 15 menit. Hubungi admin pabrik untuk reset password (jadi NPK lagi).'; }
-      else { err.textContent='NPK atau password salah. ('+n+'/5)'; }
+      else { err.textContent='Password salah. ('+n+'/5)'; }
       err.style.color='#e02424'; err.style.display='block'; return;
     }
     try{ localStorage.removeItem('pn_fail_'+u); localStorage.removeItem(lkey); }catch(e){}
