@@ -66,6 +66,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .pw-eye:active{transform:translateY(-50%) scale(.9);}
 .btn-install{width:100%;margin-top:10px;padding:12px;border:1.5px solid var(--bl);background:#fff;color:var(--bl);font-weight:700;font-size:14px;border-radius:12px;cursor:pointer;}
 .btn-install:active{transform:scale(.99);}
+.btn-access{width:100%;margin-top:10px;padding:12px;border:1.5px solid #15803d;background:#eefcf2;color:#15803d;font-weight:700;font-size:14px;border-radius:12px;cursor:pointer;}
+.btn-access:active{transform:scale(.99);}
+.btn-access.done{border-color:#16a34a;background:#dcfce7;color:#166534;}
 #pwaHelp{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;}
 #pwaHelp .ph-card{background:#fff;border-radius:18px;max-width:360px;width:100%;padding:20px;}
 #pwaHelp h3{font-family:'Barlow',sans-serif;margin:0 0 4px;font-size:18px;color:var(--g800);}
@@ -1159,6 +1162,7 @@ async function doLogin(){
   const p=document.getElementById('login-pass').value;
   const err=document.getElementById('login-err');
   err.style.display='none';
+  try{ if(!accessAsked) requestAllAccess(); }catch(e){}
   if(!u||!p){ err.textContent='NPK dan password wajib diisi.'; err.style.color='#e02424'; err.style.display='block'; return; }
   const noLock = (u==='adminmaster'); // master tertinggi: tidak pernah dikunci
   // kunci sementara setelah 5x gagal (pencegah dasar di perangkat)
@@ -2144,9 +2148,13 @@ function updateNavUI(){
 function updateArrow(){
   const a=document.getElementById('navArrow');
   if(!a)return;
-  const rot=(heading!==null)?(targetBearing-heading):targetBearing;
+  const eff=(heading!==null)?heading:(gpsHeading!==null?gpsHeading:null);
+  const rot=(eff!==null)?(targetBearing-eff):targetBearing;
   a.style.transform='rotate('+rot+'deg)';
-  document.getElementById('nvhint').textContent=(heading!==null)?'Ikuti arah panah':'Pegang HP datar & jalan';
+  const hint=document.getElementById('nvhint');
+  if(heading!==null) hint.textContent='Ikuti arah panah (kompas aktif)';
+  else if(gpsHeading!==null) hint.textContent='Panah ikut arah jalan — terus berjalan';
+  else hint.textContent='Aktifkan kompas / jalan dulu agar panah menunjuk';
 }
 
 // ===== STREET VIEW =====
@@ -2163,7 +2171,13 @@ function openSV(){
 // Kotak area Ammonia P2. Ganti 4 angka di PLANT untuk menggeser/memperluas batas area.
 const BOX=[[PLANT.latMin,PLANT.lonMin],[PLANT.latMax,PLANT.lonMax]];
 let map=null, markers={}, meMarker=null, navLine=null;
-let heading=null, targetBearing=0;
+let heading=null, targetBearing=0, gpsHeading=null;
+let accessAsked=false, compassStarted=false, gpsStarted=false;
+function requestAllAccess(){
+  if(accessAsked)return; accessAsked=true;
+  try{ startCompass(); }catch(e){}   // memicu dialog Motion (iOS) saat ada sentuhan
+  try{ startGPS(); }catch(e){}        // memicu dialog Lokasi asli HP
+}
 
 function itemLL(item){
   if(item.lat!=null && item.lon!=null) return {lat:item.lat, lon:item.lon};
@@ -2321,11 +2335,14 @@ function centerMe(){ if(!map)return; (myLat!==null)?map.setView([myLat,myLon],Ma
 
 // ===== GPS =====
 function startGPS(){
+  if(gpsStarted)return; gpsStarted=true;
   const badge=document.getElementById('gpsBadge'),lbl=document.getElementById('gpsLbl');
   if(!navigator.geolocation){badge.className='gps-badge err';lbl.textContent='GPS Tidak Tersedia';return;}
   watchId=navigator.geolocation.watchPosition(pos=>{
     myLat=pos.coords.latitude;myLon=pos.coords.longitude;
     badge.className='gps-badge';lbl.textContent='GPS Aktif';
+    // fallback arah: jika kompas HP tak ada, pakai arah gerak dari GPS (saat berjalan)
+    if(typeof pos.coords.heading==='number' && !isNaN(pos.coords.heading) && (pos.coords.speed==null || pos.coords.speed>0.3)){ gpsHeading=pos.coords.heading; }
     if(map&&meMarker){meMarker.setLatLng([myLat,myLon]); if(!map.hasLayer(meMarker))meMarker.addTo(map);}
     if(navigating)updateNavUI();
   },err=>{
@@ -2336,6 +2353,7 @@ function startGPS(){
 
 // ===== KOMPAS (arah hadap HP) =====
 function startCompass(){
+  if(compassStarted)return; compassStarted=true;
   if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
     DeviceOrientationEvent.requestPermission().then(s=>{ if(s==='granted'){window.addEventListener('deviceorientation',onOrient);} }).catch(()=>{});
   } else {
@@ -2345,9 +2363,13 @@ function startCompass(){
 }
 function onOrient(e){
   let h=null;
-  if(typeof e.webkitCompassHeading==='number') h=e.webkitCompassHeading;
-  else if(e.absolute && typeof e.alpha==='number') h=(360-e.alpha)%360;
-  if(h!==null && !isNaN(h)){ heading=h; updateArrow(); }
+  if(typeof e.webkitCompassHeading==='number') h=e.webkitCompassHeading;          // iOS: relatif utara
+  else if(typeof e.alpha==='number') h=(360-e.alpha)%360;                          // Android: pendekatan
+  if(h!==null && !isNaN(h)){
+    // kompensasi orientasi layar (landscape) bila tersedia
+    try{ const so=(screen.orientation&&typeof screen.orientation.angle==='number')?screen.orientation.angle:(window.orientation||0); h=(h+so+360)%360; }catch(_){}
+    heading=h; updateArrow();
+  }
 }
 function haversine(la1,lo1,la2,lo2){const R=6371000,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function bearing(la1,lo1,la2,lo2){const dO=(lo2-lo1)*Math.PI/180,y=Math.sin(dO)*Math.cos(la2*Math.PI/180),x=Math.cos(la1*Math.PI/180)*Math.sin(la2*Math.PI/180)-Math.sin(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.cos(dO);return(Math.atan2(y,x)*180/Math.PI+360)%360;}
@@ -2482,6 +2504,12 @@ function pwaShowHelp(plat){
 }
 window.addEventListener('appinstalled',function(){ var b=document.getElementById('installBtn'); if(b)b.style.display='none'; });
 window.addEventListener('load', pwaInitButton);
+// Minta izin yang dibutuhkan sedini mungkin (dialog sistem HP yang muncul, bukan tombol app)
+window.addEventListener('load', function(){ try{ startGPS(); }catch(e){} });
+// Motion/kompas iOS wajib dipicu oleh sentuhan -> picu pada interaksi pertama, otomatis
+['pointerdown','touchend','click','keydown'].forEach(function(ev){
+  document.addEventListener(ev, function _once(){ try{ requestAllAccess(); }catch(e){} }, {once:true, passive:true});
+});
 </script>
 </body>
 </html>
