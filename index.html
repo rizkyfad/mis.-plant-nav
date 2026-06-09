@@ -510,7 +510,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <h2>Selamat Datang</h2>
     <p>Masuk dengan NPK & Password</p>
     <div class="form-group"><label>NPK</label><input type="text" id="login-user" placeholder="mis. 4112233" autocapitalize="off" autocomplete="username"></div>
-    <div class="form-group"><label>Password</label><div class="pw-wrap"><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-eye" onclick="togglePw('login-pass',this)" aria-label="Lihat password">👁️</button></div></div>
+    <div class="form-group"><label>Password</label><div class="pw-wrap"><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password"><button type="button" class="pw-eye" onclick="togglePw('login-pass',this)" aria-label="Lihat password">👁️</button></div></div>
     <p id="login-err" style="display:none;color:#e02424;font-size:12px;margin:-8px 0 14px;">NPK atau password salah.</p>
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()">📲 Pasang ke Layar HP</button>
@@ -2145,9 +2145,13 @@ function stopNav(){
 function updateNavUI(){
   if(!activeItem)return;
   const il=itemLL(activeItem);
-  let dist,brg;
-  if(myLat!==null){dist=haversine(myLat,myLon,il.lat,il.lon);brg=bearing(myLat,myLon,il.lat,il.lon);}
-  else{dist=47;brg=45;}
+  if(myLat===null){
+    document.getElementById('nvdist').innerHTML='—';
+    document.getElementById('nvdir').textContent='Menunggu GPS';
+    document.getElementById('nvhint').textContent='Menunggu sinyal GPS… pastikan izin lokasi aktif';
+    return;
+  }
+  const dist=haversine(myLat,myLon,il.lat,il.lon), brg=bearing(myLat,myLon,il.lat,il.lon);
   targetBearing=brg;
   const dt=distText(dist),est=estimate(dist);
   document.getElementById('nvdist').innerHTML=Math.round(dist<1000?dist:dist/1000)+'<span>'+(dist<1000?' m':' km')+'</span>';
@@ -2245,10 +2249,10 @@ function initMap(){
   if(map){ setTimeout(()=>map.invalidateSize(),60); return; }
   map=L.map('leafmap',{zoomControl:false,attributionControl:false,
     maxBounds:BOX, maxBoundsViscosity:1.0, minZoom:16, maxZoom:21, preferCanvas:true});
-  baseLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    {maxNativeZoom:20, maxZoom:21, subdomains:'abcd'});
+  baseLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+    {maxNativeZoom:20, maxZoom:21, subdomains:'abcd', updateWhenIdle:true, updateWhenZooming:false, keepBuffer:2});
   baseSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    {maxNativeZoom:19, maxZoom:21});
+    {maxNativeZoom:19, maxZoom:21, updateWhenIdle:true, updateWhenZooming:false, keepBuffer:2});
   (mapBase==='sat'?baseSat:baseLight).addTo(map);
   map.fitBounds(BOX);
   map.on('click',onMapClick);
@@ -2270,8 +2274,8 @@ function openCoordPicker(){
   setTimeout(function(){
     if(!pickMap){
       pickMap=L.map('pickmap',{zoomControl:true,attributionControl:false,maxBounds:BOX,maxBoundsViscosity:1.0,minZoom:16,maxZoom:21});
-      pickBaseL=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxNativeZoom:20,maxZoom:21,subdomains:'abcd'});
-      pickBaseS=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:21});
+      pickBaseL=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',{maxNativeZoom:20,maxZoom:21,subdomains:'abcd',updateWhenIdle:true,updateWhenZooming:false});
+      pickBaseS=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:21,updateWhenIdle:true,updateWhenZooming:false});
       (pickBase==='sat'?pickBaseS:pickBaseL).addTo(pickMap);
       pickMap.on('click',function(e){ setPick(e.latlng.lat,e.latlng.lng); });
       const bb=document.getElementById('pickBaseBtn'); if(bb)bb.textContent=(pickBase==='sat'?'\ud83d\uddfa\ufe0f Peta':'\ud83d\udef0\ufe0f Satelit');
@@ -2380,14 +2384,17 @@ function startCompass(){
   }
 }
 function onOrient(e){
-  let h=null;
-  if(typeof e.webkitCompassHeading==='number') h=e.webkitCompassHeading;          // iOS: relatif utara
-  else if(typeof e.alpha==='number') h=(360-e.alpha)%360;                          // Android: pendekatan
-  if(h!==null && !isNaN(h)){
-    // kompensasi orientasi layar (landscape) bila tersedia
-    try{ const so=(screen.orientation&&typeof screen.orientation.angle==='number')?screen.orientation.angle:(window.orientation||0); h=(h+so+360)%360; }catch(_){}
-    heading=h; updateArrow();
+  let h=null, webkit=false;
+  if(typeof e.webkitCompassHeading==='number' && !isNaN(e.webkitCompassHeading)){
+    h=e.webkitCompassHeading; webkit=true;   // iOS: sudah relatif Utara & terkoreksi layar
+  } else if(e.absolute===true && typeof e.alpha==='number'){
+    h=(360-e.alpha)%360;                       // Android: hanya pakai yang ABSOLUT (mengacu Utara)
   }
+  if(h===null || isNaN(h)) return;             // abaikan data relatif (tanpa acuan Utara) -> cegah arah ngawur
+  if(!webkit){ // kompensasi orientasi layar hanya untuk jalur Android
+    try{ const so=(screen.orientation&&typeof screen.orientation.angle==='number')?screen.orientation.angle:(window.orientation||0); h=(h+so+360)%360; }catch(_){}
+  }
+  heading=h; updateArrow();
 }
 function haversine(la1,lo1,la2,lo2){const R=6371000,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function bearing(la1,lo1,la2,lo2){const dO=(lo2-lo1)*Math.PI/180,y=Math.sin(dO)*Math.cos(la2*Math.PI/180),x=Math.cos(la1*Math.PI/180)*Math.sin(la2*Math.PI/180)-Math.sin(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.cos(dO);return(Math.atan2(y,x)*180/Math.PI+360)%360;}
@@ -2501,6 +2508,23 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('service-worker.js').catch(function(){});
   });
 }
+// Enter = pindah ke kolom berikutnya; di kolom terakhir = klik tombol utama (Masuk/Simpan)
+document.addEventListener('keydown', function(e){
+  if(e.key!=='Enter' || e.isComposing) return;
+  var t=e.target;
+  if(!t || (t.tagName!=='INPUT' && t.tagName!=='SELECT')) return;
+  if(t.type==='file'||t.type==='checkbox'||t.type==='radio') return;
+  if(t.getAttribute && t.getAttribute('list')) return; // biarkan datalist bekerja normal
+  var card=t.closest ? t.closest('.login-card') : null;
+  if(!card) return;
+  var fields=Array.prototype.slice.call(card.querySelectorAll('input,select')).filter(function(el){
+    return el.offsetParent!==null && !el.disabled && el.type!=='hidden' && el.type!=='file';
+  });
+  var i=fields.indexOf(t);
+  e.preventDefault();
+  if(i>-1 && i<fields.length-1){ var nx=fields[i+1]; nx.focus(); try{ if(nx.select)nx.select(); }catch(_){} }
+  else { var btn=card.querySelector('button.btn-login'); if(btn) btn.click(); }
+});
 // ===== PWA: tombol pasang ke layar =====
 var deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferredPrompt=e; });
