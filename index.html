@@ -943,14 +943,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     </div>
     <div class="nvcompass" id="nvcompass">
       <div class="nvgrip"></div>
-      <div class="cring">
+      <div class="cring" onclick="startCompass()" style="cursor:pointer" title="Ketuk untuk aktifkan kompas">
         <span class="crd n">U</span><span class="crd s">S</span>
         <span class="crd e">T</span><span class="crd w">B</span>
         <div class="cinner"><div class="carrow" id="navArrow"><svg width="34" height="34" viewBox="0 0 24 24"><defs><linearGradient id="navg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff6a13"/></linearGradient></defs><path d="M12 2.5 19 20 12 15.6 5 20Z" fill="url(#navg)" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"/></svg></div></div>
       </div>
       <div class="nvdist" id="nvdist">—<span> m</span></div>
       <div class="nvdir" id="nvdir">—</div>
-      <div class="nvhint" id="nvhint">Pegang HP datar &amp; jalan</div>
+      <div class="nvhint" id="nvhint">Ketuk lingkaran kompas untuk aktifkan arah</div>
     </div>
     <div class="arrived" id="arrived"><p>✅ Sudah dekat! <b id="arrivedTag">—</b> ada di sekitarmu.</p></div>
     <button class="nvstop" onclick="stopNav()">✕ Stop</button>
@@ -2176,7 +2176,7 @@ function updateArrow(){
   const hint=document.getElementById('nvhint');
   if(heading!==null) hint.textContent='Ikuti arah panah (kompas aktif)';
   else if(gpsHeading!==null) hint.textContent='Panah ikut arah jalan — terus berjalan';
-  else hint.textContent='Aktifkan kompas / jalan dulu agar panah menunjuk';
+  else hint.textContent='Ketuk lingkaran kompas untuk aktifkan arah';
 }
 
 // ===== STREET VIEW =====
@@ -2375,12 +2375,16 @@ function startGPS(){
 
 // ===== KOMPAS (arah hadap HP) =====
 function startCompass(){
-  if(compassStarted)return; compassStarted=true;
+  if(compassStarted)return;
   if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
-    DeviceOrientationEvent.requestPermission().then(s=>{ if(s==='granted'){window.addEventListener('deviceorientation',onOrient);} }).catch(()=>{});
+    // iOS: pop-up izin per-situs. Hanya kunci kalau benar-benar diizinkan, agar bisa diminta ulang.
+    DeviceOrientationEvent.requestPermission().then(s=>{
+      if(s==='granted'){ window.addEventListener('deviceorientation',onOrient); compassStarted=true; }
+    }).catch(()=>{});
   } else {
     window.addEventListener('deviceorientationabsolute',onOrient,true);
     window.addEventListener('deviceorientation',onOrient,true);
+    compassStarted=true;
   }
 }
 function onOrient(e){
