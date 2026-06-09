@@ -421,6 +421,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .op-btn.danger{border-color:#fecaca;background:#fef2f2;color:#b91c1c;}
 .coord-pin{width:46px;flex:0 0 auto;border:1px solid var(--g200);background:var(--g50);border-radius:10px;font-size:18px;cursor:pointer;}
 .coord-pin:active{transform:scale(.92);}
+.coord-mapbtn{width:100%;margin-top:8px;padding:11px;border:1.5px solid var(--bl);background:#eef4ff;color:var(--bl);font-weight:700;font-size:13px;border-radius:11px;cursor:pointer;}
+.coord-mapbtn:active{transform:scale(.99);}
+.pick-card{background:#fff;border-radius:18px;width:100%;max-width:480px;padding:14px;}
+.pick-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.pick-head b{font-size:16px;color:var(--g800);}
+.pick-hint{font-size:12.5px;color:var(--g500);margin-bottom:8px;}
+.pickmap{width:100%;height:54vh;border-radius:12px;overflow:hidden;border:1px solid var(--g100);}
+.pick-coord{text-align:center;font-weight:700;color:var(--bl);margin:10px 0;font-size:14px;}
+.pick-acts{display:flex;gap:8px;}
 .dz-act{margin-top:6px;font-size:12px;}
 .dz-act span{color:#e02424;cursor:pointer;font-weight:600;}
 .area-type-card.locked{opacity:.45;filter:grayscale(.6);}
@@ -744,6 +753,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
         <button type="button" class="coord-pin" title="Pakai lokasi saya sekarang" onclick="useMyLocation()">📍</button>
         <button type="button" class="coord-pin" title="Tempel link / koordinat Google Maps" onclick="pasteGMaps()">🗺️</button>
       </div>
+      <button type="button" class="coord-mapbtn" onclick="openCoordPicker()">\ud83d\uddfa\ufe0f Pilih di peta (tap lokasi)</button>
       <p id="coord-hint" style="font-size:11px;color:#9ca3af;margin:6px 0 0;"></p></div>
     <div class="form-group"><label>Petunjuk Lokasi</label><textarea id="ai-hint" rows="2" placeholder="Arah/patokan menuju item"></textarea></div>
     <div class="form-group"><label>Foto Item</label>
@@ -761,6 +771,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 </div>
 
 <!-- MODAL TAMBAH OPERATOR -->
+<div id="pickModal" class="modal-bg" style="display:none;">
+  <div class="pick-card">
+    <div class="pick-head"><b>Pilih Koordinat</b><button class="modal-x" onclick="closeCoordPicker()">\u2715</button></div>
+    <div class="pick-hint">Ketuk peta untuk menaruh pin. Nyalakan satelit agar tepat di atas alat. Pin bisa digeser.</div>
+    <div id="pickmap" class="pickmap"></div>
+    <div class="pick-coord" id="pick-coord">Ketuk peta untuk menaruh pin</div>
+    <div class="pick-acts">
+      <button class="bact bact-sv" type="button" id="pickBaseBtn" onclick="togglePickBase()">\ud83d\uddfa\ufe0f Peta</button>
+      <button class="bact bact-nav" type="button" onclick="confirmCoordPick()">\u2713 Gunakan koordinat</button>
+    </div>
+  </div>
+</div>
+
 <div id="opModal" class="modal-bg" style="display:none;">
   <button class="modal-x" onclick="closeOpModal()">✕</button>
   <div class="login-card" id="opCard" style="max-width:380px;max-height:88vh;overflow-y:auto;">
@@ -2190,7 +2213,7 @@ function initMap(){
   if(map){ setTimeout(()=>map.invalidateSize(),60); return; }
   map=L.map('leafmap',{zoomControl:false,attributionControl:false,
     maxBounds:BOX, maxBoundsViscosity:1.0, minZoom:16, maxZoom:21, preferCanvas:true});
-  baseLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  baseLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     {maxNativeZoom:20, maxZoom:21, subdomains:'abcd'});
   baseSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {maxNativeZoom:19, maxZoom:21});
@@ -2203,6 +2226,52 @@ function initMap(){
   startGPS();
   setTimeout(()=>map.invalidateSize(),80);
 }
+
+// ===== PEMILIH KOORDINAT DI PETA (create/edit) =====
+let pickMap=null,pickMarker=null,pickBaseL=null,pickBaseS=null,pickBase='sat',pickLL=null;
+function openCoordPicker(){
+  document.getElementById('pickModal').style.display='flex';
+  let c=[(PLANT.latMin+PLANT.latMax)/2,(PLANT.lonMin+PLANT.lonMax)/2];
+  const cur=(document.getElementById('ai-coord').value||'').trim();
+  let has=false, la, lo;
+  if(cur){ const p=cur.split(','); la=parseFloat(p[0]); lo=parseFloat(p[1]); if(!isNaN(la)&&!isNaN(lo)){ c=[la,lo]; has=true; } }
+  setTimeout(function(){
+    if(!pickMap){
+      pickMap=L.map('pickmap',{zoomControl:true,attributionControl:false,maxBounds:BOX,maxBoundsViscosity:1.0,minZoom:16,maxZoom:21});
+      pickBaseL=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxNativeZoom:20,maxZoom:21,subdomains:'abcd'});
+      pickBaseS=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:21});
+      (pickBase==='sat'?pickBaseS:pickBaseL).addTo(pickMap);
+      pickMap.on('click',function(e){ setPick(e.latlng.lat,e.latlng.lng); });
+      const bb=document.getElementById('pickBaseBtn'); if(bb)bb.textContent=(pickBase==='sat'?'\ud83d\uddfa\ufe0f Peta':'\ud83d\udef0\ufe0f Satelit');
+    }
+    pickMap.setView(c,19);
+    if(has){ setPick(la,lo); } else { pickLL=null; if(pickMarker){pickMap.removeLayer(pickMarker);pickMarker=null;} document.getElementById('pick-coord').textContent='Ketuk peta untuk menaruh pin'; }
+    pickMap.invalidateSize();
+  },150);
+}
+function setPick(la,lo){
+  pickLL={lat:la,lon:lo};
+  if(!pickMarker){
+    pickMarker=L.marker([la,lo],{draggable:true}).addTo(pickMap);
+    pickMarker.on('dragend',function(){ const ll=pickMarker.getLatLng(); pickLL={lat:ll.lat,lon:ll.lng}; document.getElementById('pick-coord').textContent=ll.lat.toFixed(7)+', '+ll.lng.toFixed(7); });
+  } else pickMarker.setLatLng([la,lo]);
+  document.getElementById('pick-coord').textContent=la.toFixed(7)+', '+lo.toFixed(7);
+}
+function togglePickBase(){
+  if(!pickMap)return;
+  pickBase=(pickBase==='sat')?'light':'sat';
+  if(pickBase==='sat'){ if(pickBaseL)pickMap.removeLayer(pickBaseL); pickBaseS.addTo(pickMap); }
+  else { if(pickBaseS)pickMap.removeLayer(pickBaseS); pickBaseL.addTo(pickMap); }
+  const b=document.getElementById('pickBaseBtn'); if(b)b.textContent=(pickBase==='sat'?'\ud83d\uddfa\ufe0f Peta':'\ud83d\udef0\ufe0f Satelit');
+}
+function confirmCoordPick(){
+  if(!pickLL){ alert('Ketuk peta dulu untuk menaruh pin.'); return; }
+  const v=pickLL.lat.toFixed(7)+','+pickLL.lon.toFixed(7);
+  const inp=document.getElementById('ai-coord'); inp.value=v;
+  try{ inp.dispatchEvent(new Event('input')); }catch(e){}
+  closeCoordPicker();
+}
+function closeCoordPicker(){ document.getElementById('pickModal').style.display='none'; }
 
 function showOnlyActive(){
   if(!map)return;
