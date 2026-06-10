@@ -14,6 +14,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css">
 <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -322,7 +325,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .nv-sub{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;}
 .nvcompass{position:absolute;bottom:185px;left:14px;background:rgba(8,17,31,0.88);backdrop-filter:blur(12px);border-radius:18px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;align-items:center;gap:8px;min-width:92px;cursor:grab;touch-action:none;}
 .nvcompass.dragging{cursor:grabbing;opacity:.92;}
-.nvgrip{width:34px;height:4px;border-radius:2px;background:rgba(255,255,255,0.25);margin-bottom:2px;}
+.nvgrip{width:46px;height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:2px;}
+.nvgrip::before{content:'';width:34px;height:4px;border-radius:2px;background:rgba(255,255,255,0.35);}
+.nvcompass.collapsed{padding:6px 14px 10px;gap:3px;}
+.nvcompass.collapsed .cring,.nvcompass.collapsed .nvdir,.nvcompass.collapsed .nvhint{display:none;}
+.nvexpand{display:none;font-size:9px;color:rgba(255,255,255,0.55);text-align:center;}
+.nvcompass.collapsed .nvexpand{display:block;}
 .cring{width:64px;height:64px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;position:relative;}
 .crose{position:absolute;top:0;left:0;right:0;bottom:0;transition:transform .15s ease-out;}
 .crd{position:absolute;font-size:9px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;}
@@ -1088,6 +1096,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
       <div class="nvdist" id="nvdist">—<span> m</span></div>
       <div class="nvdir" id="nvdir">—</div>
       <div class="nvhint" id="nvhint">Panah searah garis ke item · Utara di atas</div>
+      <div class="nvexpand">▲ ketuk untuk buka</div>
     </div>
     <div class="arrived" id="arrived"><p>✅ Sudah dekat! <b id="arrivedTag">—</b> ada di sekitarmu.</p></div>
     <button class="nvstop" onclick="stopNav()">✕ Stop</button>
@@ -2631,8 +2640,12 @@ function initMap(){
   if(map){ setTimeout(()=>map.invalidateSize(),60); return; }
   map=L.map('leafmap',{zoomControl:false,attributionControl:false,
     maxBounds:BOX, maxBoundsViscosity:1.0, minZoom:16, maxZoom:21, preferCanvas:true});
-  baseLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-    {maxNativeZoom:20, maxZoom:21, subdomains:'abcd', updateWhenIdle:true, updateWhenZooming:false, keepBuffer:2});
+  if(window.maplibregl && L.maplibreGL){
+    baseLight=L.maplibreGL({style:'https://tiles.openfreemap.org/styles/liberty'});   // peta VEKTOR gratis: ringan & mulus
+  } else {
+    baseLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      {maxNativeZoom:20, maxZoom:21, subdomains:'abcd', updateWhenIdle:true, updateWhenZooming:false, keepBuffer:2});  // cadangan raster
+  }
   baseSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {maxNativeZoom:19, maxZoom:21, updateWhenIdle:true, updateWhenZooming:false, keepBuffer:2});
   (mapBase==='sat'?baseSat:baseLight).addTo(map);
@@ -2795,14 +2808,25 @@ function clearPhotoField(prefix){
   hiddenOf(prefix).value='';
   setDropName(prefix,'');
 }
-function pasteGMaps(){
+async function pasteGMaps(){
   const hint=document.getElementById('coord-hint');
-  const s=prompt('Tempel link Google Maps ATAU koordinat (mis. -0.123456, 117.456789):');
+  const s=prompt('Tempel link Google Maps (termasuk link pendek maps.app.goo.gl) ATAU koordinat (mis. -0.123456, 117.456789):');
   if(!s)return;
-  const m=s.match(/(-?\d{1,3}\.\d{3,})[ ,]+(-?\d{1,3}\.\d{3,})/);
-  if(!m){ hint.style.color='#e02424'; hint.textContent='Tidak menemukan koordinat di teks itu. Pastikan ada angka lat,lon.'; return; }
-  document.getElementById('ai-coord').value=m[1]+','+m[2];
-  hint.style.color='#16a34a'; hint.textContent='\u2705 Koordinat dari Google Maps terisi.';
+  const t=s.trim();
+  // 1) kalau sudah ada angka koordinat di teks -> langsung pakai
+  const m=t.match(/(-?\d{1,3}\.\d{3,})[ ,]+(-?\d{1,3}\.\d{3,})/);
+  if(m){ document.getElementById('ai-coord').value=m[1]+','+m[2]; hint.style.color='#16a34a'; hint.textContent='\u2705 Koordinat terisi.'; return; }
+  // 2) kalau berupa link (mis. link pendek) -> minta server membacanya (perlu internet)
+  if(/^https?:\/\//i.test(t)){
+    hint.style.color='#6b7280'; hint.textContent='Membaca koordinat dari link\u2026 (perlu internet)';
+    try{
+      const r=await callAdminOps({action:'resolve_maps_link', url:t});
+      if(r && r.lat!=null && r.lon!=null){ document.getElementById('ai-coord').value=r.lat+','+r.lon; hint.style.color='#16a34a'; hint.textContent='\u2705 Koordinat dari link Google Maps terisi.'; return; }
+      hint.style.color='#e02424'; hint.textContent='Link terbaca tapi koordinat tak ditemukan. Buka di Maps lalu salin angka lat,lon.';
+    }catch(e){ hint.style.color='#e02424'; hint.textContent='Gagal membaca link: '+(e.message||e); }
+    return;
+  }
+  hint.style.color='#e02424'; hint.textContent='Tidak menemukan koordinat. Tempel link Google Maps, atau angka lat,lon.';
 }
 function useMyLocation(){
   const hint=document.getElementById('coord-hint');
@@ -2852,19 +2876,20 @@ document.addEventListener('click',e=>{
 });
 window.addEventListener('resize',()=>{if(document.getElementById('screen-map').classList.contains('active'))initMap();});
 
-// ===== KOMPAS NAVIGASI BISA DI-DRAG =====
+// ===== KOMPAS NAVIGASI: GESER BAWAH = SEMBUNYIKAN, GESER ATAS / TAP PEGANGAN = TAMPIL =====
 (function(){
   const el=document.getElementById('nvcompass'); if(!el)return;
-  let drag=false,sx,sy,ox,oy;
-  function start(x,y){drag=true;el.classList.add('dragging');const r=el.getBoundingClientRect();const p=el.parentElement.getBoundingClientRect();ox=r.left-p.left;oy=r.top-p.top;sx=x;sy=y;el.style.bottom='auto';el.style.right='auto';el.style.left=ox+'px';el.style.top=oy+'px';}
-  function move(x,y){if(!drag)return;const p=el.parentElement.getBoundingClientRect();let nx=ox+(x-sx),ny=oy+(y-sy);nx=Math.max(4,Math.min(nx,p.width-el.offsetWidth-4));ny=Math.max(4,Math.min(ny,p.height-el.offsetHeight-4));el.style.left=nx+'px';el.style.top=ny+'px';}
-  function end(){drag=false;el.classList.remove('dragging');}
-  el.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY);},{passive:true});
-  el.addEventListener('touchmove',e=>{const t=e.touches[0];move(t.clientX,t.clientY);},{passive:true});
-  el.addEventListener('touchend',end);
-  el.addEventListener('mousedown',e=>{start(e.clientX,e.clientY);e.preventDefault();});
-  window.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
-  window.addEventListener('mouseup',end);
+  const grip=el.querySelector('.nvgrip');
+  function setC(c){ el.classList.toggle('collapsed', c); try{ localStorage.setItem('pn_nav_collapsed', c?'1':'0'); }catch(e){} }
+  try{ if(localStorage.getItem('pn_nav_collapsed')==='1') el.classList.add('collapsed'); }catch(e){}
+  let sy=0, mv=0, on=false;
+  function down(y){ on=true; sy=y; mv=0; }
+  function moveY(y){ if(on) mv=y-sy; }
+  function up(){ if(!on)return; on=false; if(mv>26) setC(true); else if(mv<-26) setC(false); }
+  el.addEventListener('touchstart',e=>down(e.touches[0].clientY),{passive:true});
+  el.addEventListener('touchmove',e=>moveY(e.touches[0].clientY),{passive:true});
+  el.addEventListener('touchend',up);
+  if(grip){ grip.addEventListener('click',function(ev){ ev.stopPropagation(); setC(!el.classList.contains('collapsed')); }); }
 })();
 
 // ===== SWIPE pop-up bawah ke bawah untuk hide =====
