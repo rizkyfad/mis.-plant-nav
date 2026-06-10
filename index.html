@@ -1260,7 +1260,7 @@ function mapRowsToItems(items){
       area:areaById[r.area_id]||'',floor:fl,icon:iconForType(r.type),cls:'valve',
       hint:r.hint||'(belum ada petunjuk)',lat:r.lat,lon:r.lon,photo:r.photo_path||'',sv:r.sv_path||''});
   });
-  if(map){ for(const k in markers){ try{ if(map.hasLayer(markers[k]))map.removeLayer(markers[k]); }catch(e){} delete markers[k]; } ITEMS.forEach(it=>{ if(hasCoord(it)) makeMarker(it); }); }
+  if(map){ try{ showOnlyActive(); }catch(e){} }
 }
 const ITEMS_SELECT='id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id';
 async function loadItemsForUnit(opts){
@@ -2489,7 +2489,7 @@ function startNav(){
   document.getElementById('novo').classList.add('active');
   document.getElementById('bpop').classList.remove('show');
   focusItem(activeItem);
-  if(map&&myLat!==null){const il=itemLL(activeItem);map.fitBounds([[myLat,myLon],[il.lat,il.lon]],{padding:[70,70],maxZoom:20});}
+  if(map&&myLat!==null){const il=itemLL(activeItem);try{map.fitBounds([[Math.min(myLon,il.lon),Math.min(myLat,il.lat)],[Math.max(myLon,il.lon),Math.max(myLat,il.lat)]],{padding:70,maxZoom:20});}catch(e){}}
   updateNavLine();
 }
 
@@ -2584,7 +2584,8 @@ function showPano(){
 // ===== MAP (Leaflet + satelit gratis) =====
 // Kotak area Ammonia P2. Ganti 4 angka di PLANT untuk menggeser/memperluas batas area.
 const BOX=[[PLANT.latMin,PLANT.lonMin],[PLANT.latMax,PLANT.lonMax]];
-let map=null, markers={}, meMarker=null, navLine=null;
+let map=null, mapReady=false, activeMarker=null, meMarker=null;
+const ML_BOUNDS=[[PLANT.lonMin,PLANT.latMin],[PLANT.lonMax,PLANT.latMax]];
 let heading=null, targetBearing=0, navCourse=null;
 let accessAsked=false, compassStarted=false, gpsStarted=false;
 function requestAllAccess(){
@@ -2598,16 +2599,17 @@ function itemLL(item){
   return {lat:PLANT.latMin+(1-item.my)*(PLANT.latMax-PLANT.latMin),lon:PLANT.lonMin+item.mx*(PLANT.lonMax-PLANT.lonMin)};
 }
 function hasCoord(it){ return it.lat!=null && it.lon!=null && !isNaN(+it.lat) && !isNaN(+it.lon); }
-function makeMarker(item){
-  if(!hasCoord(item)) return null;
-  const il=itemLL(item);
-  const icon=L.divIcon({className:'',html:
-    '<div class="item-pin"><span class="ip-tag">'+item.id+'</span><span class="ip-dot"></span></div>',
-    iconSize:[40,40], iconAnchor:[20,40]});
-  const mk=L.marker([il.lat,il.lon],{icon});
-  mk.on('click',()=>showPop(item));
-  markers[item.id]=mk;
-  return mk;
+function activeEl(item){
+  const d=document.createElement('div');
+  d.innerHTML='<div class="item-pin active"><span class="ip-tag"></span><span class="ip-dot"></span></div>';
+  d.firstChild.querySelector('.ip-tag').textContent=item.id||'';
+  return d.firstChild;
+}
+function meEl(){ const d=document.createElement('div'); d.innerHTML='<div class="me-dot"></div>'; return d.firstChild; }
+function updateMe(){
+  if(!map||myLat===null)return;
+  if(!meMarker){ meMarker=new maplibregl.Marker({element:meEl(),anchor:'center'}).setLngLat([myLon,myLat]).addTo(map); }
+  else { meMarker.setLngLat([myLon,myLat]); }
 }
 
 // fx=0 kiri..1 kanan, fy=0 atas..1 bawah  -> [lat,lon]
@@ -2623,39 +2625,51 @@ function toggleCalib(){
 }
 function onMapClick(e){
   if(!calibMode)return;
-  const lat=e.latlng.lat.toFixed(7), lon=e.latlng.lng.toFixed(7);
+  const lat=e.lngLat.lat.toFixed(7), lon=e.lngLat.lng.toFixed(7);
   const out=document.getElementById('calibOut');
   out.textContent=lat+','+lon+'   ← salin ke kolom Koordinat';
 }
 
-let baseLight=null, baseSat=null, mapBase='light';
+let mapBase='light';
 function toggleBase(){
-  if(!map)return;
+  if(!map||!mapReady)return;
   mapBase=(mapBase==='light')?'sat':'light';
-  if(mapBase==='sat'){ if(baseLight)map.removeLayer(baseLight); baseSat.addTo(map); }
-  else { if(baseSat)map.removeLayer(baseSat); baseLight.addTo(map); }
+  if(map.getLayer('sat-layer')) map.setLayoutProperty('sat-layer','visibility', mapBase==='sat'?'visible':'none');
   const b=document.getElementById('baseBtn'); if(b)b.textContent=(mapBase==='sat'?'🗺️':'🛰️');
 }
+function addSatLayer(){
+  if(!map||map.getSource('sat-src'))return;
+  map.addSource('sat-src',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19});
+  map.addLayer({id:'sat-layer',type:'raster',source:'sat-src',layout:{visibility:(mapBase==='sat'?'visible':'none')}});
+}
+function addNavLineLayer(){
+  if(!map||map.getSource('navline-src'))return;
+  map.addSource('navline-src',{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:[]}}});
+  map.addLayer({id:'navline-layer',type:'line',source:'navline-src',
+    layout:{'line-cap':'round','line-join':'round'},
+    paint:{'line-color':'#FF6A13','line-width':3,'line-dasharray':[1,2.2],'line-opacity':0.95}});
+}
 function initMap(){
-  if(map){ setTimeout(()=>map.invalidateSize(),60); return; }
-  map=L.map('leafmap',{zoomControl:false,attributionControl:false,
-    maxBounds:BOX, maxBoundsViscosity:1.0, minZoom:16, maxZoom:21, preferCanvas:true});
-  if(window.maplibregl && L.maplibreGL){
-    baseLight=L.maplibreGL({style:'https://tiles.openfreemap.org/styles/liberty'});   // peta VEKTOR gratis: ringan & mulus
-  } else {
-    baseLight=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-      {maxNativeZoom:20, maxZoom:21, subdomains:'abcd', updateWhenIdle:true, updateWhenZooming:false, keepBuffer:2});  // cadangan raster
-  }
-  baseSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    {maxNativeZoom:19, maxZoom:21, updateWhenIdle:true, updateWhenZooming:false, keepBuffer:2});
-  (mapBase==='sat'?baseSat:baseLight).addTo(map);
-  map.fitBounds(BOX);
+  if(map){ setTimeout(()=>{try{map.resize();}catch(e){}},60); return; }
+  if(!window.maplibregl){ const lm=document.getElementById('leafmap'); if(lm)lm.innerHTML='<div style="padding:20px;color:#fff;font-size:13px">Peta perlu internet saat pertama kali dimuat. Sambungkan internet lalu buka lagi.</div>'; return; }
+  map=new maplibregl.Map({
+    container:'leafmap',
+    style:'https://tiles.openfreemap.org/styles/liberty',
+    bounds:ML_BOUNDS, fitBoundsOptions:{padding:24},
+    maxBounds:[[PLANT.lonMin-0.01,PLANT.latMin-0.01],[PLANT.lonMax+0.01,PLANT.latMax+0.01]],
+    minZoom:15, maxZoom:21, attributionControl:false, dragRotate:false, pitchWithRotate:false
+  });
+  map.on('load',function(){
+    mapReady=true;
+    try{ addSatLayer(); }catch(e){}
+    try{ addNavLineLayer(); }catch(e){}
+    try{ if(activeItem) showOnlyActive(); }catch(e){}
+    try{ updateNavLine(); }catch(e){}
+    try{ if(myLat!==null) updateMe(); }catch(e){}
+    setTimeout(()=>{ try{map.resize();}catch(e){} },60);
+  });
   map.on('click',onMapClick);
-  ITEMS.forEach(item=>{ if(hasCoord(item)) makeMarker(item); });
-  meMarker=L.marker([PLANT.latMin,PLANT.lonMin],{interactive:false,zIndexOffset:1000,
-    icon:L.divIcon({className:'',html:'<div class="me-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]})});
   startGPS();
-  setTimeout(()=>map.invalidateSize(),80);
 }
 
 // ===== PEMILIH KOORDINAT DI PETA (create/edit) =====
@@ -2706,49 +2720,41 @@ function closeCoordPicker(){ document.getElementById('pickModal').style.display=
 
 function showOnlyActive(){
   if(!map)return;
-  ITEMS.forEach(item=>{
-    const mk=markers[item.id]; if(!mk)return;
-    const isA=activeItem&&activeItem.id===item.id;
-    if(isA){ if(!map.hasLayer(mk)) mk.addTo(map); }
-    else { if(map.hasLayer(mk)) map.removeLayer(mk); }
-  });
-  highlightMarkers();
+  if(activeItem && hasCoord(activeItem)){
+    const il=itemLL(activeItem);
+    if(!activeMarker){ activeMarker=new maplibregl.Marker({element:activeEl(activeItem),anchor:'bottom'}).setLngLat([il.lon,il.lat]).addTo(map); }
+    else { try{ activeMarker.getElement().querySelector('.ip-tag').textContent=activeItem.id||''; }catch(e){} activeMarker.setLngLat([il.lon,il.lat]); }
+  } else if(activeMarker){ activeMarker.remove(); activeMarker=null; }
 }
 
 function clearMapSelection(){
-  if(!map)return;
-  ITEMS.forEach(item=>{const mk=markers[item.id]; if(mk&&map.hasLayer(mk))map.removeLayer(mk);});
-  if(navLine&&map.hasLayer(navLine))map.removeLayer(navLine);
+  if(activeMarker){ activeMarker.remove(); activeMarker=null; }
+  updateNavLine();
 }
 
 function updateNavLine(){
-  if(!map)return;
+  if(!map||!mapReady)return;
+  const src=map.getSource('navline-src'); if(!src)return;
   if(navigating&&activeItem&&myLat!==null){
     const il=itemLL(activeItem);
-    const pts=[[myLat,myLon],[il.lat,il.lon]];
-    if(!navLine){ navLine=L.polyline(pts,{color:'#FF6A13',weight:3,dashArray:'2,9',lineCap:'round',opacity:.95}).addTo(map); }
-    else { navLine.setLatLngs(pts); if(!map.hasLayer(navLine))navLine.addTo(map); }
-  } else if(navLine&&map.hasLayer(navLine)){ map.removeLayer(navLine); }
+    src.setData({type:'Feature',geometry:{type:'LineString',coordinates:[[myLon,myLat],[il.lon,il.lat]]}});
+  } else {
+    src.setData({type:'Feature',geometry:{type:'LineString',coordinates:[]}});
+  }
 }
 
-function highlightMarkers(){
-  ITEMS.forEach(item=>{
-    const mk=markers[item.id]; if(!mk)return;
-    const el=mk.getElement(); if(!el)return;
-    const pin=el.querySelector('.item-pin');
-    if(pin) pin.classList.toggle('active', !!(activeItem&&activeItem.id===item.id));
-  });
-}
+function highlightMarkers(){ /* MapLibre: hanya satu marker aktif, sudah disorot */ }
 
 function focusItem(item){
   if(!map)return;
   showOnlyActive();
+  if(!hasCoord(item))return;
   const il=itemLL(item);
-  map.setView([il.lat,il.lon], Math.max(map.getZoom(),19), {animate:true});
+  try{ map.flyTo({center:[il.lon,il.lat], zoom:Math.max(map.getZoom(),19), essential:true}); }catch(e){}
 }
 
 function zoom(f){ if(!map)return; f>1?map.zoomIn():map.zoomOut(); }
-function centerMe(){ if(!map)return; (myLat!==null)?map.setView([myLat,myLon],Math.max(map.getZoom(),19),{animate:true}):map.fitBounds(BOX); }
+function centerMe(){ if(!map)return; if(myLat!==null){ map.flyTo({center:[myLon,myLat], zoom:Math.max(map.getZoom(),19)}); } else { map.fitBounds(ML_BOUNDS,{padding:24}); } }
 
 // ===== GPS =====
 function startGPS(){
@@ -2760,7 +2766,7 @@ function startGPS(){
     if(typeof pos.coords.heading==='number'&&!isNaN(pos.coords.heading)&&pos.coords.speed!=null&&pos.coords.speed>0.7){ navCourse=pos.coords.heading; }
     else if(pos.coords.speed!=null&&pos.coords.speed<0.4){ navCourse=null; }
     badge.className='gps-badge';lbl.textContent='GPS Aktif';
-    if(map&&meMarker){meMarker.setLatLng([myLat,myLon]); if(!map.hasLayer(meMarker))meMarker.addTo(map);}
+    if(map)updateMe();
     if(navigating)updateNavUI();
   },err=>{
     badge.className='gps-badge err';
