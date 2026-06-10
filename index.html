@@ -2373,17 +2373,23 @@ function showPano(){
   const pano=document.getElementById('pano');
   const badge=document.getElementById('sv360badge');
   try{ if(svViewer){ svViewer.destroy(); svViewer=null; } }catch(e){}
-  const url=(activeItem&&activeItem.sv)?photoUrl(activeItem.sv):'';
-  if(url && window.pannellum){
+  pano.innerHTML='';
+  // ambil data TERBARU dari daftar (activeItem bisa basi setelah edit)
+  const it=(activeItem && typeof ITEMS!=='undefined') ? (ITEMS.find(function(i){return i.id===activeItem.id;})||activeItem) : activeItem;
+  const url=(it&&it.sv)?photoUrl(it.sv):'';
+  if(!url){ pano.style.display='none'; badge.style.display='none'; ph.style.display='block'; return; }
+  if(window.pannellum){
     ph.style.display='none'; pano.style.display='block'; badge.style.display='block';
     try{
       svViewer=pannellum.viewer('pano',{
         type:'equirectangular', panorama:url, autoLoad:true,
         showZoomCtrl:true, showFullscreenCtrl:false, hfov:100, minHfov:50, maxHfov:120
       });
-    }catch(e){ pano.style.display='none'; badge.style.display='none'; ph.style.display='block'; }
+    }catch(e){ pano.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:contain;background:#000;">'; }
   } else {
-    pano.style.display='none'; badge.style.display='none'; ph.style.display='block';
+    // penampil 360 belum termuat (mis. tanpa internet) -> tampilkan foto datar dulu
+    ph.style.display='none'; pano.style.display='block'; badge.style.display='none';
+    pano.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:contain;background:#000;">';
   }
 }
 
