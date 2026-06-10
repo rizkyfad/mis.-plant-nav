@@ -12,11 +12,8 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-32.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
-<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css">
 <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -614,6 +611,24 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 *::-webkit-scrollbar{width:8px;height:8px;}
 *::-webkit-scrollbar-thumb{background:var(--g200);border-radius:8px;}
 *::-webkit-scrollbar-track{background:transparent;}
+.bphoto{margin-top:10px;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.14);}
+.bphoto img{width:100%;display:block;max-height:200px;object-fit:cover;}
+.bpop.peek .binforow,.bpop.peek .bhint,.bpop.peek .bphoto,.bpop.peek .bacts{display:none;}
+.bpop.peek .bcard{transform:translateY(-6px);padding-bottom:12px;}
+.bhandle{cursor:pointer;}
+/* ===== ESTETIK: nav bawah, refresh, lampu status, pin, titik-saya ===== */
+.nav-tab .tab-icon{color:var(--g400);line-height:0;transition:transform .16s ease,color .16s ease;}
+.nav-tab .tab-icon svg{width:24px;height:24px;display:block;}
+.nav-tab.active .tab-icon{color:var(--bl);transform:translateY(-2px) scale(1.06);}
+.nav-tab.active .tab-icon svg{filter:drop-shadow(0 3px 5px rgba(0,84,166,.25));}
+.nav-tab.active .tab-label{color:var(--bl);font-weight:700;}
+.refresh-btn svg{width:20px;height:20px;display:block;}
+.dot-red{background:radial-gradient(circle at 35% 30%,#ff8a84,#ef4444 62%);box-shadow:0 0 0 3px rgba(239,68,68,.16),0 0 7px rgba(239,68,68,.5);}
+.dot-green{background:radial-gradient(circle at 35% 30%,#7ef0a8,#22c55e 62%);box-shadow:0 0 0 3px rgba(34,197,94,.16),0 0 7px rgba(34,197,94,.45);}
+.item-pin .ip-dot{background:linear-gradient(150deg,#ff6a5e,#FF3B30);box-shadow:0 2px 9px rgba(255,59,48,.5),0 1px 3px rgba(0,0,0,.4);}
+.item-pin.active .ip-dot{background:linear-gradient(150deg,#ff9a4d,#FF6A13);box-shadow:0 3px 13px rgba(255,106,19,.6);}
+.me-dot{animation:mepulse 2s ease-out infinite;}
+@keyframes mepulse{0%{box-shadow:0 0 0 0 rgba(0,84,166,.4),0 1px 6px rgba(0,0,0,.4)}70%{box-shadow:0 0 0 12px rgba(0,84,166,0),0 1px 6px rgba(0,0,0,.4)}100%{box-shadow:0 0 0 0 rgba(0,84,166,0),0 1px 6px rgba(0,0,0,.4)}}
 </style>
 </head>
 <body>
@@ -727,7 +742,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
         <div class="topbar-sub" id="topbar-sub-label">Pabrik 2 · Ammonia</div>
       </div>
     </div>
-    <div class="topbar-actions"><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div><div class="topbar-user" onclick="toggleAdminMenu(event)">👤</div></div>
+    <div class="topbar-actions"><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div><div class="topbar-user" onclick="toggleAdminMenu(event)">👤</div></div>
     <div id="adminMenu" class="admin-menu">
       <div class="am-head"><b id="am-role">Master Admin</b><span id="am-npk">NPK: admin</span></div>
       <div class="am-item admin-only" onclick="closeAdminMenu();openAddItem()">➕ Tambah Item</div>
@@ -793,7 +808,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== PENDING ===== -->
 <div id="screen-pending" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">⏳ Pending</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">⏳ Pending</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="pend-sub">Item menunggu perbaikan</p>
     <div class="mi-search"><input id="pend-search" placeholder="Cari item pending…" oninput="renderPending()"><span>🔎</span></div>
   </div>
@@ -806,7 +821,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== MAINTENANCE ===== -->
 <div id="screen-maint" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🛠️ Maintenance</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🛠️ Maintenance</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub">Item yang memiliki riwayat perbaikan</p>
     <div class="mi-search"><input id="maint-search" placeholder="Cari item…" oninput="renderMaint()"><span>🔎</span></div>
     <div class="k-filterbar"><button class="filt-btn" onclick="exportMaintCSV()">⬇️ Export riwayat (CSV)</button></div>
@@ -817,7 +832,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== RIWAYAT ITEM ===== -->
 <div id="screen-maint-item" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('maint')">‹ Maintenance</div><div class="ph-title" id="mi-title">Riwayat</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('maint')">‹ Maintenance</div><div class="ph-title" id="mi-title">Riwayat</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="mi-sub"></p>
     <div class="mi-search"><input id="mi-search-in" placeholder="Cari deskripsi… (mis. ganti packing)" oninput="renderMaintItem()"><span>🔎</span></div>
   </div>
@@ -893,9 +908,8 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
       <div style="display:flex;gap:8px;">
         <input id="ai-coord" placeholder="0.1812345,117.4901230" inputmode="text" style="flex:1;">
         <button type="button" class="coord-pin" title="Pakai lokasi saya sekarang" onclick="useMyLocation()">📍</button>
-        <button type="button" class="coord-pin" title="Tempel link / koordinat Google Maps" onclick="pasteGMaps()">🗺️</button>
       </div>
-      <button type="button" class="coord-mapbtn" onclick="openCoordPicker()">\ud83d\uddfa\ufe0f Pilih di peta (tap lokasi)</button>
+      <button type="button" class="coord-mapbtn" onclick="openCoordPicker()">🗺️ Pilih di peta (tap lokasi)</button>
       <p id="coord-hint" style="font-size:11px;color:#9ca3af;margin:6px 0 0;"></p></div>
     <div class="form-group"><label>Petunjuk Lokasi</label><textarea id="ai-hint" rows="2" placeholder="Arah/patokan menuju item"></textarea></div>
     <div class="form-group"><label>Foto Item</label>
@@ -945,7 +959,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== KELOLA ITEM ===== -->
 <div id="screen-manage" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📋 Semua Item</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📋 Semua Item</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="mng-sub">Termasuk item non-aktif · ketuk untuk detail</p>
     <div class="mi-search"><input id="mng-search" placeholder="Cari item…" oninput="renderAllItems()"><span>🔎</span></div>
     <div class="mng-filterbar">
@@ -960,7 +974,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- HALAMAN DASHBOARD -->
 <div id="screen-dash" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📊 Dashboard</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📊 Dashboard</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="dash-sub">—</p>
   </div>
   <div class="page-body"><div id="dash-body"><div class="empty">Memuat…</div></div></div>
@@ -969,7 +983,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- HALAMAN DATA KARYAWAN -->
 <div id="screen-karyawan" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">👥 Data Karyawan</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">👥 Data Karyawan</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="k-sub">—</p>
     <div class="mi-search"><input id="k-search" placeholder="Cari nama / NPK…" oninput="kSearch()"><span>🔎</span></div>
     <div class="k-filterbar">
@@ -1074,6 +1088,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
         <div class="bibox"><div class="bival" id="bdist" style="color:var(--or)">—</div><div class="bilbl">Jarak</div></div>
       </div>
       <div class="bhint" id="bhint"><b>Petunjuk:</b> —</div>
+      <div class="bphoto" id="bphoto" style="display:none;"></div>
       <div class="bacts">
         <button class="bact bact-x" onclick="closePop()">✕</button>
         <button class="bact bact-sv" onclick="openSV()">🌐 Foto 360°</button>
@@ -1139,11 +1154,11 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 
   <!-- MENU BAWAH GLOBAL -->
   <div class="bottom-nav" id="globalNav" style="display:none;">
-    <div class="nav-tab" id="tab-home" onclick="goTo('home')"><div class="tab-icon">🏠</div><div class="tab-label">Home</div></div>
-    <div class="nav-tab" id="tab-map" onclick="goTo('map');initMap()"><div class="tab-icon">🗺️</div><div class="tab-label">Peta</div></div>
-    <div class="nav-tab" id="tab-pending" onclick="goTo('pending')"><div class="tab-icon-wrap"><div class="tab-icon">⏳</div><div class="tab-dot" id="pendDot" style="display:none;"></div></div><div class="tab-label">Pending</div></div>
-    <div class="nav-tab" id="tab-maint" onclick="goTo('maint')"><div class="tab-icon">🛠️</div><div class="tab-label">Maint.</div></div>
-    <div class="nav-tab" id="tab-allitem" onclick="goTo('manage')"><div class="tab-icon">📋</div><div class="tab-label">All Item</div></div>
+    <div class="nav-tab" id="tab-home" onclick="goTo('home')"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9"/></svg></div><div class="tab-label">Home</div></div>
+    <div class="nav-tab" id="tab-map" onclick="goTo('map');initMap()"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5-6.5-10.5A6.5 6.5 0 0 1 12 4a6.5 6.5 0 0 1 6.5 6.5C18.5 16 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.4"/></svg></div><div class="tab-label">Peta</div></div>
+    <div class="nav-tab" id="tab-pending" onclick="goTo('pending')"><div class="tab-icon-wrap"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg></div><div class="tab-dot" id="pendDot" style="display:none;"></div></div><div class="tab-label">Pending</div></div>
+    <div class="nav-tab" id="tab-maint" onclick="goTo('maint')"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 4.5a4.2 4.2 0 0 1-5.5 5.5L6 19a2.1 2.1 0 1 1-3-3l9-9a4.2 4.2 0 0 1 5.5-5.5l-2.6 2.6 1.8 1.8 2.8-2.7z"/></svg></div><div class="tab-label">Maint.</div></div>
+    <div class="nav-tab" id="tab-allitem" onclick="goTo('manage')"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9.5 4V3h5v1"/><path d="M9 9.5h6M9 13h6M9 16.5h4"/></svg></div><div class="tab-label">All Item</div></div>
   </div>
 
 </div>
@@ -2463,14 +2478,19 @@ function showPop(item){
   document.getElementById('barea').textContent=item.area;
   document.getElementById('bfloor').textContent='Lt. '+floorTxt(item.floor);
   document.getElementById('bhint').innerHTML='<b>Petunjuk:</b> '+item.hint;
+  const ph=document.getElementById('bphoto');
+  if(item.photo){ ph.innerHTML='<img src="'+photoUrl(item.photo)+'" alt="" loading="lazy">'; ph.style.display='block'; }
+  else { ph.innerHTML=''; ph.style.display='none'; }
   const il=itemLL(item);
   document.getElementById('bdist').textContent=(myLat!==null)?distText(haversine(myLat,myLon,il.lat,il.lon)):'—';
+  document.getElementById('bpop').classList.remove('peek');
   document.getElementById('bpop').classList.add('show');
   focusItem(item);
 }
 
 function closePop(){
   document.getElementById('bpop').classList.remove('show');
+  document.getElementById('bpop').classList.remove('peek');
   activeItem=null;
   document.getElementById('map-search').value='';
   document.getElementById('map-clear').style.display='none';
@@ -2673,41 +2693,51 @@ function initMap(){
 }
 
 // ===== PEMILIH KOORDINAT DI PETA (create/edit) =====
-let pickMap=null,pickMarker=null,pickBaseL=null,pickBaseS=null,pickBase='sat',pickLL=null;
+let pickMap=null,pickMarker=null,pickMe=null,pickBase='sat',pickLL=null,pickReady=false;
 function openCoordPicker(){
   document.getElementById('pickModal').style.display='flex';
-  let c=[(PLANT.latMin+PLANT.latMax)/2,(PLANT.lonMin+PLANT.lonMax)/2];
+  let clat=(PLANT.latMin+PLANT.latMax)/2, clon=(PLANT.lonMin+PLANT.lonMax)/2;
   const cur=(document.getElementById('ai-coord').value||'').trim();
   let has=false, la, lo;
-  if(cur){ const p=cur.split(','); la=parseFloat(p[0]); lo=parseFloat(p[1]); if(!isNaN(la)&&!isNaN(lo)){ c=[la,lo]; has=true; } }
+  if(cur){ const p=cur.split(','); la=parseFloat(p[0]); lo=parseFloat(p[1]); if(!isNaN(la)&&!isNaN(lo)){ clat=la; clon=lo; has=true; } }
   setTimeout(function(){
     if(!pickMap){
-      pickMap=L.map('pickmap',{zoomControl:true,attributionControl:false,maxBounds:BOX,maxBoundsViscosity:1.0,minZoom:16,maxZoom:21});
-      pickBaseL=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',{maxNativeZoom:20,maxZoom:21,subdomains:'abcd',updateWhenIdle:true,updateWhenZooming:false});
-      pickBaseS=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:21,updateWhenIdle:true,updateWhenZooming:false});
-      (pickBase==='sat'?pickBaseS:pickBaseL).addTo(pickMap);
-      pickMap.on('click',function(e){ setPick(e.latlng.lat,e.latlng.lng); });
-      const bb=document.getElementById('pickBaseBtn'); if(bb)bb.textContent=(pickBase==='sat'?'\ud83d\uddfa\ufe0f Peta':'\ud83d\udef0\ufe0f Satelit');
+      if(!window.maplibregl){ document.getElementById('pick-coord').textContent='Peta perlu internet untuk dimuat pertama kali.'; return; }
+      pickMap=new maplibregl.Map({container:'pickmap',style:'https://tiles.openfreemap.org/styles/liberty',center:[clon,clat],zoom:19,minZoom:15,maxZoom:21,attributionControl:false,dragRotate:false,pitchWithRotate:false});
+      pickMap.on('load',function(){
+        pickReady=true;
+        try{ pickMap.addSource('psat-src',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19}); pickMap.addLayer({id:'psat-layer',type:'raster',source:'psat-src',layout:{visibility:(pickBase==='sat'?'visible':'none')}}); }catch(e){}
+        try{ pickMap.resize(); }catch(e){}
+        if(myLat!==null) updatePickMe();
+      });
+      pickMap.on('click',function(e){ setPick(e.lngLat.lat,e.lngLat.lng); });
+      const bb=document.getElementById('pickBaseBtn'); if(bb)bb.textContent=(pickBase==='sat'?'🗺️ Peta':'🛰️ Satelit');
+    } else {
+      pickMap.setCenter([clon,clat]); pickMap.setZoom(19);
+      setTimeout(()=>{try{pickMap.resize();}catch(e){}},60);
     }
-    pickMap.setView(c,19);
-    if(has){ setPick(la,lo); } else { pickLL=null; if(pickMarker){pickMap.removeLayer(pickMarker);pickMarker=null;} document.getElementById('pick-coord').textContent='Ketuk peta untuk menaruh pin'; }
-    pickMap.invalidateSize();
+    if(has){ setPick(la,lo); } else { pickLL=null; if(pickMarker){pickMarker.remove();pickMarker=null;} document.getElementById('pick-coord').textContent='Ketuk peta untuk menaruh pin'; }
   },150);
+}
+function pickMeEl(){ const d=document.createElement('div'); d.innerHTML='<div class="me-dot"></div>'; return d.firstChild; }
+function updatePickMe(){
+  if(!pickMap||myLat===null)return;
+  if(!pickMe){ pickMe=new maplibregl.Marker({element:pickMeEl(),anchor:'center'}).setLngLat([myLon,myLat]).addTo(pickMap); }
+  else { pickMe.setLngLat([myLon,myLat]); }
 }
 function setPick(la,lo){
   pickLL={lat:la,lon:lo};
   if(!pickMarker){
-    pickMarker=L.marker([la,lo],{draggable:true}).addTo(pickMap);
-    pickMarker.on('dragend',function(){ const ll=pickMarker.getLatLng(); pickLL={lat:ll.lat,lon:ll.lng}; document.getElementById('pick-coord').textContent=ll.lat.toFixed(7)+', '+ll.lng.toFixed(7); });
-  } else pickMarker.setLatLng([la,lo]);
+    pickMarker=new maplibregl.Marker({color:'#FF3B30',draggable:true}).setLngLat([lo,la]).addTo(pickMap);
+    pickMarker.on('dragend',function(){ const ll=pickMarker.getLngLat(); pickLL={lat:ll.lat,lon:ll.lng}; document.getElementById('pick-coord').textContent=ll.lat.toFixed(7)+', '+ll.lng.toFixed(7); });
+  } else pickMarker.setLngLat([lo,la]);
   document.getElementById('pick-coord').textContent=la.toFixed(7)+', '+lo.toFixed(7);
 }
 function togglePickBase(){
-  if(!pickMap)return;
+  if(!pickMap||!pickReady)return;
   pickBase=(pickBase==='sat')?'light':'sat';
-  if(pickBase==='sat'){ if(pickBaseL)pickMap.removeLayer(pickBaseL); pickBaseS.addTo(pickMap); }
-  else { if(pickBaseS)pickMap.removeLayer(pickBaseS); pickBaseL.addTo(pickMap); }
-  const b=document.getElementById('pickBaseBtn'); if(b)b.textContent=(pickBase==='sat'?'\ud83d\uddfa\ufe0f Peta':'\ud83d\udef0\ufe0f Satelit');
+  if(pickMap.getLayer('psat-layer')) pickMap.setLayoutProperty('psat-layer','visibility', pickBase==='sat'?'visible':'none');
+  const b=document.getElementById('pickBaseBtn'); if(b)b.textContent=(pickBase==='sat'?'🗺️ Peta':'🛰️ Satelit');
 }
 function confirmCoordPick(){
   if(!pickLL){ alert('Ketuk peta dulu untuk menaruh pin.'); return; }
@@ -2767,6 +2797,7 @@ function startGPS(){
     else if(pos.coords.speed!=null&&pos.coords.speed<0.4){ navCourse=null; }
     badge.className='gps-badge';lbl.textContent='GPS Aktif';
     if(map)updateMe();
+    if(pickMap)updatePickMe();
     if(navigating)updateNavUI();
   },err=>{
     badge.className='gps-badge err';
@@ -2898,21 +2929,24 @@ window.addEventListener('resize',()=>{if(document.getElementById('screen-map').c
   if(grip){ grip.addEventListener('click',function(ev){ ev.stopPropagation(); setC(!el.classList.contains('collapsed')); }); }
 })();
 
-// ===== SWIPE pop-up bawah ke bawah untuk hide =====
+// ===== SWIPE pop-up bawah: GESER BAWAH = ciutkan (peek di atas taskbar), GESER ATAS/TAP = buka =====
 (function(){
   const pop=document.getElementById('bpop');
+  if(!pop)return;
   const card=pop.querySelector('.bcard');
-  let startY=0, curY=0, dragging=false;
-  function down(y){ startY=y; curY=y; dragging=true; pop.style.transition='none'; }
-  function move(y){ if(!dragging)return; curY=y; const dy=Math.max(0,curY-startY); pop.style.transform='translateY('+dy+'px)'; }
-  function up(){ if(!dragging)return; dragging=false; pop.style.transition=''; const dy=curY-startY;
-    if(dy>90){ pop.style.transform=''; closePop(); } else { pop.style.transform=''; } }
+  const handle=pop.querySelector('.bhandle');
+  function setPeek(p){ pop.classList.toggle('peek', p); }
+  let sy=0, mv=0, on=false;
+  function down(y){ on=true; sy=y; mv=0; }
+  function move(y){ if(on) mv=y-sy; }
+  function up(){ if(!on)return; on=false; if(mv>46) setPeek(true); else if(mv<-46) setPeek(false); }
   card.addEventListener('touchstart',e=>down(e.touches[0].clientY),{passive:true});
   card.addEventListener('touchmove', e=>move(e.touches[0].clientY),{passive:true});
   card.addEventListener('touchend', up);
-  card.addEventListener('mousedown',e=>{ down(e.clientY); });
-  window.addEventListener('mousemove',e=>{ if(dragging) move(e.clientY); });
+  card.addEventListener('mousedown',e=>down(e.clientY));
+  window.addEventListener('mousemove',e=>{ if(on) move(e.clientY); });
   window.addEventListener('mouseup', up);
+  if(handle){ handle.style.cursor='pointer'; handle.addEventListener('click',function(ev){ ev.stopPropagation(); setPeek(!pop.classList.contains('peek')); }); }
 })();
 
 
