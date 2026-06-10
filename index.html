@@ -14,6 +14,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -322,6 +324,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .nvcompass.dragging{cursor:grabbing;opacity:.92;}
 .nvgrip{width:34px;height:4px;border-radius:2px;background:rgba(255,255,255,0.25);margin-bottom:2px;}
 .cring{width:64px;height:64px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;position:relative;}
+.crose{position:absolute;top:0;left:0;right:0;bottom:0;transition:transform .15s ease-out;}
 .crd{position:absolute;font-size:9px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;}
 .crd.n{top:2px;left:50%;transform:translateX(-50%);color:rgba(255,106,19,0.9);}
 .crd.s{bottom:2px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.3);}
@@ -407,6 +410,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .sheet-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;}
 .st-aktif{background:#dcfce7;color:#15803d;}
 .st-non{background:#fee2e2;color:#b91c1c;}
+.st-prog{background:#dbeafe;color:#1e40af;}
+.md-sec{margin-bottom:22px;}
+.md-sec-h{font-weight:700;color:var(--g800);margin-bottom:10px;font-size:15px;}
+.md-add{display:flex;gap:8px;margin-bottom:10px;}
+.md-add input{flex:1;padding:10px 12px;border:1px solid var(--g200);border-radius:10px;background:var(--g50);color:var(--g800);}
+.md-list{display:flex;flex-direction:column;gap:8px;}
+.md-row{display:flex;align-items:center;gap:8px;background:var(--w);border:1px solid var(--g200);border-radius:10px;padding:10px 12px;}
+.md-row.sel{border-color:var(--bl);box-shadow:0 0 0 2px rgba(0,84,166,.15);}
+.md-row .md-nm{flex:1;min-width:0;color:var(--g800);font-weight:600;cursor:pointer;}
+.md-row .md-act{display:flex;gap:6px;}
+.md-row .md-act button{border:none;background:var(--g100);border-radius:8px;padding:6px 9px;cursor:pointer;font-size:13px;}
+.md-row .md-act button.danger{background:#fee2e2;color:#b91c1c;}
 .sheet-body{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
 .srow{display:flex;gap:10px;font-size:13px;}
 .srow .k{color:var(--g400);min-width:96px;}
@@ -463,6 +478,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .dash-bar .tr{flex:1;height:8px;background:var(--g100);border-radius:5px;overflow:hidden;}
 .dash-bar .fl{height:100%;background:var(--bl);border-radius:5px;}
 .dash-bar .vl{flex:0 0 auto;color:var(--g500);font-size:12px;min-width:30px;text-align:right;}
+.refresh-btn{width:44px;height:38px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:#fff;-webkit-tap-highlight-color:transparent;}
+.refresh-btn:active{opacity:.6;}
+.refresh-btn.spinning{animation:pnspin .7s linear;}
+@keyframes pnspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.topbar-actions{display:flex;align-items:center;gap:2px;}
+.pn-toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none;}
+.pn-toast.show{opacity:1;}
 .offline-bar{display:none;background:#b45309;color:#fff;font-size:12px;text-align:center;padding:calc(7px + env(safe-area-inset-top)) 10px 7px;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;z-index:9999;}
 .offline-bar.show{display:block;}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle;flex:0 0 auto;}
@@ -476,6 +498,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .filt-chk{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;margin:3px 6px 3px 0;font-size:13px;color:var(--g800);cursor:pointer;border:1.5px solid var(--g200);border-radius:10px;background:var(--g50);}
 .filt-chk.sel{border-color:var(--bl);background:#eef4ff;color:var(--bl);font-weight:600;}
 .pend-badge{font-size:9px;font-weight:700;background:#fde8c8;color:#b25e00;padding:2px 6px;border-radius:6px;letter-spacing:.4px;}
+.prog-badge{font-size:9px;font-weight:700;background:#dbeafe;color:#1e40af;padding:2px 6px;border-radius:6px;letter-spacing:.4px;}
 .empty{text-align:center;color:var(--g400);font-size:13px;padding:36px 10px;}
 .mi-search{margin-top:12px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 12px;}
 .mi-search input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:13px;padding:10px 0;}
@@ -606,12 +629,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
         <div class="topbar-sub" id="topbar-sub-label">Pabrik 2 · Ammonia</div>
       </div>
     </div>
-    <div class="topbar-user" onclick="toggleAdminMenu(event)">👤</div>
+    <div class="topbar-actions"><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div><div class="topbar-user" onclick="toggleAdminMenu(event)">👤</div></div>
     <div id="adminMenu" class="admin-menu">
       <div class="am-head"><b id="am-role">Master Admin</b><span id="am-npk">NPK: admin</span></div>
       <div class="am-item admin-only" onclick="closeAdminMenu();openAddItem()">➕ Tambah Item</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('dash')">📊 Dashboard</div>
       <div class="am-item admin-only" onclick="closeAdminMenu();goTo('karyawan')">👥 Data Karyawan</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();openMD()">🗂️ Kelola Unit & Area</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('pending')">⏳ Pending</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('maint')">🛠️ Maintenance</div>
       <div class="am-sep"></div>
@@ -671,7 +695,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 <!-- ===== PENDING ===== -->
 <div id="screen-pending" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">⏳ Pending</div><div style="width:44px"></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">⏳ Pending</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
     <p class="ph-sub" id="pend-sub">Item menunggu perbaikan</p>
     <div class="mi-search"><input id="pend-search" placeholder="Cari item pending…" oninput="renderPending()"><span>🔎</span></div>
   </div>
@@ -684,7 +708,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 <!-- ===== MAINTENANCE ===== -->
 <div id="screen-maint" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🛠️ Maintenance</div><div style="width:44px"></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🛠️ Maintenance</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
     <p class="ph-sub">Item yang memiliki riwayat perbaikan</p>
     <div class="mi-search"><input id="maint-search" placeholder="Cari item…" oninput="renderMaint()"><span>🔎</span></div>
     <div class="k-filterbar"><button class="filt-btn" onclick="exportMaintCSV()">⬇️ Export riwayat (CSV)</button></div>
@@ -695,7 +719,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 <!-- ===== RIWAYAT ITEM ===== -->
 <div id="screen-maint-item" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('maint')">‹ Maintenance</div><div class="ph-title" id="mi-title">Riwayat</div><div style="width:44px"></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('maint')">‹ Maintenance</div><div class="ph-title" id="mi-title">Riwayat</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
     <p class="ph-sub" id="mi-sub"></p>
     <div class="mi-search"><input id="mi-search-in" placeholder="Cari deskripsi… (mis. ganti packing)" oninput="renderMaintItem()"><span>🔎</span></div>
   </div>
@@ -760,8 +784,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="form-group"><label>Tag / ID *</label><input id="ai-tag" placeholder="mis. FV-99" autocapitalize="characters"></div>
     <div class="form-group"><label>Nama Item *</label><input id="ai-name" placeholder="mis. Flow Valve 99"></div>
     <div class="form-group"><label>Fungsi / Deskripsi</label><input id="ai-func" placeholder="mis. Mengatur aliran proses"></div>
-    <div class="form-group"><label>Tipe</label><select id="ai-type"></select></div>
-    <div class="form-group"><label>Area</label><select id="ai-area"></select></div>
+    <div class="form-group"><label>Tipe</label><input id="ai-type" list="ai-type-list" autocomplete="off" placeholder="ketik untuk cari tipe…"><datalist id="ai-type-list"></datalist></div>
+    <div class="form-group"><label>Area</label><input id="ai-area" list="ai-area-list" autocomplete="off" placeholder="ketik untuk cari area (kosong = tanpa area)"><datalist id="ai-area-list"></datalist></div>
     <div class="form-group"><label>Lantai / Elevasi</label><input id="ai-floor" placeholder="0 = lantai dasar, 1, 2 …" inputmode="numeric"></div>
     <div class="form-group"><label>Koordinat (lat,lon)</label>
       <div style="display:flex;gap:8px;">
@@ -776,7 +800,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
       <div class="dropzone" id="dz-photo"><input type="file" id="file-photo" accept="image/*" hidden><div class="dz-text" id="dz-photo-text">📷 Pilih file atau seret ke sini</div></div>
       <div class="dz-act" id="dz-photo-act" style="display:none;"><span onclick="clearPhotoField('photo')">🗑️ Hapus foto</span></div>
       <input type="hidden" id="ai-photo"></div>
-    <div class="form-group"><label>Foto Street View</label>
+    <div class="form-group"><label>Foto 360° (equirectangular)</label>
       <div class="dropzone" id="dz-sv"><input type="file" id="file-sv" accept="image/*" hidden><div class="dz-text" id="dz-sv-text">🌐 Pilih file atau seret ke sini</div></div>
       <div class="dz-act" id="dz-sv-act" style="display:none;"><span onclick="clearPhotoField('sv')">🗑️ Hapus foto</span></div>
       <input type="hidden" id="ai-sv"></div>
@@ -819,7 +843,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 <!-- ===== KELOLA ITEM ===== -->
 <div id="screen-manage" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📋 Semua Item</div><div style="width:44px"></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📋 Semua Item</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
     <p class="ph-sub" id="mng-sub">Termasuk item non-aktif · ketuk untuk detail</p>
     <div class="mi-search"><input id="mng-search" placeholder="Cari item…" oninput="renderAllItems()"><span>🔎</span></div>
     <div class="mng-filterbar">
@@ -834,7 +858,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 <!-- HALAMAN DASHBOARD -->
 <div id="screen-dash" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📊 Dashboard</div><div style="width:44px"></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📊 Dashboard</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
     <p class="ph-sub" id="dash-sub">—</p>
   </div>
   <div class="page-body"><div id="dash-body"><div class="empty">Memuat…</div></div></div>
@@ -843,7 +867,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 <!-- HALAMAN DATA KARYAWAN -->
 <div id="screen-karyawan" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">👥 Data Karyawan</div><div style="width:44px"></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">👥 Data Karyawan</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan">🔄</div></div>
     <p class="ph-sub" id="k-sub">—</p>
     <div class="mi-search"><input id="k-search" placeholder="Cari nama / NPK…" oninput="kSearch()"><span>🔎</span></div>
     <div class="k-filterbar">
@@ -854,6 +878,26 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <p id="k-msg" style="display:none;font-size:12px;margin:8px 0 0;"></p>
   </div>
   <div class="page-body"><div id="k-list" class="op-list"></div></div>
+</div>
+
+<!-- HALAMAN KELOLA UNIT & AREA -->
+<div id="screen-md" class="screen page">
+  <div class="page-head">
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🗂️ Kelola Unit & Area</div><div class="refresh-btn" onclick="mdReload()" title="Segarkan">🔄</div></div>
+    <p class="ph-sub" id="md-plant-wrap">—</p>
+  </div>
+  <div class="page-body">
+    <div class="md-sec">
+      <div class="md-sec-h">Unit</div>
+      <div class="md-add"><input id="md-unit-name" placeholder="Nama unit baru…" autocomplete="off"><button class="filt-btn" onclick="mdAddUnit()">＋ Tambah</button></div>
+      <div id="md-units" class="md-list"></div>
+    </div>
+    <div class="md-sec">
+      <div class="md-sec-h">Area <span id="md-area-unit" style="color:var(--g400);font-weight:500;font-size:12px;"></span></div>
+      <div id="md-area-add" class="md-add" style="display:none"><input id="md-area-name" placeholder="Nama area baru…" autocomplete="off"><button class="filt-btn" onclick="mdAddArea()">＋ Tambah</button></div>
+      <div id="md-areas" class="md-list"><div class="empty">Pilih unit dulu di atas.</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL DETAIL ITEM -->
@@ -930,7 +974,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
       <div class="bhint" id="bhint"><b>Petunjuk:</b> —</div>
       <div class="bacts">
         <button class="bact bact-x" onclick="closePop()">✕</button>
-        <button class="bact bact-sv" onclick="openSV()">📸 Street View</button>
+        <button class="bact bact-sv" onclick="openSV()">🌐 Foto 360°</button>
         <button class="bact bact-nav" onclick="startNav()">🧭 Navigasi</button>
       </div>
     </div>
@@ -944,13 +988,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div class="nvcompass" id="nvcompass">
       <div class="nvgrip"></div>
       <div class="cring" onclick="startCompass()" style="cursor:pointer" title="Ketuk untuk aktifkan kompas">
-        <span class="crd n">U</span><span class="crd s">S</span>
-        <span class="crd e">T</span><span class="crd w">B</span>
+        <div class="crose" id="crose"><span class="crd n">U</span><span class="crd s">S</span><span class="crd e">T</span><span class="crd w">B</span></div>
         <div class="cinner"><div class="carrow" id="navArrow"><svg width="34" height="34" viewBox="0 0 24 24"><defs><linearGradient id="navg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff6a13"/></linearGradient></defs><path d="M12 2.5 19 20 12 15.6 5 20Z" fill="url(#navg)" stroke="#fff" stroke-width="1.1" stroke-linejoin="round"/></svg></div></div>
       </div>
       <div class="nvdist" id="nvdist">—<span> m</span></div>
       <div class="nvdir" id="nvdir">—</div>
-      <div class="nvhint" id="nvhint">Ketuk lingkaran kompas untuk aktifkan arah</div>
+      <div class="nvhint" id="nvhint">Panah searah garis ke item · Utara di atas</div>
     </div>
     <div class="arrived" id="arrived"><p>✅ Sudah dekat! <b id="arrivedTag">—</b> ada di sekitarmu.</p></div>
     <button class="nvstop" onclick="stopNav()">✕ Stop</button>
@@ -969,14 +1012,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
     <div><div class="sv-title" id="svtitle">Street View</div><div class="sv-sub" id="svsub">—</div></div>
   </div>
   <div class="svview">
-    <div class="dot-amb" style="width:120px;height:120px;top:10%;left:-20px;"></div>
-    <div class="dot-amb" style="width:80px;height:80px;bottom:30%;right:-10px;"></div>
-    <div class="svph">
+    <div id="pano" style="width:100%;height:100%;display:none;"></div>
+    <div class="svph" id="sv-placeholder">
       <div class="svbig">📷</div>
       <h3>Foto 360° Belum Tersedia</h3>
-      <p>Admin / operator dapat mengunggah<br>foto dari lapangan</p>
+      <p>Admin / operator dapat mengunggah<br>foto 360° (equirectangular) dari lapangan</p>
     </div>
-    <div class="sv360">360° VIEW</div>
+    <div class="sv360" id="sv360badge" style="display:none;">360°</div>
   </div>
   <div class="svbot">
     <div class="svitemrow">
@@ -1003,26 +1045,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 
 </div>
 <script>
-const ITEMS=[
-  // ===== AMMONIA =====
-  {id:'FV-3',  name:'Flow Valve 3',            type:'Flow Valve',          plant:'ammonia',area:'Reformer',floor:3,icon:'🔧',cls:'valve',  hint:'Naik tangga utama Reformer, belok kiri setelah kolom C-201. Item di sisi kanan platform.',mx:.46,my:.40},
-  {id:'FV-12', name:'Flow Valve 12',            type:'Flow Valve',          plant:'ammonia',area:'CO2 Removal',floor:1,icon:'🔧',cls:'valve',  hint:'Dekat pintu masuk CO2 Removal, sebelah kanan pompa P-101.',                              mx:.38,my:.52},
-  {id:'PT-101',name:'Pressure Transmitter 101', type:'Pressure Transmitter',plant:'ammonia',area:'HRU 1/2',floor:2,icon:'📡',cls:'instrument',hint:'Platform lantai 2 HRU, di sebelah kiri tangga naik dari lantai 1.',                    mx:.58,my:.46},
-  {id:'P-201', name:'Pompa 201',                type:'Centrifugal Pump',    plant:'ammonia',area:'Synloop & Refrigerant',floor:1,icon:'⚙️',cls:'pump',hint:'Lantai dasar Synloop, baris pompa utama, urutan ke-3 dari kiri.',                 mx:.52,my:.58},
-  {id:'T-401', name:'Tangki Ammonia 401',       type:'Storage Tank',        plant:'ammonia',area:'Air Compressor 101 JT',floor:1,icon:'🛢️',cls:'tank', hint:'Ujung barat 101JT, tangki besar. Terlihat dari jalan utama.',                            mx:.60,my:.36},
-  {id:'LV-5',  name:'Level Valve 5',            type:'Level Valve',         plant:'ammonia',area:'Syngas Compressor 103 JT',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 dekat tangki T-202.',                                                mx:.50,my:.50},
-  {id:'CV-8',  name:'Control Valve 8',          type:'Control Valve',       plant:'ammonia',area:'Reformer',floor:1,icon:'🔧',cls:'valve',  hint:'Lantai dasar Reformer, jalur pipa utama.',                                               mx:.44,my:.54},
-  {id:'TIC-5', name:'Temp Indicator 5',         type:'Instrument',          plant:'ammonia',area:'CO2 Removal',floor:4,icon:'📡',cls:'instrument',hint:'Platform lantai 4, panel instrumen barat.',                                        mx:.40,my:.44},
-  {id:'XV-10', name:'Shutdown Valve 10',        type:'Shutdown Valve',      plant:'ammonia',area:'HRU 1/2',floor:2,icon:'🔧',cls:'valve',  hint:'Platform lantai 2 HRU, dekat flare knock drum.',                                         mx:.56,my:.56},
-  // ===== UTILITY (contoh) =====
-  {id:'BFW-1', name:'BFW Pump 1',               type:'Centrifugal Pump',    plant:'utility',area:'WHB',floor:1,icon:'⚙️',cls:'pump',   hint:'(contoh) Ruang pompa boiler, baris depan.',                                              mx:.62,my:.18},
-  {id:'PCV-22',name:'Pressure Control Valve 22',type:'Control Valve',       plant:'utility',area:'SHP',floor:2,icon:'🔧',cls:'valve',hint:'(contoh) Header steam lantai 2.',                                                       mx:.74,my:.24},
-  {id:'CT-3',  name:'Pompa FCW 3',              type:'Centrifugal Pump',    plant:'utility',area:'FCW',floor:1,icon:'⚙️',cls:'pump',hint:'(contoh) Rumah pompa FCW.',                                                              mx:.82,my:.32},
-  // ===== UREA (contoh) =====
-  {id:'PR-1',  name:'Prill Distributor 1',      type:'Instrument',          plant:'urea',   area:'Prilling Tower',floor:6,icon:'🌱',cls:'tank',hint:'(contoh) Puncak prilling tower.',                                          mx:.66,my:.66},
-  {id:'UR-PV5',name:'Pressure Valve 5',         type:'Pressure Valve',      plant:'urea',   area:'Synthesa',floor:2,icon:'🔧',cls:'valve',  hint:'(contoh) Platform synthesa lantai 2.',                                            mx:.72,my:.70},
-  {id:'PT-77', name:'Pressure Transmitter 77',  type:'Pressure Transmitter',plant:'urea',   area:'CO2 Compressor',floor:2,icon:'📡',cls:'instrument',hint:'(contoh) Area CO2 compressor, dekat panel.',                          mx:.78,my:.74},
-];
+const ITEMS=[]; // data nyata diisi dari Supabase (loadItemsForUnit)
 
 let activeItem=null,navigating=false,sc=1;
 let myLat=null,myLon=null,myMapX=.50,myMapY=.62,watchId=null;
@@ -1120,31 +1143,47 @@ async function fetchAllRows(buildQuery){
   }
   const seen=new Set(); return all.filter(r=>{ if(r&&r.id){ if(seen.has(r.id))return false; seen.add(r.id);} return true; });
 }
-async function loadItemsForUnit(){
-  areaMap={}; areaById={}; let names=[];
-  try{
-    const {data:areas}=await sb.from('areas').select('id,name').eq('unit_id',selectedUnit).order('sort');
-    (areas||[]).forEach(a=>{ areaById[a.id]=a.name; areaMap[a.name]=a.id; names.push(a.name); });
-  }catch(e){}
+function applyAreas(areas){
+  areaMap={}; areaById={}; const names=[];
+  (areas||[]).forEach(a=>{ areaById[a.id]=a.name; areaMap[a.name]=a.id; names.push(a.name); });
   AREAS[selectedArea]=names;
+}
+function mapRowsToItems(items){
   ITEMS.length=0;
-  try{
-    let items;
-    try{
-      items=await fetchAllRows(()=>sb.from('items').select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).eq('is_active',true).order('tag'));
-      try{ localStorage.setItem('pn_cache_items_'+selectedPlant+'_'+selectedUnit, JSON.stringify(items)); }catch(e){}
-    }catch(err){
-      try{ items=JSON.parse(localStorage.getItem('pn_cache_items_'+selectedPlant+'_'+selectedUnit)||'[]'); }catch(e){ items=[]; }
-      setOffline(true);
-    }
-    (items||[]).forEach(r=>{
-      const fl=(r.floor===''||r.floor==null)?0:(isNaN(+r.floor)?r.floor:+r.floor);
-      ITEMS.push({_dbid:r.id,id:r.tag,name:r.name,func:r.func||'',type:r.type||'',plant:selectedArea,
-        area:areaById[r.area_id]||'',floor:fl,icon:iconForType(r.type),cls:'valve',
-        hint:r.hint||'(belum ada petunjuk)',lat:r.lat,lon:r.lon,photo:r.photo_path||'',sv:r.sv_path||''});
-    });
-  }catch(e){}
+  (items||[]).forEach(r=>{
+    const fl=(r.floor===''||r.floor==null)?0:(isNaN(+r.floor)?r.floor:+r.floor);
+    ITEMS.push({_dbid:r.id,id:r.tag,name:r.name,func:r.func||'',type:r.type||'',plant:selectedArea,
+      area:areaById[r.area_id]||'',floor:fl,icon:iconForType(r.type),cls:'valve',
+      hint:r.hint||'(belum ada petunjuk)',lat:r.lat,lon:r.lon,photo:r.photo_path||'',sv:r.sv_path||''});
+  });
   if(map){ for(const k in markers){ try{ if(map.hasLayer(markers[k]))map.removeLayer(markers[k]); }catch(e){} delete markers[k]; } ITEMS.forEach(it=>{ if(hasCoord(it)) makeMarker(it); }); }
+}
+const ITEMS_SELECT='id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id';
+async function loadItemsForUnit(opts){
+  opts=opts||{};
+  const akey='pn_cache_areas_'+selectedUnit, ikey='pn_cache_items_'+selectedPlant+'_'+selectedUnit;
+  // 1) TAMPIL DARI CACHE DULU (instan)
+  let hadCache=false;
+  try{ const ca=JSON.parse(localStorage.getItem(akey)||'null'); if(ca){ applyAreas(ca); } }catch(e){}
+  try{ const ci=JSON.parse(localStorage.getItem(ikey)||'null'); if(ci&&ci.length){ mapRowsToItems(ci); hadCache=true; } }catch(e){}
+
+  // 2) SEGARKAN DI BELAKANG (diam-diam)
+  const refresh=(async()=>{
+    try{
+      const {data:areas}=await sb.from('areas').select('id,name').eq('unit_id',selectedUnit).order('sort');
+      if(areas){ applyAreas(areas); try{ localStorage.setItem(akey,JSON.stringify(areas)); }catch(e){} }
+    }catch(e){}
+    try{
+      const items=await fetchAllRows(()=>sb.from('items').select(ITEMS_SELECT).eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).eq('is_active',true).order('tag'));
+      try{ localStorage.setItem(ikey,JSON.stringify(items)); }catch(e){}
+      mapRowsToItems(items); setOffline(false);
+      // perbarui tampilan kalau sedang di Home
+      try{ buildAreaChips(); updateStats(); if(document.getElementById('screen-home').classList.contains('active')) renderItemList(plantItems()); }catch(e){}
+    }catch(err){ setOffline(true); }
+  })();
+
+  // 3) kalau belum ada cache, atau diminta data segar (sesudah simpan/hapus) -> tunggu
+  if(opts.fresh || !hadCache){ await refresh; }
 }
 
 function lockedTap(){
@@ -1345,47 +1384,77 @@ function daysSinceTS(ts){ if(!ts)return 0; return Math.max(0,Math.round((Date.no
 let wrCache=[], maintCache=[], curWR=null, curMaintItem=null;
 
 async function fetchWR(status){
-  const {data,error}=await sb.from('work_requests')
-    .select('id,wr_no,problem,status,created_at,reporter_npk,done_npk,repair_note,done_at,photo_path,done_photo_path,item_id, items!inner(tag,name,type,unit_id)')
-    .eq('plant_id',selectedPlant).eq('status',status).eq('items.unit_id',selectedUnit)
-    .order(status==='pending'?'created_at':'done_at',{ascending:false});
-  if(error) throw error; return data||[];
+  const key='pn_cache_wr_'+selectedPlant+'_'+selectedUnit+'_'+status;
+  try{
+    const {data,error}=await sb.from('work_requests')
+      .select('id,wr_no,problem,status,created_at,reporter_npk,done_npk,repair_note,done_at,started_at,started_npk,photo_path,done_photo_path,item_id, items!inner(tag,name,type,unit_id)')
+      .eq('plant_id',selectedPlant).eq('status',status).eq('items.unit_id',selectedUnit)
+      .order(status==='pending'?'created_at':'done_at',{ascending:false});
+    if(error) throw error;
+    try{ localStorage.setItem(key, JSON.stringify(data||[])); }catch(e){}
+    return data||[];
+  }catch(err){
+    try{ const c=JSON.parse(localStorage.getItem(key)||'null'); if(c){ setOffline(true); return c; } }catch(e){}
+    throw err;
+  }
 }
 async function updatePendDot(){
-  try{ const list=await fetchWR('pending'); wrCache=list; const dot=document.getElementById('pendDot'); if(dot)dot.style.display=list.length>0?'block':'none';
+  try{
+    let p=[],pr=[]; try{p=await fetchWR('pending');}catch(e){} try{pr=await fetchWR('dikerjakan');}catch(e){}
+    const total=p.length+pr.length;
+    const dot=document.getElementById('pendDot'); if(dot)dot.style.display=total>0?'block':'none';
     const hc=document.getElementById('hp-count'), hs=document.getElementById('hp-sub');
-    if(hc&&hs){ hc.textContent=list.length; hs.textContent=list.length>0?'WR menunggu perbaikan — ketuk untuk lihat':'Tidak ada WR pending \ud83c\udf89'; }
+    if(hc&&hs){ hc.textContent=total; hs.textContent=total>0?(p.length+' menunggu \u00b7 '+pr.length+' dikerjakan — ketuk untuk lihat'):'Tidak ada WR aktif \ud83c\udf89'; }
   }catch(e){ const hc=document.getElementById('hp-count'); if(hc)hc.textContent='—'; }
 }
 async function renderPending(){
   const el=document.getElementById('pend-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
-  try{ wrCache=await fetchWR('pending'); }catch(e){ el.innerHTML='<div class="empty">Gagal memuat.</div>'; return; }
+  let pend=[],prog=[];
+  try{ pend=await fetchWR('pending'); }catch(e){}
+  try{ prog=await fetchWR('dikerjakan'); }catch(e){}
+  wrCache=prog.concat(pend);
   let list=wrCache;
   const q=(document.getElementById('pend-search')?.value||'').trim().toLowerCase();
   if(q) list=list.filter(w=>((w.items?.tag||'')+' '+(w.items?.name||'')+' '+(w.problem||'')).toLowerCase().includes(q));
-  document.getElementById('pend-sub').textContent=wrCache.length+' menunggu perbaikan';
-  el.innerHTML=list.length?list.map(w=>`
-    <div class="mt-card" onclick="openPendDetail('${w.id}')">
-      <div class="mt-ic">${iconForType(w.items?.type)}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="mt-tag">${w.items?.tag||'?'} <span class="pend-badge">PENDING</span></div>
-        <div class="mt-name">${w.problem||''}</div>
-        <div class="mt-meta">WR ${w.wr_no} \u00b7 ${fmtTS(w.created_at)} \u00b7 ${daysSinceTS(w.created_at)} hari</div>
-      </div>
-      <div class="mt-arrow">\u203a</div>
-    </div>`).join(''):'<div class="empty">Tidak ada item pending \ud83c\udf89</div>';
+  document.getElementById('pend-sub').textContent=pend.length+' menunggu \u00b7 '+prog.length+' dikerjakan';
+  el.innerHTML=list.length?list.map(function(w){
+    var dik=w.status==='dikerjakan';
+    var badge=dik?'<span class="prog-badge">DIKERJAKAN</span>':'<span class="pend-badge">MENUNGGU</span>';
+    return '<div class="mt-card" onclick="openPendDetail(\''+w.id+'\')">'
+      +'<div class="mt-ic">'+iconForType(w.items&&w.items.type)+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div class="mt-tag">'+((w.items&&w.items.tag)||'?')+' '+badge+'</div>'
+        +'<div class="mt-name">'+(w.problem||'')+'</div>'
+        +'<div class="mt-meta">WR '+w.wr_no+' \u00b7 '+fmtTS(w.created_at)+' \u00b7 '+daysSinceTS(w.created_at)+' hari</div>'
+      +'</div><div class="mt-arrow">\u203a</div></div>';
+  }).join(''):'<div class="empty">Tidak ada WR aktif \ud83c\udf89</div>';
   const dot=document.getElementById('pendDot'); if(dot)dot.style.display=wrCache.length>0?'block':'none';
 }
 function openPendDetail(id){
   const w=wrCache.find(x=>x.id===id); if(!w)return; curWR=w;
   document.getElementById('wrs-tag').textContent=w.items?.tag||'?';
   document.getElementById('wrs-name').textContent=w.items?.name||'';
-  const st=document.getElementById('wrs-status'); st.textContent='PENDING'; st.className='sheet-status st-non';
+  var dik=w.status==='dikerjakan';
+  const st=document.getElementById('wrs-status'); st.textContent=dik?'DIKERJAKAN':'MENUNGGU'; st.className='sheet-status '+(dik?'st-prog':'st-non');
   let body=srow('No. WR',w.wr_no)+srow('Masalah',w.problem||'-')+srow('Tanggal lapor',fmtTS(w.created_at))+srow('Pelapor (NPK)',w.reporter_npk||'-')+srow('Umur',daysSinceTS(w.created_at)+' hari');
+  if(dik && w.started_at) body+=srow('Mulai dikerjakan',fmtTS(w.started_at)+(w.started_npk?(' \u00b7 NPK '+w.started_npk):''));
   if(w.photo_path) body+='<div class="srow"><div class="k">Foto</div><div class="v"><img class="sheet-img" src="'+photoUrl(w.photo_path)+'"></div></div>';
   document.getElementById('wrs-body').innerHTML=body;
-  document.getElementById('wrs-actions').innerHTML='<button class="btn-ghost" onclick="openDone()">\u2705 Selesaikan</button>';
+  var acts = dik
+    ? '<button class="btn-ghost" onclick="openDone()">\u2705 Selesaikan</button>'
+    : '<button class="btn-ghost" onclick="markProgress()">\ud83d\udd27 Mulai Dikerjakan</button><button class="btn-ghost" onclick="openDone()">\u2705 Selesaikan</button>';
+  document.getElementById('wrs-actions').innerHTML=acts;
   document.getElementById('wrSheet').style.display='flex';
+}
+function markProgress(){
+  const w=curWR; if(!w)return;
+  (async function(){
+    const npk=(profile&&profile.npk)||'';
+    const {error}=await sb.from('work_requests').update({status:'dikerjakan',started_at:new Date().toISOString(),started_npk:npk}).eq('id',w.id);
+    if(error){ alert('Gagal: '+error.message); return; }
+    logAudit('start_wr',(w.items&&w.items.tag)||null,'WR '+w.wr_no+' dikerjakan',npk);
+    closeWrSheet(); renderPending(); updatePendDot();
+  })();
 }
 function closeWrSheet(){ document.getElementById('wrSheet').style.display='none'; curWR=null; }
 
@@ -1419,7 +1488,7 @@ function saveWR(){
     const {error}=await sb.from('work_requests').insert({wr_no:wrno,item_id:itemDbId,plant_id:selectedPlant,problem:prob,status:'pending',photo_path:ph||null,created_by:myId,reporter_npk:npk});
     if(error){ err((error.code==='23505'||(error.message||'').includes('duplicate'))?'No. WR sudah ada.':('Gagal: '+error.message)); return; }
     logAudit('create_wr', null, 'WR '+wrno, npk);
-    pendingFiles.wr=null; closeWRModal(); renderPending();
+    pendingFiles.wr=null; closeWRModal(); renderPending(); updatePendDot();
   })();
 }
 
@@ -1446,7 +1515,7 @@ function confirmDone(){
     const {error}=await sb.from('work_requests').update({status:'selesai',repair_note:note,done_photo_path:dphoto||null,done_by:myId,done_npk:npk,done_at:new Date().toISOString()}).eq('id',w.id);
     if(error){ err('Gagal: '+error.message); return; }
     logAudit('done_wr', w.items?.tag||null, 'WR '+w.wr_no+' selesai', npk);
-    pendingFiles.done=null; closeDoneModal(); closeWrSheet(); renderPending();
+    pendingFiles.done=null; closeDoneModal(); closeWrSheet(); renderPending(); updatePendDot();
   })();
 }
 
@@ -1551,8 +1620,9 @@ let editingId=null;
 function openAddItem(){
   editingId=null;
   document.getElementById('add-title').textContent='Tambah Item';
-  document.getElementById('ai-type').innerHTML=TYPES.map(t=>`<option>${t}</option>`).join('');
-  document.getElementById('ai-area').innerHTML='<option value="">(tanpa area)</option>'+(AREAS[selectedArea]||[]).map(a=>`<option>${a}</option>`).join('');
+  document.getElementById('ai-type-list').innerHTML=[...TYPES].sort((a,b)=>a.localeCompare(b)).map(t=>`<option value="${t}"></option>`).join('');
+  document.getElementById('ai-area-list').innerHTML=(AREAS[selectedArea]||[]).slice().sort((a,b)=>a.localeCompare(b)).map(a=>`<option value="${a}"></option>`).join('');
+  document.getElementById('ai-type').value=''; document.getElementById('ai-area').value='';
   ['ai-tag','ai-name','ai-func','ai-floor','ai-coord','ai-hint','ai-photo','ai-sv'].forEach(id=>document.getElementById(id).value='');
   setDropName('photo',''); setDropName('sv','');
   { const ch=document.getElementById('coord-hint'); if(ch)ch.textContent=''; }
@@ -1577,7 +1647,8 @@ async function saveNewItem(){
     const out = (lat<PLANT.latMin-0.01||lat>PLANT.latMax+0.01||lon<PLANT.lonMin-0.01||lon>PLANT.lonMax+0.01);
     if(out && !confirm('Koordinat di luar perkiraan area pabrik. Yakin tetap simpan?')) return; }
   const type=document.getElementById('ai-type').value;
-  const areaName=document.getElementById('ai-area').value;
+  const areaName=document.getElementById('ai-area').value.trim();
+  if(areaName && !(areaName in areaMap)){ err('Area "'+areaName+'" tidak ada di daftar. Pilih dari saran atau kosongkan.'); return; }
   const fv=parseInt(document.getElementById('ai-floor').value); const floor=isNaN(fv)?0:fv;
   let photoPath=document.getElementById('ai-photo').value.trim(), svPath=document.getElementById('ai-sv').value.trim();
   try{
@@ -1593,7 +1664,7 @@ async function saveNewItem(){
     sb.from('items').update(payload).eq('id',editingDbId).then(async ({error})=>{
       if(error){ err(error.code==='23505'?'Tag/ID sudah dipakai item lain di pabrik ini.':('Gagal: '+error.message)); return; }
       logAudit('edit_item',tag,'edit data',(profile&&profile.npk)||'');
-      pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems()); try{await renderAllItems();}catch(e){}
+      pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderItemList(plantItems()); try{await renderAllItems();}catch(e){}
       ok('\u2705 Perubahan tersimpan.'); setTimeout(closeAddItem,800);
     });
   }else{
@@ -1601,7 +1672,7 @@ async function saveNewItem(){
     const ins=Object.assign({plant_id:selectedPlant,unit_id:selectedUnit,created_by:myId},payload);
     sb.from('items').insert(ins).then(async ({error})=>{
       if(error){ err(error.code==='23505'?'Tag/ID sudah ada di pabrik ini.':('Gagal: '+error.message)); return; }
-      pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
+      pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderItemList(plantItems());
       ok('\u2705 Item '+tag+' tersimpan ke database.');
       setTimeout(closeAddItem,1000);
     });
@@ -1689,12 +1760,17 @@ async function renderDash(){
   document.getElementById('dash-sub').textContent=selectedPlantName+' \u00b7 '+selectedUnitName;
   let items=[];
   try{ items=await fetchAllRows(()=>sb.from('items').select('id,type,lat,lon,area_id,photo_path,func,hint,is_active').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit)); }
-  catch(e){ body.innerHTML='<div class="empty">Gagal memuat dashboard.</div>'; return; }
+  catch(e){
+    try{ items=(JSON.parse(localStorage.getItem('pn_cache_items_'+selectedPlant+'_'+selectedUnit)||'[]')).map(x=>Object.assign({is_active:true},x)); }catch(_){ items=[]; }
+    if(!items.length){ body.innerHTML='<div class="empty">Dashboard belum bisa dimuat (offline & belum ada data tersimpan).</div>'; return; }
+    setOffline(true);
+  }
   const active=items.filter(i=>i.is_active);
   const total=active.length, lengkap=active.filter(isComplete).length, belum=total-lengkap, nonaktif=items.length-active.length;
   let pend=0, prog=0, done=0;
-  try{ const wr=await sb.from('work_requests').select('status, items!inner(unit_id)').eq('plant_id',selectedPlant).eq('items.unit_id',selectedUnit);
-    (wr.data||[]).forEach(w=>{ if(w.status==='pending')pend++; else if(w.status==='in-progress')prog++; else if(w.status==='selesai')done++; }); }catch(e){}
+  try{ pend=(await fetchWR('pending')).length; }catch(e){}
+  try{ prog=(await fetchWR('dikerjakan')).length; }catch(e){}
+  try{ done=(await fetchWR('selesai')).length; }catch(e){}
   const byType={}; active.forEach(i=>{const t=i.type||'(tanpa tipe)'; byType[t]=(byType[t]||0)+1;});
   const types=Object.entries(byType).sort((a,b)=>b[1]-a[1]).slice(0,8); const maxT=types.length?types[0][1]:1;
   const byAreaInc={}; active.forEach(i=>{ if(!isComplete(i)){ const a=areaById[i.area_id]||'(tanpa area)'; byAreaInc[a]=(byAreaInc[a]||0)+1; } });
@@ -1702,7 +1778,7 @@ async function renderDash(){
   function card(n,l,c){ return '<div class="dash-card '+(c||'')+'"><div class="dash-num">'+n+'</div><div class="dash-lbl">'+l+'</div></div>'; }
   let h='<div class="dash-grid">';
   h+=card(total,'Item aktif','blue')+card(lengkap,'Lengkap \ud83d\udfe2','green')+card(belum,'Belum lengkap \ud83d\udd34','red')+card(nonaktif,'Non-aktif','');
-  h+=card(pend,'WR Pending','amber')+card(done,'WR Selesai','green');
+  h+=card(pend,'WR Menunggu','amber')+card(prog,'WR Dikerjakan','blue')+card(done,'WR Selesai','green');
   h+='</div>';
   const pct=total?Math.round(lengkap/total*100):0;
   h+='<div class="dash-sec">Kelengkapan data: '+pct+'%</div>';
@@ -1742,7 +1818,7 @@ function openItemDetail(dbid){
     +srow('Koordinat',(r.lat!=null&&r.lon!=null)?(r.lat+', '+r.lon):'-')
     +srow('Petunjuk',r.hint||'-');
   if(r.photo_path) body+=srow('Foto',r.photo_path);
-  if(r.sv_path) body+=srow('Street View',r.sv_path);
+  if(r.sv_path) body+=srow('Foto 360°','\u2714 tersedia');
   document.getElementById('im-body').innerHTML=body;
   document.getElementById('im-toggle').textContent=r.is_active?'Non-aktifkan':'Aktifkan';
   document.getElementById('itemModal').style.display='flex';
@@ -1752,9 +1828,11 @@ function editFromModal(){ if(!detailRow)return; const r=detailRow; closeItemModa
 function openEditRow(r){
   editingId=r.tag; editingDbId=r.id;
   document.getElementById('add-title').textContent='Edit Item';
-  document.getElementById('ai-type').innerHTML=TYPES.map(t=>`<option ${t===r.type?'selected':''}>${t}</option>`).join('');
+  document.getElementById('ai-type-list').innerHTML=[...TYPES].sort((a,b)=>a.localeCompare(b)).map(t=>`<option value="${t}"></option>`).join('');
+  document.getElementById('ai-type').value=r.type||'';
   const aName=areaById[r.area_id]||'';
-  document.getElementById('ai-area').innerHTML='<option value="">(tanpa area)</option>'+(AREAS[selectedArea]||[]).map(a=>`<option ${a===aName?'selected':''}>${a}</option>`).join('');
+  document.getElementById('ai-area-list').innerHTML=(AREAS[selectedArea]||[]).slice().sort((a,b)=>a.localeCompare(b)).map(a=>`<option value="${a}"></option>`).join('');
+  document.getElementById('ai-area').value=aName||'';
   document.getElementById('ai-tag').value=r.tag; document.getElementById('ai-tag').readOnly=false;
   document.getElementById('ai-name').value=r.name||'';
   document.getElementById('ai-func').value=r.func||'';
@@ -1778,7 +1856,7 @@ async function toggleStatusFromModal(){
     if(error){ alert('Gagal: '+error.message); return; }
     logAudit(na?'restore_item':'archive_item', r.tag, verb, (profile&&profile.npk)||'');
     closeItemModal();
-    await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
+    await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderItemList(plantItems());
     await renderAllItems();
   });
 }
@@ -1787,7 +1865,7 @@ async function doDeleteItem(r, fast){
   const {error}=await sb.from('items').delete().eq('id',r.id);
   if(error){ alert('Gagal hapus: '+error.message); return false; }
   try{ logAudit('delete_item', r.tag, 'hapus permanen'+(fast?' (cepat)':''), (profile&&profile.npk)||''); }catch(e){}
-  await loadItemsForUnit(); buildAreaChips(); updateStats(); renderItemList(plantItems());
+  await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderItemList(plantItems());
   await renderAllItems();
   return true;
 }
@@ -1863,7 +1941,7 @@ async function fetchUnits(plant){ if(!plant) return []; try{ const {data}=await 
 async function fillOpUnits(plant, selId){
   const sel=document.getElementById('op-unit');
   const units=await fetchUnits(plant);
-  sel.innerHTML='<option value="">(tidak dibatasi unit)</option>'+units.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  sel.innerHTML='<option value="">(tidak dibatasi unit)</option>'+units.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
   sel.value=selId||'';
 }
 function onOpPlantChange(){ fillOpUnits(document.getElementById('op-plant').value,''); }
@@ -1873,6 +1951,101 @@ async function callAdminOps(payload){
   if(error) throw new Error('Gangguan koneksi ke server (fungsi admin-ops belum ter-deploy?).');
   if(data && data.error) throw new Error(data.error);
   return data;
+}
+
+// ===== KELOLA UNIT & AREA =====
+let mdPlant=null, mdUnit=null, mdUnitName='';
+function escq(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+function openMD(){ goTo('md'); mdInit(); }
+function mdReload(){ mdInit(); }
+async function mdInit(){
+  const wrap=document.getElementById('md-plant-wrap');
+  if(profile && profile.role==='master'){
+    try{
+      const {data:plants}=await sb.from('plants').select('id,name').order('sort');
+      wrap.innerHTML='Pabrik: <select id="md-plant" onchange="mdOnPlant()" style="padding:4px 8px;border:1px solid var(--g200);border-radius:8px;background:var(--g50);color:var(--g800);"></select>';
+      const sel=document.getElementById('md-plant');
+      sel.innerHTML=(plants||[]).map(p=>`<option value="${p.id}">${p.name||p.id}</option>`).join('');
+      sel.value=selectedPlant||((plants&&plants[0]&&plants[0].id)||'');
+      mdPlant=sel.value;
+    }catch(e){ wrap.textContent='Gagal memuat pabrik.'; return; }
+  } else {
+    mdPlant = profile ? profile.plant_id : null;
+    wrap.textContent='Pabrik: '+(selectedPlantName||mdPlant||'-');
+  }
+  mdUnit=null; mdUnitName='';
+  document.getElementById('md-area-add').style.display='none';
+  document.getElementById('md-area-unit').textContent='';
+  document.getElementById('md-areas').innerHTML='<div class="empty">Pilih unit dulu di atas.</div>';
+  mdLoadUnits();
+}
+function mdOnPlant(){
+  mdPlant=document.getElementById('md-plant').value; mdUnit=null;
+  document.getElementById('md-area-add').style.display='none';
+  document.getElementById('md-area-unit').textContent='';
+  document.getElementById('md-areas').innerHTML='<div class="empty">Pilih unit dulu di atas.</div>';
+  mdLoadUnits();
+}
+async function mdLoadUnits(){
+  const box=document.getElementById('md-units'); box.innerHTML='<div class="empty">Memuat\u2026</div>';
+  let units=[]; try{ units=await fetchUnits(mdPlant); }catch(e){}
+  units=units.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  if(!units.length){ box.innerHTML='<div class="empty">Belum ada unit.</div>'; return; }
+  box.innerHTML=units.map(function(u){
+    const sel=(mdUnit===u.id)?' sel':'';
+    return '<div class="md-row'+sel+'" id="mdu-'+u.id+'">'
+      +'<div class="md-nm" onclick="mdSelectUnit(\''+u.id+'\',\''+escq(u.name)+'\')">'+u.name+'</div>'
+      +'<div class="md-act"><button onclick="mdRenameUnit(\''+u.id+'\',\''+escq(u.name)+'\')">\u270f\ufe0f</button>'
+      +'<button class="danger" onclick="mdDeleteUnit(\''+u.id+'\',\''+escq(u.name)+'\')">\ud83d\uddd1\ufe0f</button></div></div>';
+  }).join('');
+}
+function mdSelectUnit(id,name){
+  mdUnit=id; mdUnitName=name;
+  document.querySelectorAll('#md-units .md-row').forEach(r=>r.classList.remove('sel'));
+  const r=document.getElementById('mdu-'+id); if(r)r.classList.add('sel');
+  document.getElementById('md-area-add').style.display='flex';
+  document.getElementById('md-area-unit').textContent='\u00b7 '+name;
+  mdLoadAreas();
+}
+async function mdLoadAreas(){
+  const box=document.getElementById('md-areas'); box.innerHTML='<div class="empty">Memuat\u2026</div>';
+  let areas=[]; try{ const {data}=await sb.from('areas').select('id,name').eq('unit_id',mdUnit).order('sort'); areas=data||[]; }catch(e){}
+  areas=areas.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  if(!areas.length){ box.innerHTML='<div class="empty">Belum ada area di unit ini.</div>'; return; }
+  box.innerHTML=areas.map(function(a){
+    return '<div class="md-row"><div class="md-nm" style="cursor:default">'+a.name+'</div>'
+      +'<div class="md-act"><button onclick="mdRenameArea(\''+a.id+'\',\''+escq(a.name)+'\')">\u270f\ufe0f</button>'
+      +'<button class="danger" onclick="mdDeleteArea(\''+a.id+'\',\''+escq(a.name)+'\')">\ud83d\uddd1\ufe0f</button></div></div>';
+  }).join('');
+}
+async function mdAddUnit(){
+  const inp=document.getElementById('md-unit-name'); const name=(inp.value||'').trim();
+  if(!name) return; if(!mdPlant){ alert('Pilih pabrik dulu.'); return; }
+  try{ await callAdminOps({action:'unit_create',plant_id:mdPlant,name}); inp.value=''; mdLoadUnits(); }catch(e){ alert(e.message); }
+}
+async function mdRenameUnit(id,cur){
+  const name=prompt('Nama unit baru:',cur); if(name===null||!name.trim()) return;
+  try{ await callAdminOps({action:'unit_update',id,name:name.trim()}); mdLoadUnits(); }catch(e){ alert(e.message); }
+}
+async function mdDeleteUnit(id,name){
+  if(!confirm('Hapus unit "'+name+'"? Unit harus kosong (tanpa area & item).')) return;
+  try{ await callAdminOps({action:'unit_delete',id});
+    if(mdUnit===id){ mdUnit=null; document.getElementById('md-area-add').style.display='none'; document.getElementById('md-area-unit').textContent=''; document.getElementById('md-areas').innerHTML='<div class="empty">Pilih unit dulu di atas.</div>'; }
+    mdLoadUnits();
+  }catch(e){ alert(e.message); }
+}
+async function mdAddArea(){
+  const inp=document.getElementById('md-area-name'); const name=(inp.value||'').trim();
+  if(!name) return; if(!mdUnit){ alert('Pilih unit dulu.'); return; }
+  try{ await callAdminOps({action:'area_create',unit_id:mdUnit,name}); inp.value=''; mdLoadAreas(); }catch(e){ alert(e.message); }
+}
+async function mdRenameArea(id,cur){
+  const name=prompt('Nama area baru:',cur); if(name===null||!name.trim()) return;
+  try{ await callAdminOps({action:'area_update',id,name:name.trim()}); mdLoadAreas(); }catch(e){ alert(e.message); }
+}
+async function mdDeleteArea(id,name){
+  if(!confirm('Hapus area "'+name+'"? Area harus kosong (tanpa item).')) return;
+  try{ await callAdminOps({action:'area_delete',id}); mdLoadAreas(); }catch(e){ alert(e.message); }
 }
 
 // ===== HALAMAN DATA KARYAWAN =====
@@ -1898,7 +2071,7 @@ async function buildKFilters(){
   const plantForUnits = isMaster ? (kFilterPlant||'') : (profile?profile.plant_id:'');
   const fu=document.getElementById('k-funit');
   let units=[]; if(plantForUnits) units=await fetchUnits(plantForUnits);
-  fu.innerHTML='<option value="">Semua unit</option>'+units.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  fu.innerHTML='<option value="">Semua unit</option>'+units.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
   fu.value=kFilterUnit||'';
 }
 async function onKPlantChange(){ kFilterPlant=document.getElementById('k-fplant').value; kFilterUnit=''; await buildKFilters(); applyKaryawanFilter(); }
@@ -2170,30 +2343,55 @@ function updateNavUI(){
 function updateArrow(){
   const a=document.getElementById('navArrow');
   if(!a)return;
-  const eff=(heading!==null)?heading:(gpsHeading!==null?gpsHeading:null);
-  const rot=(eff!==null)?(targetBearing-eff):targetBearing;
-  a.style.transform='rotate('+rot+'deg)';
+  const rose=document.getElementById('crose');
   const hint=document.getElementById('nvhint');
-  if(heading!==null) hint.textContent='Ikuti arah panah (kompas aktif)';
-  else if(gpsHeading!==null) hint.textContent='Panah ikut arah jalan — terus berjalan';
-  else hint.textContent='Ketuk lingkaran kompas untuk aktifkan arah';
+  if(heading!==null){
+    const h=(((heading%360)+360)%360);
+    if(rose) rose.style.transform='rotate('+(-h)+'deg)';          // ring ikut berputar: U selalu ke Utara nyata
+    a.style.transform='rotate('+(((targetBearing-h)%360+360)%360)+'deg)'; // panah ke item relatif arah hadap HP
+    hint.textContent='Kompas aktif · U selalu menunjuk Utara sebenarnya';
+  } else {
+    if(rose) rose.style.transform='rotate(0deg)';                 // tanpa kompas: Utara di atas (seperti peta)
+    a.style.transform='rotate('+targetBearing+'deg)';
+    hint.textContent='Utara di atas · ketuk lingkaran untuk aktifkan kompas';
+  }
 }
 
 // ===== STREET VIEW =====
+let svViewer=null;
 function openSV(){
   if(!activeItem)return;
-  document.getElementById('svtitle').textContent='Street View – '+activeItem.id;
+  document.getElementById('svtitle').textContent='Foto 360° – '+activeItem.id;
   document.getElementById('svsub').textContent=activeItem.area+' · Lantai '+activeItem.floor;
   document.getElementById('svtag').textContent=activeItem.id;
   document.getElementById('svmeta').textContent=activeItem.type+' · '+activeItem.area+' · Lantai '+activeItem.floor;
   goTo('sv');
+  setTimeout(showPano,60);   // tunggu layar tampil agar ukuran kontainer benar
+}
+function showPano(){
+  const ph=document.getElementById('sv-placeholder');
+  const pano=document.getElementById('pano');
+  const badge=document.getElementById('sv360badge');
+  try{ if(svViewer){ svViewer.destroy(); svViewer=null; } }catch(e){}
+  const url=(activeItem&&activeItem.sv)?photoUrl(activeItem.sv):'';
+  if(url && window.pannellum){
+    ph.style.display='none'; pano.style.display='block'; badge.style.display='block';
+    try{
+      svViewer=pannellum.viewer('pano',{
+        type:'equirectangular', panorama:url, autoLoad:true,
+        showZoomCtrl:true, showFullscreenCtrl:false, hfov:100, minHfov:50, maxHfov:120
+      });
+    }catch(e){ pano.style.display='none'; badge.style.display='none'; ph.style.display='block'; }
+  } else {
+    pano.style.display='none'; badge.style.display='none'; ph.style.display='block';
+  }
 }
 
 // ===== MAP (Leaflet + satelit gratis) =====
 // Kotak area Ammonia P2. Ganti 4 angka di PLANT untuk menggeser/memperluas batas area.
 const BOX=[[PLANT.latMin,PLANT.lonMin],[PLANT.latMax,PLANT.lonMax]];
 let map=null, markers={}, meMarker=null, navLine=null;
-let heading=null, targetBearing=0, gpsHeading=null;
+let heading=null, targetBearing=0;
 let accessAsked=false, compassStarted=false, gpsStarted=false;
 function requestAllAccess(){
   if(accessAsked)return; accessAsked=true;
@@ -2234,7 +2432,6 @@ function onMapClick(e){
   const lat=e.latlng.lat.toFixed(7), lon=e.latlng.lng.toFixed(7);
   const out=document.getElementById('calibOut');
   out.textContent=lat+','+lon+'   ← salin ke kolom Koordinat';
-  console.log('KALIBRASI:',lat+','+lon);
 }
 
 let baseLight=null, baseSat=null, mapBase='light';
@@ -2363,8 +2560,6 @@ function startGPS(){
   watchId=navigator.geolocation.watchPosition(pos=>{
     myLat=pos.coords.latitude;myLon=pos.coords.longitude;
     badge.className='gps-badge';lbl.textContent='GPS Aktif';
-    // fallback arah: jika kompas HP tak ada, pakai arah gerak dari GPS (saat berjalan)
-    if(typeof pos.coords.heading==='number' && !isNaN(pos.coords.heading) && (pos.coords.speed==null || pos.coords.speed>0.3)){ gpsHeading=pos.coords.heading; }
     if(map&&meMarker){meMarker.setLatLng([myLat,myLon]); if(!map.hasLayer(meMarker))meMarker.addTo(map);}
     if(navigating)updateNavUI();
   },err=>{
@@ -2550,6 +2745,45 @@ function pwaShowHelp(plat){
 }
 window.addEventListener('appinstalled',function(){ var b=document.getElementById('installBtn'); if(b)b.style.display='none'; });
 window.addEventListener('load', pwaInitButton);
+// Auto-segarkan saat app kembali dibuka (terasa hidup) — pakai cache dulu, segarkan di belakang
+var _lastRefresh=0;
+function _act(id){ var s=document.getElementById('screen-'+id); return s && s.classList.contains('active'); }
+function refreshCurrent(force){
+  var now=Date.now(); if(!force && now-_lastRefresh<3000) return; _lastRefresh=now;
+  try{ var bs=document.querySelectorAll('.refresh-btn'); for(var i=0;i<bs.length;i++){ (function(b){ b.classList.add('spinning'); setTimeout(function(){ b.classList.remove('spinning'); },700); })(bs[i]); } }catch(e){}
+  try{
+    if(_act('home')){ if(typeof loadItemsForUnit==='function') loadItemsForUnit({fresh:true}); if(typeof updatePendDot==='function') updatePendDot(); }
+    else if(_act('pending') && typeof renderPending==='function'){ renderPending(); }
+    else if(_act('maint') && typeof renderMaint==='function'){ renderMaint(); }
+    else if(_act('maint-item') && typeof renderMaintItem==='function'){ try{renderMaintItem();}catch(_){ } }
+    else if(_act('dash') && typeof renderDash==='function'){ renderDash(); }
+    else if(_act('manage') && typeof renderAllItems==='function'){ try{renderAllItems();}catch(_){ } }
+    else if(_act('karyawan') && typeof renderKaryawan==='function'){ try{renderKaryawan();}catch(_){ } }
+  }catch(e){}
+}
+function pnToast(msg){
+  var t=document.getElementById('pnToast');
+  if(!t){ t=document.createElement('div'); t.id='pnToast'; t.className='pn-toast'; document.body.appendChild(t); }
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._tmr); t._tmr=setTimeout(function(){ t.classList.remove('show'); },1400);
+}
+// Geser-untuk-segarkan (pull-to-refresh)
+(function(){
+  var sy=0, pulling=false, cont=null;
+  function sc(el){ return (el && el.closest) ? el.closest('.page-body, .home-content') : null; }
+  document.addEventListener('touchstart', function(e){
+    cont=sc(e.target);
+    if(cont && cont.scrollTop<=0){ sy=e.touches[0].clientY; pulling=true; } else pulling=false;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(!pulling||!cont){ return; }
+    var ey=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientY:sy;
+    pulling=false;
+    if(ey-sy>70 && cont.scrollTop<=0){ pnToast('Menyegarkan\u2026'); refreshCurrent(true); }
+  }, {passive:true});
+})();
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') refreshCurrent(); });
+window.addEventListener('focus', refreshCurrent);
 // Minta izin yang dibutuhkan sedini mungkin (dialog sistem HP yang muncul, bukan tombol app)
 window.addEventListener('load', function(){ try{ startGPS(); }catch(e){} });
 // Motion/kompas iOS wajib dipicu oleh sentuhan -> picu pada interaksi pertama, otomatis
