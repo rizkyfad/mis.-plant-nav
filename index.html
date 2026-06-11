@@ -629,6 +629,11 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 .item-pin.active .ip-dot{background:linear-gradient(150deg,#ff9a4d,#FF6A13);box-shadow:0 3px 13px rgba(255,106,19,.6);}
 .me-dot{animation:mepulse 2s ease-out infinite;}
 @keyframes mepulse{0%{box-shadow:0 0 0 0 rgba(0,84,166,.4),0 1px 6px rgba(0,0,0,.4)}70%{box-shadow:0 0 0 12px rgba(0,84,166,0),0 1px 6px rgba(0,0,0,.4)}100%{box-shadow:0 0 0 0 rgba(0,84,166,0),0 1px 6px rgba(0,0,0,.4)}}
+#navArrow,#crose{transition:transform .3s ease-out;}
+.img-lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;}
+.img-lb img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 12px 44px rgba(0,0,0,.6);}
+.img-lb-x{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:46px;height:46px;border-radius:50%;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:20px;backdrop-filter:blur(8px);cursor:pointer;}
+.bphoto{cursor:zoom-in;}
 </style>
 </head>
 <body>
@@ -751,6 +756,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
       <div class="am-item admin-only" onclick="closeAdminMenu();openMD()">🗂️ Kelola Unit & Area</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('pending')">⏳ Pending</div>
       <div class="am-item" onclick="closeAdminMenu();goTo('maint')">🛠️ Maintenance</div>
+      <div class="am-item" onclick="closeAdminMenu();downloadOffline()">⬇️ Unduh Offline</div>
       <div class="am-sep"></div>
       <div class="am-item" onclick="closeAdminMenu();openSettings()">👤 Profil & Tema</div>
       <div class="am-item" onclick="closeAdminMenu();openPwdModal()">🔑 Ubah Password</div>
@@ -927,15 +933,19 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 </div>
 
 <!-- MODAL TAMBAH OPERATOR -->
+<div id="imgLightbox" class="img-lb" style="display:none;" onclick="closeLightbox()">
+  <button class="img-lb-x" onclick="closeLightbox()">✕</button>
+  <img id="imgLbImg" src="" alt="" onclick="event.stopPropagation();">
+</div>
 <div id="pickModal" class="modal-bg" style="display:none;">
   <div class="pick-card">
-    <div class="pick-head"><b>Pilih Koordinat</b><button class="modal-x" onclick="closeCoordPicker()">\u2715</button></div>
+    <div class="pick-head"><b>Pilih Koordinat</b><button class="modal-x" onclick="closeCoordPicker()">✕</button></div>
     <div class="pick-hint">Ketuk peta untuk menaruh pin. Nyalakan satelit agar tepat di atas alat. Pin bisa digeser.</div>
     <div id="pickmap" class="pickmap"></div>
     <div class="pick-coord" id="pick-coord">Ketuk peta untuk menaruh pin</div>
     <div class="pick-acts">
-      <button class="bact bact-sv" type="button" id="pickBaseBtn" onclick="togglePickBase()">\ud83d\uddfa\ufe0f Peta</button>
-      <button class="bact bact-nav" type="button" onclick="confirmCoordPick()">\u2713 Gunakan koordinat</button>
+      <button class="bact bact-sv" type="button" id="pickBaseBtn" onclick="togglePickBase()">🗺️ Peta</button>
+      <button class="bact bact-nav" type="button" onclick="confirmCoordPick()">✓ Gunakan koordinat</button>
     </div>
   </div>
 </div>
@@ -1167,6 +1177,7 @@ const ITEMS=[]; // data nyata diisi dari Supabase (loadItemsForUnit)
 
 let activeItem=null,navigating=false,sc=1;
 let myLat=null,myLon=null,myMapX=.50,myMapY=.62,watchId=null;
+let myAcc=null,_lastFixT=0;
 const PLANT={latMin:0.1775,latMax:0.1855,lonMin:117.4875,lonMax:117.4955};
 function setOffline(forced){
   const off = forced===true ? true : (typeof navigator!=='undefined' && navigator.onLine===false);
@@ -1182,7 +1193,7 @@ let selectedPabrik='P2', selectedArea='ammonia';
 let selectedPlant='P2', selectedPlantName='Pabrik 2', plantHasData=new Set();
 async function loadPabrik(){
   const grid=document.getElementById('pabrik-grid');
-  grid.innerHTML='<div style=\"grid-column:1/-1;text-align:center;color:#9ca3af;padding:24px;\">Memuat pabrik\u2026</div>';
+  grid.innerHTML='<div style=\"grid-column:1/-1;text-align:center;color:#9ca3af;padding:24px;\">Memuat pabrik…</div>';
   try{
     const {data:plants,error}=await sb.from('plants').select('id,name').order('sort');
     if(error) throw error;
@@ -1194,7 +1205,7 @@ async function loadPabrik(){
       let locked; if(isAdmin) locked=false; else if(profile && profile.role==='operator' && profile.plant_id) locked=(p.id!==profile.plant_id); else locked=!has;
       const click = locked ? 'lockedTap()' : ("selectPabrik('"+p.id+"','"+(p.name||'').replace(/'/g,'')+"')");
       return '<div class=\"pabrik-card'+(locked?' locked':'')+'\" id=\"pc-'+p.id+'\" onclick=\"'+click+'\">'
-        + (locked?'<div class=\"pc-lock\">\ud83d\udd12</div>':'')
+        + (locked?'<div class=\"pc-lock\">🔒</div>':'')
         + '<div class=\"pc-num\">'+p.id+'</div><div class=\"pc-label\">'+(p.name||'')+'</div></div>';
     }).join('');
     const prev=document.getElementById('pc-'+selectedPlant);
@@ -1207,17 +1218,17 @@ function selectPabrik(id,name){
   selectedPlant=id; selectedPabrik=id; selectedPlantName=name||('Pabrik '+String(id).replace('P',''));
   document.querySelectorAll('.pabrik-card:not(.locked)').forEach(c=>c.classList.remove('active'));
   const c=document.getElementById('pc-'+id); if(c)c.classList.add('active');
-  const info=document.getElementById('pabrikInfo'); if(info){const pp=info.querySelector('p'); if(pp)pp.innerHTML='<b>'+selectedPlantName+'</b> dipilih \u2014 Ketuk Lanjut untuk memilih area';}
+  const info=document.getElementById('pabrikInfo'); if(info){const pp=info.querySelector('p'); if(pp)pp.innerHTML='<b>'+selectedPlantName+'</b> dipilih — Ketuk Lanjut untuk memilih area';}
 }
 
 let mngShown=200, mngList=[];
 let selectedUnit=null, selectedUnitName='', areaMap={}, areaById={}, myId=null, editingDbId=null, allItemsCache=[], detailRow=null;
-function unitIcon(n){n=(n||'').toLowerCase(); if(n.includes('urea'))return '\ud83c\udf31'; if(n.includes('utility'))return '\u26a1'; if(n.includes('boiler'))return '\ud83d\udd25'; if(n.includes('storage'))return '\ud83d\udee2\ufe0f'; if(n.includes('ppu'))return '\ud83d\udd27'; return '\ud83e\uddea';}
+function unitIcon(n){n=(n||'').toLowerCase(); if(n.includes('urea'))return '🌱'; if(n.includes('utility'))return '⚡'; if(n.includes('boiler'))return '🔥'; if(n.includes('storage'))return '🛢️'; if(n.includes('ppu'))return '🔧'; return '🧪';}
 function unitCls(n){n=(n||'').toLowerCase(); if(n.includes('urea'))return 'urea'; if(n.includes('utility'))return 'utility'; return 'ammonia';}
 async function loadUnits(){
   const wrap=document.getElementById('area-cards');
-  const lbl=document.getElementById('area-pabrik-label'); if(lbl)lbl.textContent=selectedPlantName+' \u2014 pilih unit yang ingin dijelajahi';
-  wrap.innerHTML='<div style=\"text-align:center;color:#9ca3af;padding:24px;\">Memuat unit\u2026</div>';
+  const lbl=document.getElementById('area-pabrik-label'); if(lbl)lbl.textContent=selectedPlantName+' — pilih unit yang ingin dijelajahi';
+  wrap.innerHTML='<div style=\"text-align:center;color:#9ca3af;padding:24px;\">Memuat unit…</div>';
   selectedUnit=null;
   try{
     const {data:units,error}=await sb.from('units').select('id,name').eq('plant_id',selectedPlant).order('sort');
@@ -1232,7 +1243,7 @@ async function loadUnits(){
       return '<div class=\"area-type-card'+(locked?' locked':'')+'\" id=\"atc-'+u.id+'\" onclick=\"'+click+'\">'
         +'<div class=\"atc-icon '+unitCls(u.name)+'\">'+unitIcon(u.name)+'</div>'
         +'<div class=\"atc-info\"><div class=\"atc-name\">'+u.name+'</div></div>'
-        +'<div class=\"atc-badge '+(locked?'lock':'aktif')+'\">'+(locked?'\ud83d\udd12':'\u25cf Aktif')+'</div></div>';
+        +'<div class=\"atc-badge '+(locked?'lock':'aktif')+'\">'+(locked?'🔒':'● Aktif')+'</div></div>';
     }).join('');
     let target = (isOp && opUnit) ? wrap.querySelector('#atc-'+opUnit) : null;
     if(!target) target = wrap.querySelector('.area-type-card:not(.locked)');
@@ -1249,7 +1260,8 @@ async function enterArea(){
   selectedArea=selectedUnit;
   await loadItemsForUnit();
   goTo('home');
-  if(shouldPrefetch()) setTimeout(prefetchAllData, 4000);  // tarik semua data diam-diam utk offline
+  if(shouldPrefetch()) setTimeout(prefetchAllData, 4000);  // tarik data diam-diam utk offline
+  if(shouldWarmMap()) setTimeout(()=>{ warmMapTiles().catch(()=>{}); }, 8000);  // hangatkan ubin peta area pabrik (kecil)
 }
 async function fetchAllRows(buildQuery){
   const PAGE=1000; let from=0, all=[];
@@ -1307,33 +1319,105 @@ async function loadItemsForUnit(opts){
 
 // ===== PREFETCH SEMUA DATA (agar bisa dipakai OFFLINE) =====
 let _prefetching=false;
-function shouldPrefetch(){ try{ const t=parseInt(localStorage.getItem('pn_prefetch_'+selectedPlant)||'0',10)||0; return (Date.now()-t)>15*60000; }catch(e){ return true; } }
+function shouldPrefetch(){ try{
+  if(profile && profile.role==='operator' && selectedUnit){ return localStorage.getItem('pn_pf_done_u_'+selectedUnit)!=='1'; }
+  return localStorage.getItem('pn_pf_done_p_'+selectedPlant)!=='1';
+}catch(e){ return true; } }
+async function prefetchUnitText(plant,unit){
+  if(!plant||!unit) return;
+  try{ const {data:areas}=await sb.from('areas').select('id,name').eq('unit_id',unit).order('sort'); if(areas) localStorage.setItem('pn_cache_areas_'+unit, JSON.stringify(areas)); }catch(e){}
+  try{ const items=await fetchAllRows(()=>sb.from('items').select(ITEMS_SELECT).eq('plant_id',plant).eq('unit_id',unit).eq('is_active',true).order('tag')); localStorage.setItem('pn_cache_items_'+plant+'_'+unit, JSON.stringify(items)); }catch(e){}
+}
+function cleanupOrphanUnitCache(plant,currentUnitIds){
+  try{
+    const keep=new Set((currentUnitIds||[]).map(String));
+    const pref='pn_cache_items_'+plant+'_';
+    for(let i=localStorage.length-1;i>=0;i--){
+      const k=localStorage.key(i); if(!k)continue;
+      if(k.indexOf(pref)===0){ const uid=k.slice(pref.length); if(!keep.has(uid)){ localStorage.removeItem(k); localStorage.removeItem('pn_cache_areas_'+uid); localStorage.removeItem('pn_pf_done_u_'+uid); } }
+    }
+  }catch(e){}
+}
+async function prefetchPlantText(plant,onProg){
+  let units=[]; try{ units=await fetchUnits(plant); }catch(e){ units=[]; }
+  if(units.length){ try{ cleanupOrphanUnitCache(plant, units.map(u=>u.id)); }catch(e){} }  // buang cache unit yg sudah dihapus
+  let done=0, complete=true;
+  for(const u of units){
+    if(typeof navigator!=='undefined' && navigator.onLine===false){ complete=false; break; }
+    await prefetchUnitText(plant,u.id);
+    done++; if(onProg)onProg(done,units.length);
+    await new Promise(r=>setTimeout(r,700));
+  }
+  if(complete && units.length){ try{ localStorage.setItem('pn_pf_done_p_'+plant,'1'); }catch(e){} }  // tandai SELESAI -> tidak menarik ulang
+  return done;
+}
+async function prefetchAllPlants(onProg){
+  let plants=[]; try{ const {data}=await sb.from('plants').select('id').order('sort'); plants=data||[]; }catch(e){ plants=[]; }
+  if(!plants.length) plants=[{id:selectedPlant}];
+  let tot=0; for(let i=0;i<plants.length;i++){ tot+=await prefetchPlantText(plants[i].id); if(onProg)onProg(i+1,plants.length); }
+  return tot;
+}
 async function prefetchAllData(){
   if(_prefetching) return;
   if(typeof navigator!=='undefined' && navigator.onLine===false) return;
   if(!selectedPlant) return;
   _prefetching=true;
-  let downloaded=0;
   try{
-    let units=[]; try{ units=await fetchUnits(selectedPlant); }catch(e){ units=[]; }
-    for(let i=0;i<units.length;i++){
-      const u=units[i];
-      if(typeof navigator!=='undefined' && navigator.onLine===false) break;
-      // areas
-      try{
-        const {data:areas}=await sb.from('areas').select('id,name').eq('unit_id',u.id).order('sort');
-        if(areas){ try{ localStorage.setItem('pn_cache_areas_'+u.id, JSON.stringify(areas)); }catch(e){} }
-      }catch(e){}
-      // items (semua halaman)
-      try{
-        const items=await fetchAllRows(()=>sb.from('items').select(ITEMS_SELECT).eq('plant_id',selectedPlant).eq('unit_id',u.id).eq('is_active',true).order('tag'));
-        try{ localStorage.setItem('pn_cache_items_'+selectedPlant+'_'+u.id, JSON.stringify(items)); downloaded++; }catch(e){ /* penyimpanan HP penuh */ }
-      }catch(e){}
-      await new Promise(r=>setTimeout(r, 700));   // pelan-pelan: jangan bebani jaringan & baterai
+    // OPERATOR: cukup unitnya saja (kecil, otomatis). Lainnya: seluruh pabrik aktif.
+    if(profile && profile.role==='operator' && selectedUnit){
+      await prefetchUnitText(selectedPlant, selectedUnit);
+      try{ localStorage.setItem('pn_pf_done_u_'+selectedUnit,'1'); }catch(e){}
+    } else {
+      const n=await prefetchPlantText(selectedPlant);
+      if(n>0){ try{ pnToast('Data pabrik siap offline ('+n+' unit)'); }catch(e){} }
     }
-    try{ localStorage.setItem('pn_prefetch_'+selectedPlant, String(Date.now())); }catch(e){}
-    if(downloaded>0){ try{ pnToast('Data pabrik siap dipakai offline ('+downloaded+' unit)'); }catch(e){} }
   } finally { _prefetching=false; }
+}
+
+// ===== UBIN PETA OFFLINE =====
+function _ll2tile(lon,lat,z){ const n=Math.pow(2,z); const x=Math.floor((lon+180)/360*n); const r=lat*Math.PI/180; const y=Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n); return [x,y]; }
+function shouldWarmMap(){ try{ const t=parseInt(localStorage.getItem('pn_mapwarm')||'0',10)||0; return (Date.now()-t)>6*3600000; }catch(e){ return true; } }
+async function warmMapTiles(onProg){
+  if(typeof PLANT==='undefined') return 0;
+  if(typeof navigator!=='undefined' && navigator.onLine===false) return 0;
+  const bbox=[PLANT.lonMin-0.01,PLANT.latMin-0.01,PLANT.lonMax+0.01,PLANT.latMax+0.01];
+  let templates=[];
+  try{
+    const st=await (await fetch('https://tiles.openfreemap.org/styles/liberty')).json();
+    const srcUrls=[];
+    for(const k in (st.sources||{})){ const s=st.sources[k]; if(s.tiles) templates.push(...s.tiles); else if(s.url) srcUrls.push(s.url); }
+    if(st.sprite){ try{ await fetch(st.sprite+'.json'); await fetch(st.sprite+'.png'); }catch(e){} }
+    for(const u of srcUrls){ try{ const tj=await (await fetch(u)).json(); if(tj.tiles) templates.push(...tj.tiles); }catch(e){} }
+  }catch(e){ return 0; }
+  if(!templates.length) return 0;
+  const jobs=[];
+  for(let z=10; z<=14; z++){
+    const a=_ll2tile(bbox[0],bbox[3],z), b=_ll2tile(bbox[2],bbox[1],z);
+    for(let x=Math.min(a[0],b[0]); x<=Math.max(a[0],b[0]); x++)
+      for(let y=Math.min(a[1],b[1]); y<=Math.max(a[1],b[1]); y++)
+        for(const t of templates) jobs.push(t.replace('{z}',z).replace('{x}',x).replace('{y}',y));
+  }
+  let done=0;
+  for(const j of jobs){ try{ await fetch(j); }catch(e){} done++; if(onProg)onProg(done,jobs.length); await new Promise(r=>setTimeout(r,50)); }
+  try{ localStorage.setItem('pn_mapwarm', String(Date.now())); }catch(e){}
+  return jobs.length;
+}
+
+// ===== TOMBOL UNDUH OFFLINE (campuran: kecil otomatis, besar manual) =====
+async function downloadOffline(){
+  if(typeof navigator!=='undefined' && navigator.onLine===false){ pnToast('Perlu internet untuk mengunduh.'); return; }
+  const role=(profile&&profile.role)||'operator';
+  try{ localStorage.removeItem('pn_pf_done_p_'+selectedPlant); if(selectedUnit)localStorage.removeItem('pn_pf_done_u_'+selectedUnit); }catch(e){}
+  pnToast('Mengunduh data… (jangan tutup app)');
+  try{
+    if(role==='master'){ await prefetchAllPlants(); }
+    else if(role==='plant_admin'){ await prefetchPlantText(selectedPlant); }
+    else if(selectedUnit){ await prefetchUnitText(selectedPlant,selectedUnit); }
+    else { await prefetchPlantText(selectedPlant); }
+  }catch(e){}
+  pnToast('Mengunduh ubin peta…');
+  try{ const n=await warmMapTiles(); pnToast('Offline siap ✓ (peta '+n+' ubin)'); }
+  catch(e){ pnToast('Data tersimpan; sebagian peta gagal.'); }
 }
 if(typeof window!=='undefined'){ window.addEventListener('online', function(){ if(shouldPrefetch()) setTimeout(prefetchAllData, 1500); }); }
 
@@ -1358,9 +1442,9 @@ const CONFIG = {
 const SB_URL=CONFIG.url, SB_KEY=CONFIG.key;
 const sb=supabase.createClient(SB_URL,SB_KEY);
 let profile=null;
-function roleLabel(p){ return p.role==='master'?'Master Admin':p.role==='plant_admin'?('Admin Pabrik '+(p.plant_id||'').replace('P','')):('Operator'+(p.plant_id?(' \u00b7 '+p.plant_id):'')); }
+function roleLabel(p){ return p.role==='master'?'Master Admin':p.role==='plant_admin'?('Admin Pabrik '+(p.plant_id||'').replace('P','')):('Operator'+(p.plant_id?(' · '+p.plant_id):'')); }
 function greetName(p){ if(!p) return 'Operator'; if(p.name && p.name.trim()) return p.name.trim(); if(p.role==='master') return 'Admin Master'; if(p.role==='plant_admin') return 'Admin '+(p.plant_id||''); return 'Operator'; }
-function togglePw(id,btn){ var el=document.getElementById(id); if(!el)return; if(el.type==='password'){ el.type='text'; if(btn)btn.textContent='\ud83d\ude48'; } else { el.type='password'; if(btn)btn.textContent='\ud83d\udc41\ufe0f'; } }
+function togglePw(id,btn){ var el=document.getElementById(id); if(!el)return; if(el.type==='password'){ el.type='text'; if(btn)btn.textContent='🙈'; } else { el.type='password'; if(btn)btn.textContent='👁️'; } }
 async function doLogin(){
   const u=document.getElementById('login-user').value.trim().toLowerCase();
   const p=document.getElementById('login-pass').value;
@@ -1374,7 +1458,7 @@ async function doLogin(){
   if(!noLock){ try{ const until=parseInt(localStorage.getItem(lkey)||'0',10);
     if(until && Date.now()<until){ const mnt=Math.ceil((until-Date.now())/60000);
       err.textContent='Terlalu banyak percobaan. Coba lagi dalam '+mnt+' menit, atau minta admin reset password.'; err.style.color='#e02424'; err.style.display='block'; return; } }catch(e){} }
-  err.textContent='Memeriksa\u2026'; err.style.color='#6b7280'; err.style.display='block';
+  err.textContent='Memeriksa…'; err.style.color='#6b7280'; err.style.display='block';
   try{
     const {data,error}=await sb.auth.signInWithPassword({email:u+'@plantnav.local',password:p});
     if(error){
@@ -1416,10 +1500,10 @@ function savePwd(){
   function show(t,ok){msg.textContent=t;msg.style.color=ok?'#16a34a':'#e02424';msg.style.display='block';}
   if(n1.length<6){ show('Password baru minimal 6 karakter.',false); return; }
   if(n1!==n2){ show('Konfirmasi password tidak cocok.',false); return; }
-  show('Menyimpan\u2026',true);
+  show('Menyimpan…',true);
   sb.auth.updateUser({password:n1}).then(({error})=>{
     if(error){ show('Gagal: '+error.message,false); return; }
-    show('\u2705 Password berhasil diubah.',true); setTimeout(closePwdModal,1200);
+    show('✅ Password berhasil diubah.',true); setTimeout(closePwdModal,1200);
   }).catch(()=>show('Gangguan koneksi.',false));
 }
 
@@ -1460,11 +1544,11 @@ function goTo(id){
   if(id==='pabrik') loadPabrik();
   if(id==='area') loadUnits();
   if(id==='home'){
-    const label=selectedPlantName+' \u00b7 '+selectedUnitName;
+    const label=selectedPlantName+' · '+selectedUnitName;
     document.getElementById('topbar-sub-label').textContent=label;
     document.getElementById('apb-name').textContent=label;
     document.getElementById('list-title').textContent='Item Terbaru Dicari';
-    var hg=document.getElementById('home-greet'); if(hg) hg.textContent='Halo, '+greetName(profile)+' \ud83d\udc4b';
+    var hg=document.getElementById('home-greet'); if(hg) hg.textContent='Halo, '+greetName(profile)+' 👋';
     setTab('tab-home');
     buildAreaChips();
     updateStats();
@@ -1556,11 +1640,11 @@ async function updatePendDot(){
     const total=p.length+pr.length;
     const dot=document.getElementById('pendDot'); if(dot)dot.style.display=total>0?'block':'none';
     const hc=document.getElementById('hp-count'), hs=document.getElementById('hp-sub');
-    if(hc&&hs){ hc.textContent=total; hs.textContent=total>0?(p.length+' menunggu \u00b7 '+pr.length+' dikerjakan — ketuk untuk lihat'):'Tidak ada WR aktif \ud83c\udf89'; }
+    if(hc&&hs){ hc.textContent=total; hs.textContent=total>0?(p.length+' menunggu · '+pr.length+' dikerjakan — ketuk untuk lihat'):'Tidak ada WR aktif 🎉'; }
   }catch(e){ const hc=document.getElementById('hp-count'); if(hc)hc.textContent='—'; }
 }
 async function renderPending(){
-  const el=document.getElementById('pend-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
+  const el=document.getElementById('pend-list'); el.innerHTML='<div class="empty">Memuat…</div>';
   let pend=[],prog=[];
   try{ pend=await fetchWR('pending'); }catch(e){}
   try{ prog=await fetchWR('dikerjakan'); }catch(e){}
@@ -1568,7 +1652,7 @@ async function renderPending(){
   let list=wrCache;
   const q=(document.getElementById('pend-search')?.value||'').trim().toLowerCase();
   if(q) list=list.filter(w=>((w.items?.tag||'')+' '+(w.items?.name||'')+' '+(w.problem||'')).toLowerCase().includes(q));
-  document.getElementById('pend-sub').textContent=pend.length+' menunggu \u00b7 '+prog.length+' dikerjakan';
+  document.getElementById('pend-sub').textContent=pend.length+' menunggu · '+prog.length+' dikerjakan';
   el.innerHTML=list.length?list.map(function(w){
     var dik=w.status==='dikerjakan';
     var badge=dik?'<span class="prog-badge">DIKERJAKAN</span>':'<span class="pend-badge">MENUNGGU</span>';
@@ -1577,9 +1661,9 @@ async function renderPending(){
       +'<div style="flex:1;min-width:0;">'
         +'<div class="mt-tag">'+((w.items&&w.items.tag)||'?')+' '+badge+'</div>'
         +'<div class="mt-name">'+(w.problem||'')+'</div>'
-        +'<div class="mt-meta">WR '+w.wr_no+' \u00b7 '+fmtTS(w.created_at)+' \u00b7 '+daysSinceTS(w.created_at)+' hari</div>'
-      +'</div><div class="mt-arrow">\u203a</div></div>';
-  }).join(''):'<div class="empty">Tidak ada WR aktif \ud83c\udf89</div>';
+        +'<div class="mt-meta">WR '+w.wr_no+' · '+fmtTS(w.created_at)+' · '+daysSinceTS(w.created_at)+' hari</div>'
+      +'</div><div class="mt-arrow">›</div></div>';
+  }).join(''):'<div class="empty">Tidak ada WR aktif 🎉</div>';
   const dot=document.getElementById('pendDot'); if(dot)dot.style.display=wrCache.length>0?'block':'none';
 }
 function openPendDetail(id){
@@ -1589,12 +1673,12 @@ function openPendDetail(id){
   var dik=w.status==='dikerjakan';
   const st=document.getElementById('wrs-status'); st.textContent=dik?'DIKERJAKAN':'MENUNGGU'; st.className='sheet-status '+(dik?'st-prog':'st-non');
   let body=srow('No. WR',w.wr_no)+srow('Masalah',w.problem||'-')+srow('Tanggal lapor',fmtTS(w.created_at))+srow('Pelapor (NPK)',w.reporter_npk||'-')+srow('Umur',daysSinceTS(w.created_at)+' hari');
-  if(dik && w.started_at) body+=srow('Mulai dikerjakan',fmtTS(w.started_at)+(w.started_npk?(' \u00b7 NPK '+w.started_npk):''));
+  if(dik && w.started_at) body+=srow('Mulai dikerjakan',fmtTS(w.started_at)+(w.started_npk?(' · NPK '+w.started_npk):''));
   if(w.photo_path) body+='<div class="srow"><div class="k">Foto</div><div class="v"><img class="sheet-img" src="'+photoUrl(w.photo_path)+'"></div></div>';
   document.getElementById('wrs-body').innerHTML=body;
   var acts = dik
-    ? '<button class="btn-ghost" onclick="openDone()">\u2705 Selesaikan</button>'
-    : '<button class="btn-ghost" onclick="markProgress()">\ud83d\udd27 Mulai Dikerjakan</button><button class="btn-ghost" onclick="openDone()">\u2705 Selesaikan</button>';
+    ? '<button class="btn-ghost" onclick="openDone()">✅ Selesaikan</button>'
+    : '<button class="btn-ghost" onclick="markProgress()">🔧 Mulai Dikerjakan</button><button class="btn-ghost" onclick="openDone()">✅ Selesaikan</button>';
   document.getElementById('wrs-actions').innerHTML=acts;
   document.getElementById('wrSheet').style.display='flex';
 }
@@ -1613,7 +1697,7 @@ function closeWrSheet(){ document.getElementById('wrSheet').style.display='none'
 // Buat WR
 function openWRModal(){
   const items=plantItems();
-  document.getElementById('wr-item-list').innerHTML=items.map(i=>`<option value="${i.id} \u2014 ${i.name}"></option>`).join('');
+  document.getElementById('wr-item-list').innerHTML=items.map(i=>`<option value="${i.id} — ${i.name}"></option>`).join('');
   document.getElementById('wr-item').value='';
   document.getElementById('wr-no').value=''; document.getElementById('wr-prob').value='';
   setDropName('wr',''); pendingFiles.wr=null;
@@ -1625,7 +1709,7 @@ function saveWR(){
   const msg=document.getElementById('wr-msg');
   function err(t){msg.textContent=t;msg.style.color='#e02424';msg.style.display='block';}
   const sel=document.getElementById('wr-item').value.trim();
-  const it=plantItems().find(i=>(i.id+' \u2014 '+i.name)===sel)||plantItems().find(i=>i.id.toLowerCase()===sel.toLowerCase());
+  const it=plantItems().find(i=>(i.id+' — '+i.name)===sel)||plantItems().find(i=>i.id.toLowerCase()===sel.toLowerCase());
   const itemDbId=it?it._dbid:'';
   const wrno=document.getElementById('wr-no').value.trim();
   const prob=document.getElementById('wr-prob').value.trim();
@@ -1635,7 +1719,7 @@ function saveWR(){
   (async function(){
     const npk=(profile&&profile.npk)||'';
     let ph='';
-    try{ if(pendingFiles.wr){ msg.style.color='#6b7280'; msg.textContent='Mengunggah foto\u2026'; msg.style.display='block'; ph=await uploadPhoto(pendingFiles.wr,'wr'); } }
+    try{ if(pendingFiles.wr){ msg.style.color='#6b7280'; msg.textContent='Mengunggah foto…'; msg.style.display='block'; ph=await uploadPhoto(pendingFiles.wr,'wr'); } }
     catch(e){ err('Gagal unggah foto: '+e.message); return; }
     const {error}=await sb.from('work_requests').insert({wr_no:wrno,item_id:itemDbId,plant_id:selectedPlant,problem:prob,status:'pending',photo_path:ph||null,created_by:myId,reporter_npk:npk});
     if(error){ err((error.code==='23505'||(error.message||'').includes('duplicate'))?'No. WR sudah ada.':('Gagal: '+error.message)); return; }
@@ -1647,7 +1731,7 @@ function saveWR(){
 // Selesaikan WR
 function openDone(){
   if(!curWR)return;
-  document.getElementById('done-head').textContent=(curWR.items?.tag||'?')+' \u00b7 '+(curWR.problem||'')+' (WR '+curWR.wr_no+')';
+  document.getElementById('done-head').textContent=(curWR.items?.tag||'?')+' · '+(curWR.problem||'')+' (WR '+curWR.wr_no+')';
   document.getElementById('done-note').value=''; setDropName('done',''); pendingFiles.done=null;
   document.getElementById('done-msg').style.display='none';
   document.getElementById('doneModal').style.display='flex';
@@ -1662,7 +1746,7 @@ function confirmDone(){
   (async function(){
     const npk=(profile&&profile.npk)||'';
     let dphoto='';
-    try{ if(pendingFiles.done){ msg.style.color='#6b7280'; msg.textContent='Mengunggah foto\u2026'; msg.style.display='block'; dphoto=await uploadPhoto(pendingFiles.done,'wr'); } }
+    try{ if(pendingFiles.done){ msg.style.color='#6b7280'; msg.textContent='Mengunggah foto…'; msg.style.display='block'; dphoto=await uploadPhoto(pendingFiles.done,'wr'); } }
     catch(e){ err('Gagal unggah foto: '+e.message); return; }
     const {error}=await sb.from('work_requests').update({status:'selesai',repair_note:note,done_photo_path:dphoto||null,done_by:myId,done_npk:npk,done_at:new Date().toISOString()}).eq('id',w.id);
     if(error){ err('Gagal: '+error.message); return; }
@@ -1673,7 +1757,7 @@ function confirmDone(){
 
 // Riwayat Maintenance (per item)
 async function renderMaint(){
-  const el=document.getElementById('maint-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
+  const el=document.getElementById('maint-list'); el.innerHTML='<div class="empty">Memuat…</div>';
   let data;
   try{ data=await fetchWR('selesai'); }catch(e){ el.innerHTML='<div class="empty">Gagal memuat.</div>'; return; }
   const byItem={};
@@ -1687,14 +1771,14 @@ async function renderMaint(){
       <div style="flex:1;min-width:0;">
         <div class="mt-tag">${g.tag||'?'}</div>
         <div class="mt-name">${g.name||''}</div>
-        <div class="mt-meta">${g.recs.length} riwayat \u00b7 terakhir ${fmtTS(g.recs[0].done_at)}</div>
+        <div class="mt-meta">${g.recs.length} riwayat · terakhir ${fmtTS(g.recs[0].done_at)}</div>
       </div>
-      <div class="mt-arrow">\u203a</div>
+      <div class="mt-arrow">›</div>
     </div>`;}).join(''):'<div class="empty">Belum ada riwayat perbaikan.</div>';
 }
 async function openMaintItem(itemDbId){ curMaintItem=itemDbId; goTo('maint-item'); document.getElementById('mi-search-in').value=''; await renderMaintItem(); }
 async function renderMaintItem(){
-  const el=document.getElementById('mi-list'); el.innerHTML='<div class="empty">Memuat\u2026</div>';
+  const el=document.getElementById('mi-list'); el.innerHTML='<div class="empty">Memuat…</div>';
   let data;
   try{
     const r=await sb.from('work_requests')
@@ -1713,7 +1797,7 @@ async function renderMaintItem(){
       <div class="hist-top"><span class="wr-chip">WR ${w.wr_no}</span><span class="hist-date">${fmtTS(w.done_at)}</span></div>
       <div class="hist-prob"><b>Masalah:</b> ${w.problem||'-'}</div>
       <div class="hist-note"><b>Perbaikan:</b> ${w.repair_note||'-'}</div>
-      <div class="hist-meta">Lapor ${fmtTS(w.created_at)} \u2192 Selesai ${fmtTS(w.done_at)}${(w.photo_path||w.done_photo_path)?' \u00b7 \ud83d\udcf7':''}</div>
+      <div class="hist-meta">Lapor ${fmtTS(w.created_at)} → Selesai ${fmtTS(w.done_at)}${(w.photo_path||w.done_photo_path)?' · 📷':''}</div>
     </div>`).join(''):'<div class="empty">Tidak ada riwayat cocok.</div>';
 }
 function openMaintDetail(id){
@@ -1721,7 +1805,7 @@ function openMaintDetail(id){
   document.getElementById('wrs-tag').textContent=w.items?.tag||'?';
   document.getElementById('wrs-name').textContent=w.items?.name||'';
   const st=document.getElementById('wrs-status'); st.textContent='SELESAI'; st.className='sheet-status st-aktif';
-  let body=srow('No. WR',w.wr_no)+srow('Masalah',w.problem||'-')+srow('Perbaikan',w.repair_note||'-')+srow('Lapor',fmtTS(w.created_at)+' \u00b7 NPK '+(w.reporter_npk||'-'))+srow('Selesai',fmtTS(w.done_at)+' \u00b7 NPK '+(w.done_npk||'-'));
+  let body=srow('No. WR',w.wr_no)+srow('Masalah',w.problem||'-')+srow('Perbaikan',w.repair_note||'-')+srow('Lapor',fmtTS(w.created_at)+' · NPK '+(w.reporter_npk||'-'))+srow('Selesai',fmtTS(w.done_at)+' · NPK '+(w.done_npk||'-'));
   if(w.photo_path) body+='<div class="srow"><div class="k">Foto lapor</div><div class="v"><img class="sheet-img" src="'+photoUrl(w.photo_path)+'"></div></div>';
   if(w.done_photo_path) body+='<div class="srow"><div class="k">Foto perbaikan</div><div class="v"><img class="sheet-img" src="'+photoUrl(w.done_photo_path)+'"></div></div>';
   document.getElementById('wrs-body').innerHTML=body;
@@ -1836,28 +1920,28 @@ async function saveNewItem(){
   const fv=parseInt(document.getElementById('ai-floor').value); const floor=isNaN(fv)?0:fv;
   let photoPath=document.getElementById('ai-photo').value.trim(), svPath=document.getElementById('ai-sv').value.trim();
   try{
-    if(pendingFiles.photo){ info('Mengunggah foto\u2026'); photoPath=await uploadPhoto(pendingFiles.photo,'item'); }
-    if(pendingFiles.sv){ info('Mengunggah foto 360\u2026'); svPath=await uploadPhoto(pendingFiles.sv,'item',{maxDim:4096}); }
+    if(pendingFiles.photo){ info('Mengunggah foto…'); photoPath=await uploadPhoto(pendingFiles.photo,'item'); }
+    if(pendingFiles.sv){ info('Mengunggah foto 360…'); svPath=await uploadPhoto(pendingFiles.sv,'item',{maxDim:4096}); }
   }catch(e){ err('Gagal unggah foto: '+e.message); return; }
   const payload={tag,name,func:document.getElementById('ai-func').value.trim(),type,
     area_id:(areaMap[areaName]||null),floor:String(floor),lat,lon,
     hint:document.getElementById('ai-hint').value.trim(),
     photo_path:photoPath||null, sv_path:svPath||null};
   if(editingId){
-    info('Menyimpan\u2026');
+    info('Menyimpan…');
     sb.from('items').update(payload).eq('id',editingDbId).then(async ({error})=>{
       if(error){ err(error.code==='23505'?'Tag/ID sudah dipakai item lain di pabrik ini.':('Gagal: '+error.message)); return; }
       logAudit('edit_item',tag,'edit data',(profile&&profile.npk)||'');
       pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderRecent(); try{await renderAllItems();}catch(e){}
-      ok('\u2705 Perubahan tersimpan.'); setTimeout(closeAddItem,800);
+      ok('✅ Perubahan tersimpan.'); setTimeout(closeAddItem,800);
     });
   }else{
-    info('Menyimpan\u2026');
+    info('Menyimpan…');
     const ins=Object.assign({plant_id:selectedPlant,unit_id:selectedUnit,created_by:myId},payload);
     sb.from('items').insert(ins).then(async ({error})=>{
       if(error){ err(error.code==='23505'?'Tag/ID sudah ada di pabrik ini.':('Gagal: '+error.message)); return; }
       pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderRecent();
-      ok('\u2705 Item '+tag+' tersimpan ke database.');
+      ok('✅ Item '+tag+' tersimpan ke database.');
       setTimeout(closeAddItem,1000);
     });
   }
@@ -1889,7 +1973,7 @@ function buildFilterPanel(){
 }
 async function renderAllItems(){
   const listEl=document.getElementById('mng-list');
-  listEl.innerHTML='<div class="empty">Memuat\u2026</div>';
+  listEl.innerHTML='<div class="empty">Memuat…</div>';
   try{
     const items=await fetchAllRows(()=>sb.from('items')
       .select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id,is_active')
@@ -1911,7 +1995,7 @@ async function renderAllItems(){
   document.getElementById('filt-inc').className='filt-btn'+(mngFilt.inc?' on':'');
   document.getElementById('filt-reset').style.display=nActiveFilters?'':'none';
   document.getElementById('mng-top').innerHTML=mngPanelOpen?buildFilterPanel():'';
-  document.getElementById('mng-sub').textContent=allItemsCache.length+' item \u00b7 '+nIncomplete+' belum lengkap';
+  document.getElementById('mng-sub').textContent=allItemsCache.length+' item · '+nIncomplete+' belum lengkap';
 
   paintMng();
 }
@@ -1926,10 +2010,10 @@ function paintMng(){
       <div style="flex:1;min-width:0;">
         <div class="mt-tag"><span class="dot ${comp?'dot-green':'dot-red'}" title="${comp?'Lengkap':'Belum lengkap'}"></span>${i.tag}${i.is_active?'':'<span class="mng-badge st-non">NON-AKTIF</span>'}</div>
         <div class="mt-name">${i.name||''}</div>
-        <div class="mt-meta">${i.type||'(tanpa tipe)'} \u00b7 ${areaById[i.area_id]||'(tanpa area)'} \u00b7 Lt. ${floorTxt(flNum(i.floor))}</div>
+        <div class="mt-meta">${i.type||'(tanpa tipe)'} · ${areaById[i.area_id]||'(tanpa area)'} · Lt. ${floorTxt(flNum(i.floor))}</div>
       </div>
-      ${adm?`<button class="mng-del" onclick="event.stopPropagation();deleteItemRow('${i.id}')">\ud83d\uddd1\ufe0f Hapus</button>`:''}
-      <div class="mt-arrow">\u203a</div>
+      ${adm?`<button class="mng-del" onclick="event.stopPropagation();deleteItemRow('${i.id}')">🗑️ Hapus</button>`:''}
+      <div class="mt-arrow">›</div>
     </div>`;}).join(''):'<div class="empty">Tidak ada item sesuai filter.</div>';
   const sisa=mngList.length-shown.length;
   if(sisa>0) html+=`<button class="load-more" onclick="mngMore()">Muat lebih banyak (${sisa} tersisa)</button>`;
@@ -1940,8 +2024,8 @@ function mngMore(){ mngShown+=300; paintMng(); }
 // ===== DASHBOARD =====
 async function renderDash(){
   const body=document.getElementById('dash-body');
-  body.innerHTML='<div class="empty">Memuat\u2026</div>';
-  document.getElementById('dash-sub').textContent=selectedPlantName+' \u00b7 '+selectedUnitName;
+  body.innerHTML='<div class="empty">Memuat…</div>';
+  document.getElementById('dash-sub').textContent=selectedPlantName+' · '+selectedUnitName;
   let items=[];
   try{ items=await fetchAllRows(()=>sb.from('items').select('id,type,lat,lon,area_id,photo_path,func,hint,is_active').eq('plant_id',selectedPlant).eq('unit_id',selectedUnit)); }
   catch(e){
@@ -1961,7 +2045,7 @@ async function renderDash(){
   const areasInc=Object.entries(byAreaInc).sort((a,b)=>b[1]-a[1]);
   function card(n,l,c){ return '<div class="dash-card '+(c||'')+'"><div class="dash-num">'+n+'</div><div class="dash-lbl">'+l+'</div></div>'; }
   let h='<div class="dash-grid">';
-  h+=card(total,'Item aktif','blue')+card(lengkap,'Lengkap \ud83d\udfe2','green')+card(belum,'Belum lengkap \ud83d\udd34','red')+card(nonaktif,'Non-aktif','');
+  h+=card(total,'Item aktif','blue')+card(lengkap,'Lengkap 🟢','green')+card(belum,'Belum lengkap 🔴','red')+card(nonaktif,'Non-aktif','');
   h+=card(pend,'WR Menunggu','amber')+card(prog,'WR Dikerjakan','blue')+card(done,'WR Selesai','green');
   h+='</div>';
   const pct=total?Math.round(lengkap/total*100):0;
@@ -1982,7 +2066,7 @@ async function exportMaintCSV(){
   const cols=['WR No','Tag','Nama Item','Masalah','Perbaikan','Tgl Lapor','Pelapor NPK','Tgl Selesai','Penyelesai NPK'];
   const rows=data.map(w=>[w.wr_no,w.items?.tag||'',w.items?.name||'',w.problem||'',w.repair_note||'',fmtTS(w.created_at),w.reporter_npk||'',fmtTS(w.done_at),w.done_npk||'']);
   const esc=v=>{ v=(v==null?'':String(v)); return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
-  const csv='\ufeff'+[cols.join(';'),...rows.map(r=>r.map(esc).join(';'))].join('\n');
+  const csv='﻿'+[cols.join(';'),...rows.map(r=>r.map(esc).join(';'))].join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='maintenance_'+selectedPlant+'_'+(selectedUnitName||'unit')+'_'+today()+'.csv';
@@ -2002,7 +2086,7 @@ function openItemDetail(dbid){
     +srow('Koordinat',(r.lat!=null&&r.lon!=null)?(r.lat+', '+r.lon):'-')
     +srow('Petunjuk',r.hint||'-');
   if(r.photo_path) body+=srow('Foto',r.photo_path);
-  if(r.sv_path) body+=srow('Foto 360°','\u2714 tersedia');
+  if(r.sv_path) body+=srow('Foto 360°','✔ tersedia');
   document.getElementById('im-body').innerHTML=body;
   document.getElementById('im-toggle').textContent=r.is_active?'Non-aktifkan':'Aktifkan';
   document.getElementById('itemModal').style.display='flex';
@@ -2077,11 +2161,11 @@ async function npkConfirm(){
   const v=document.getElementById('npk-in').value.trim();
   const msg=document.getElementById('npk-msg');
   if(!/^\d+$/.test(v)){ msg.style.color='#e02424'; msg.textContent='NPK harus berupa angka.'; msg.style.display='block'; return; }
-  msg.style.color='#6b7280'; msg.textContent='Memeriksa NPK\u2026'; msg.style.display='block';
+  msg.style.color='#6b7280'; msg.textContent='Memeriksa NPK…'; msg.style.display='block';
   try{
     const {data,error}=await sb.rpc('npk_exists',{p:v});
     if(error){ msg.style.color='#e02424'; msg.textContent='Gagal memeriksa NPK.'; return; }
-    if(!data){ msg.style.color='#e02424'; msg.textContent='NPK tidak terdaftar \u2014 tidak bisa melanjutkan.'; return; }
+    if(!data){ msg.style.color='#e02424'; msg.textContent='NPK tidak terdaftar — tidak bisa melanjutkan.'; return; }
   }catch(e){ msg.style.color='#e02424'; msg.textContent='Gangguan koneksi.'; return; }
   const act=npkAction; closeNpk();
   if(act) act(v);
@@ -2171,7 +2255,7 @@ function mdOnPlant(){
   mdLoadUnits();
 }
 async function mdLoadUnits(){
-  const box=document.getElementById('md-units'); box.innerHTML='<div class="empty">Memuat\u2026</div>';
+  const box=document.getElementById('md-units'); box.innerHTML='<div class="empty">Memuat…</div>';
   let units=[]; try{ units=await fetchUnits(mdPlant); }catch(e){}
   units=units.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   if(!units.length){ box.innerHTML='<div class="empty">Belum ada unit.</div>'; return; }
@@ -2179,8 +2263,8 @@ async function mdLoadUnits(){
     const sel=(mdUnit===u.id)?' sel':'';
     return '<div class="md-row'+sel+'" id="mdu-'+u.id+'">'
       +'<div class="md-nm" onclick="mdSelectUnit(\''+u.id+'\',\''+escq(u.name)+'\')">'+u.name+'</div>'
-      +'<div class="md-act"><button onclick="mdRenameUnit(\''+u.id+'\',\''+escq(u.name)+'\')">\u270f\ufe0f</button>'
-      +'<button class="danger" onclick="mdDeleteUnit(\''+u.id+'\',\''+escq(u.name)+'\')">\ud83d\uddd1\ufe0f</button></div></div>';
+      +'<div class="md-act"><button onclick="mdRenameUnit(\''+u.id+'\',\''+escq(u.name)+'\')">✏️</button>'
+      +'<button class="danger" onclick="mdDeleteUnit(\''+u.id+'\',\''+escq(u.name)+'\')">🗑️</button></div></div>';
   }).join('');
 }
 function mdSelectUnit(id,name){
@@ -2188,18 +2272,18 @@ function mdSelectUnit(id,name){
   document.querySelectorAll('#md-units .md-row').forEach(r=>r.classList.remove('sel'));
   const r=document.getElementById('mdu-'+id); if(r)r.classList.add('sel');
   document.getElementById('md-area-add').style.display='flex';
-  document.getElementById('md-area-unit').textContent='\u00b7 '+name;
+  document.getElementById('md-area-unit').textContent='· '+name;
   mdLoadAreas();
 }
 async function mdLoadAreas(){
-  const box=document.getElementById('md-areas'); box.innerHTML='<div class="empty">Memuat\u2026</div>';
+  const box=document.getElementById('md-areas'); box.innerHTML='<div class="empty">Memuat…</div>';
   let areas=[]; try{ const {data}=await sb.from('areas').select('id,name').eq('unit_id',mdUnit).order('sort'); areas=data||[]; }catch(e){}
   areas=areas.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   if(!areas.length){ box.innerHTML='<div class="empty">Belum ada area di unit ini.</div>'; return; }
   box.innerHTML=areas.map(function(a){
     return '<div class="md-row"><div class="md-nm" style="cursor:default">'+a.name+'</div>'
-      +'<div class="md-act"><button onclick="mdRenameArea(\''+a.id+'\',\''+escq(a.name)+'\')">\u270f\ufe0f</button>'
-      +'<button class="danger" onclick="mdDeleteArea(\''+a.id+'\',\''+escq(a.name)+'\')">\ud83d\uddd1\ufe0f</button></div></div>';
+      +'<div class="md-act"><button onclick="mdRenameArea(\''+a.id+'\',\''+escq(a.name)+'\')">✏️</button>'
+      +'<button class="danger" onclick="mdDeleteArea(\''+a.id+'\',\''+escq(a.name)+'\')">🗑️</button></div></div>';
   }).join('');
 }
 async function mdAddUnit(){
@@ -2234,7 +2318,7 @@ async function mdDeleteArea(id,name){
 
 // ===== HALAMAN DATA KARYAWAN =====
 async function renderKaryawan(){
-  const list=document.getElementById('k-list'); list.innerHTML='<div class="empty">Memuat\u2026</div>';
+  const list=document.getElementById('k-list'); list.innerHTML='<div class="empty">Memuat…</div>';
   document.getElementById('k-msg').style.display='none';
   const isMaster = profile && profile.role==='master';
   kFilterPlant = isMaster ? (selectedPlant||'') : (profile?profile.plant_id:'');
@@ -2270,15 +2354,15 @@ function applyKaryawanFilter(){
   document.getElementById('k-sub').textContent=rows.length+' karyawan';
   const el=document.getElementById('k-list');
   el.innerHTML=rows.length?rows.map(o=>{
-    const tag=o.role==='plant_admin'?('Admin '+o.plant_id):((o.plant_id||'')+(o.unit_name?(' \u00b7 '+o.unit_name):''));
+    const tag=o.role==='plant_admin'?('Admin '+o.plant_id):((o.plant_id||'')+(o.unit_name?(' · '+o.unit_name):''));
     return `<div class="op-row">
       <div class="op-head"><div class="op-npk">${o.npk} <span class="op-tag">${tag}</span></div><div class="op-name">${o.name||''}</div></div>
       <div class="op-acts">
-        <button class="op-btn" onclick="editOp('${o.npk}')">\u270f\ufe0f Edit</button>
-        <button class="op-btn" onclick="resetOp('${o.npk}')">\ud83d\udd11 Reset Password</button>
-        <button class="op-btn" onclick="toggleOp('${o.npk}','deactivate')">\ud83d\udeab Nonaktifkan</button>
-        <button class="op-btn" onclick="toggleOp('${o.npk}','activate')">\u2705 Aktifkan</button>
-        <button class="op-btn danger" onclick="deleteOp('${o.npk}')">\ud83d\uddd1\ufe0f Hapus</button>
+        <button class="op-btn" onclick="editOp('${o.npk}')">✏️ Edit</button>
+        <button class="op-btn" onclick="resetOp('${o.npk}')">🔑 Reset Password</button>
+        <button class="op-btn" onclick="toggleOp('${o.npk}','deactivate')">🚫 Nonaktifkan</button>
+        <button class="op-btn" onclick="toggleOp('${o.npk}','activate')">✅ Aktifkan</button>
+        <button class="op-btn danger" onclick="deleteOp('${o.npk}')">🗑️ Hapus</button>
       </div></div>`;}).join(''):'<div class="empty">Tidak ada karyawan sesuai filter.</div>';
 }
 
@@ -2312,34 +2396,34 @@ function saveOperator(){
   const unit=document.getElementById('op-unit').value||null;
   if(!name) return opMsg('Nama wajib diisi.',false);
   if(editingNpk){
-    opMsg('Menyimpan perubahan\u2026',true);
+    opMsg('Menyimpan perubahan…',true);
     callAdminOps({action:'update',npk:editingNpk,name,plant_id:plant,unit_id:unit})
-      .then(()=>{ cancelEdit(); closeOpModal(); kMsg('\u2705 Data diperbarui.',true); renderKaryawan(); })
+      .then(()=>{ cancelEdit(); closeOpModal(); kMsg('✅ Data diperbarui.',true); renderKaryawan(); })
       .catch(e=>opMsg(e.message,false));
     return;
   }
   const npk=document.getElementById('op-npk').value.trim();
   if(!/^\d+$/.test(npk)) return opMsg('NPK harus berupa angka.',false);
-  opMsg('Membuat akun\u2026',true);
+  opMsg('Membuat akun…',true);
   callAdminOps({action:'create',npk,name,plant_id:plant,unit_id:unit,role:'operator'})
-    .then(()=>{ closeOpModal(); kMsg('\u2705 '+name+' (NPK '+npk+') terdaftar. Password awal = NPK.',true); renderKaryawan(); })
+    .then(()=>{ closeOpModal(); kMsg('✅ '+name+' (NPK '+npk+') terdaftar. Password awal = NPK.',true); renderKaryawan(); })
     .catch(e=>opMsg(e.message,false));
 }
 function resetOp(npk){
   if(!confirm('Reset password NPK '+npk+' kembali ke NPK-nya?'))return;
-  kMsg('Memproses\u2026',true);
-  callAdminOps({action:'reset',npk}).then(()=>kMsg('\u2705 Password NPK '+npk+' direset ke NPK.',true)).catch(e=>kMsg(e.message,false));
+  kMsg('Memproses…',true);
+  callAdminOps({action:'reset',npk}).then(()=>kMsg('✅ Password NPK '+npk+' direset ke NPK.',true)).catch(e=>kMsg(e.message,false));
 }
 function toggleOp(npk,act){
   const label=act==='deactivate'?'menonaktifkan':'mengaktifkan';
   if(!confirm('Yakin '+label+' akun NPK '+npk+'?'))return;
-  kMsg('Memproses\u2026',true);
-  callAdminOps({action:act,npk}).then(()=>{ kMsg('\u2705 Akun NPK '+npk+' '+(act==='deactivate'?'dinonaktifkan':'diaktifkan')+'.',true); }).catch(e=>kMsg(e.message,false));
+  kMsg('Memproses…',true);
+  callAdminOps({action:act,npk}).then(()=>{ kMsg('✅ Akun NPK '+npk+' '+(act==='deactivate'?'dinonaktifkan':'diaktifkan')+'.',true); }).catch(e=>kMsg(e.message,false));
 }
 function deleteOp(npk){
   if(!confirm('HAPUS permanen akun NPK '+npk+'?\nAkun login & profilnya dihapus. Riwayat WR yang sudah dibuat tetap tersimpan.'))return;
-  kMsg('Menghapus\u2026',true);
-  callAdminOps({action:'delete',npk}).then(()=>{ if(editingNpk===npk){cancelEdit();closeOpModal();} kMsg('\u2705 Akun NPK '+npk+' dihapus.',true); renderKaryawan(); }).catch(e=>kMsg(e.message,false));
+  kMsg('Menghapus…',true);
+  callAdminOps({action:'delete',npk}).then(()=>{ if(editingNpk===npk){cancelEdit();closeOpModal();} kMsg('✅ Akun NPK '+npk+' dihapus.',true); renderKaryawan(); }).catch(e=>kMsg(e.message,false));
 }
 
 const AREAS={
@@ -2479,8 +2563,8 @@ function showPop(item){
   document.getElementById('bfloor').textContent='Lt. '+floorTxt(item.floor);
   document.getElementById('bhint').innerHTML='<b>Petunjuk:</b> '+item.hint;
   const ph=document.getElementById('bphoto');
-  if(item.photo){ ph.innerHTML='<img src="'+photoUrl(item.photo)+'" alt="" loading="lazy">'; ph.style.display='block'; }
-  else { ph.innerHTML=''; ph.style.display='none'; }
+  if(item.photo){ const _u=photoUrl(item.photo); ph.innerHTML='<img src="'+_u+'" alt="" loading="lazy">'; ph.style.display='block'; ph.onclick=function(){ openLightbox(_u); }; }
+  else { ph.innerHTML=''; ph.style.display='none'; ph.onclick=null; }
   const il=itemLL(item);
   document.getElementById('bdist').textContent=(myLat!==null)?distText(haversine(myLat,myLon,il.lat,il.lon)):'—';
   document.getElementById('bpop').classList.remove('peek');
@@ -2792,17 +2876,30 @@ function startGPS(){
   const badge=document.getElementById('gpsBadge'),lbl=document.getElementById('gpsLbl');
   if(!navigator.geolocation){badge.className='gps-badge err';lbl.textContent='GPS Tidak Tersedia';return;}
   watchId=navigator.geolocation.watchPosition(pos=>{
-    myLat=pos.coords.latitude;myLon=pos.coords.longitude;
-    if(typeof pos.coords.heading==='number'&&!isNaN(pos.coords.heading)&&pos.coords.speed!=null&&pos.coords.speed>0.7){ navCourse=pos.coords.heading; }
+    const nLat=pos.coords.latitude, nLon=pos.coords.longitude, acc=(pos.coords.accuracy||30);
+    const now=Date.now();
+    if(myLat===null){ myLat=nLat; myLon=nLon; }
+    else {
+      const d=haversine(myLat,myLon,nLat,nLon);
+      const dts=Math.max(0.2,(now-_lastFixT)/1000), implied=d/dts;
+      // faktor smoothing menurut akurasi: makin akurat makin cepat ikuti; makin jelek makin halus
+      let a = acc<=8?0.55 : acc<=15?0.38 : acc<=25?0.24 : acc<=40?0.14 : 0.08;
+      if(implied>25 && d>25) a*=0.25;     // tolak loncatan tak masuk akal (>90 km/jam)
+      if(d<1 && acc>20) a*=0.4;           // anti-getar saat diam & sinyal jelek
+      myLat += (nLat-myLat)*a;
+      myLon += (nLon-myLon)*a;
+    }
+    _lastFixT=now; myAcc=acc;
+    if(typeof pos.coords.heading==='number'&&!isNaN(pos.coords.heading)&&pos.coords.speed!=null&&pos.coords.speed>0.7){ navCourse=smoothAngle(navCourse,pos.coords.heading,0.4); }
     else if(pos.coords.speed!=null&&pos.coords.speed<0.4){ navCourse=null; }
-    badge.className='gps-badge';lbl.textContent='GPS Aktif';
+    badge.className='gps-badge';lbl.textContent='GPS Aktif · ±'+Math.round(acc)+'m';
     if(map)updateMe();
     if(pickMap)updatePickMe();
     if(navigating)updateNavUI();
   },err=>{
     badge.className='gps-badge err';
     lbl.textContent=err.code===1?'Izin GPS Ditolak':'GPS Lemah';
-  },{enableHighAccuracy:true,maximumAge:3000,timeout:10000});
+  },{enableHighAccuracy:true,maximumAge:1000,timeout:10000});
 }
 
 // ===== KOMPAS (arah hadap HP) =====
@@ -2830,9 +2927,12 @@ function onOrient(e){
   if(!webkit){ // kompensasi orientasi layar hanya untuk jalur Android
     try{ const so=(screen.orientation&&typeof screen.orientation.angle==='number')?screen.orientation.angle:(window.orientation||0); h=(h+so+360)%360; }catch(_){}
   }
-  heading=h; updateArrow();
+  heading=smoothAngle(heading,h,0.2); updateArrow();
 }
 function haversine(la1,lo1,la2,lo2){const R=6371000,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function openLightbox(src){ const lb=document.getElementById('imgLightbox'); document.getElementById('imgLbImg').src=src; lb.style.display='flex'; }
+function closeLightbox(){ document.getElementById('imgLightbox').style.display='none'; }
+function smoothAngle(prev,next,a){ if(prev===null||isNaN(prev))return next; let d=((next-prev+540)%360)-180; return (prev+d*a+360)%360; }
 function bearing(la1,lo1,la2,lo2){const dO=(lo2-lo1)*Math.PI/180,y=Math.sin(dO)*Math.cos(la2*Math.PI/180),x=Math.cos(la1*Math.PI/180)*Math.sin(la2*Math.PI/180)-Math.sin(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.cos(dO);return(Math.atan2(y,x)*180/Math.PI+360)%360;}
 function bearingName(d){const a=['↑ Utara','↗️ Timur Laut','→ Timur','↘️ Tenggara','↓ Selatan','↙️ Barat Daya','← Barat','↖️ Barat Laut'];return a[Math.round(d/45)%8];}
 function distText(m){return m>=1000?(m/1000).toFixed(1)+' km':Math.round(m)+' m';}
@@ -2852,13 +2952,13 @@ async function pasteGMaps(){
   const t=s.trim();
   // 1) kalau sudah ada angka koordinat di teks -> langsung pakai
   const m=t.match(/(-?\d{1,3}\.\d{3,})[ ,]+(-?\d{1,3}\.\d{3,})/);
-  if(m){ document.getElementById('ai-coord').value=m[1]+','+m[2]; hint.style.color='#16a34a'; hint.textContent='\u2705 Koordinat terisi.'; return; }
+  if(m){ document.getElementById('ai-coord').value=m[1]+','+m[2]; hint.style.color='#16a34a'; hint.textContent='✅ Koordinat terisi.'; return; }
   // 2) kalau berupa link (mis. link pendek) -> minta server membacanya (perlu internet)
   if(/^https?:\/\//i.test(t)){
-    hint.style.color='#6b7280'; hint.textContent='Membaca koordinat dari link\u2026 (perlu internet)';
+    hint.style.color='#6b7280'; hint.textContent='Membaca koordinat dari link… (perlu internet)';
     try{
       const r=await callAdminOps({action:'resolve_maps_link', url:t});
-      if(r && r.lat!=null && r.lon!=null){ document.getElementById('ai-coord').value=r.lat+','+r.lon; hint.style.color='#16a34a'; hint.textContent='\u2705 Koordinat dari link Google Maps terisi.'; return; }
+      if(r && r.lat!=null && r.lon!=null){ document.getElementById('ai-coord').value=r.lat+','+r.lon; hint.style.color='#16a34a'; hint.textContent='✅ Koordinat dari link Google Maps terisi.'; return; }
       hint.style.color='#e02424'; hint.textContent='Link terbaca tapi koordinat tak ditemukan. Buka di Maps lalu salin angka lat,lon.';
     }catch(e){ hint.style.color='#e02424'; hint.textContent='Gagal membaca link: '+(e.message||e); }
     return;
@@ -2868,11 +2968,11 @@ async function pasteGMaps(){
 function useMyLocation(){
   const hint=document.getElementById('coord-hint');
   if(!navigator.geolocation){ hint.style.color='#e02424'; hint.textContent='Perangkat/browser tidak mendukung lokasi.'; return; }
-  hint.style.color='#6b7280'; hint.textContent='Mengambil lokasi GPS\u2026 (izinkan akses lokasi)';
+  hint.style.color='#6b7280'; hint.textContent='Mengambil lokasi GPS… (izinkan akses lokasi)';
   navigator.geolocation.getCurrentPosition(
     pos=>{ const la=pos.coords.latitude.toFixed(7), lo=pos.coords.longitude.toFixed(7);
       document.getElementById('ai-coord').value=la+','+lo;
-      hint.style.color='#16a34a'; hint.textContent='\u2705 Terisi otomatis (akurasi \u00b1'+Math.round(pos.coords.accuracy)+' m). Pastikan kamu berdiri dekat item.'; },
+      hint.style.color='#16a34a'; hint.textContent='✅ Terisi otomatis (akurasi ±'+Math.round(pos.coords.accuracy)+' m). Pastikan kamu berdiri dekat item.'; },
     err=>{ hint.style.color='#e02424'; hint.textContent=(err.code===1)?'Izin lokasi ditolak. Aktifkan izin lokasi untuk situs ini.':'Gagal ambil lokasi: '+(err.message||'coba lagi'); },
     {enableHighAccuracy:true, timeout:12000, maximumAge:0}
   );
@@ -2913,20 +3013,33 @@ document.addEventListener('click',e=>{
 });
 window.addEventListener('resize',()=>{if(document.getElementById('screen-map').classList.contains('active'))initMap();});
 
-// ===== KOMPAS NAVIGASI: GESER BAWAH = SEMBUNYIKAN, GESER ATAS / TAP PEGANGAN = TAMPIL =====
+// ===== KOMPAS NAVIGASI: BISA DI-DRAG (dijepit dalam peta, tidak akan hilang) =====
 (function(){
   const el=document.getElementById('nvcompass'); if(!el)return;
-  const grip=el.querySelector('.nvgrip');
-  function setC(c){ el.classList.toggle('collapsed', c); try{ localStorage.setItem('pn_nav_collapsed', c?'1':'0'); }catch(e){} }
-  try{ if(localStorage.getItem('pn_nav_collapsed')==='1') el.classList.add('collapsed'); }catch(e){}
-  let sy=0, mv=0, on=false;
-  function down(y){ on=true; sy=y; mv=0; }
-  function moveY(y){ if(on) mv=y-sy; }
-  function up(){ if(!on)return; on=false; if(mv>26) setC(true); else if(mv<-26) setC(false); }
-  el.addEventListener('touchstart',e=>down(e.touches[0].clientY),{passive:true});
-  el.addEventListener('touchmove',e=>moveY(e.touches[0].clientY),{passive:true});
-  el.addEventListener('touchend',up);
-  if(grip){ grip.addEventListener('click',function(ev){ ev.stopPropagation(); setC(!el.classList.contains('collapsed')); }); }
+  let on=false, sx=0, sy=0, ox=0, oy=0;
+  function P(){ return el.parentElement.getBoundingClientRect(); }
+  function start(x,y){
+    on=true;
+    const r=el.getBoundingClientRect(), p=P();
+    ox=r.left-p.left; oy=r.top-p.top; sx=x; sy=y;
+    el.classList.add('dragging');
+    el.style.bottom='auto'; el.style.right='auto'; el.style.left=ox+'px'; el.style.top=oy+'px';
+  }
+  function move(x,y){
+    if(!on)return;
+    const p=P();
+    let nx=ox+(x-sx), ny=oy+(y-sy);
+    nx=Math.max(6, Math.min(nx, p.width-el.offsetWidth-6));
+    ny=Math.max(6, Math.min(ny, p.height-el.offsetHeight-6));
+    el.style.left=nx+'px'; el.style.top=ny+'px';
+  }
+  function end(){ if(!on)return; on=false; el.classList.remove('dragging'); }
+  el.addEventListener('touchstart',e=>{ const t=e.touches[0]; start(t.clientX,t.clientY); },{passive:true});
+  el.addEventListener('touchmove', e=>{ const t=e.touches[0]; move(t.clientX,t.clientY); },{passive:true});
+  el.addEventListener('touchend', end);
+  el.addEventListener('mousedown',e=>{ start(e.clientX,e.clientY); e.preventDefault(); });
+  window.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
+  window.addEventListener('mouseup', end);
 })();
 
 // ===== SWIPE pop-up bawah: GESER BAWAH = ciutkan (peek di atas taskbar), GESER ATAS/TAP = buka =====
@@ -3031,7 +3144,7 @@ function pnToast(msg){
     if(!pulling||!cont){ return; }
     var ey=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientY:sy;
     pulling=false;
-    if(ey-sy>70 && cont.scrollTop<=0){ pnToast('Menyegarkan\u2026'); refreshCurrent(true); }
+    if(ey-sy>70 && cont.scrollTop<=0){ pnToast('Menyegarkan…'); refreshCurrent(true); }
   }, {passive:true});
 })();
 document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') refreshCurrent(); });
