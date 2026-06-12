@@ -346,7 +346,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .nvbitem:last-child{border-right:none;}
 .nvbval{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;}
 .nvblbl{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.3px;margin-top:2px;}
-.nvstop{position:absolute;bottom:90px;right:14px;background:rgba(239,68,68,0.9);color:#fff;border:none;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(239,68,68,0.4);}
+.nvstop{position:absolute;bottom:calc(84px + env(safe-area-inset-bottom));right:14px;background:rgba(239,68,68,0.9);color:#fff;border:none;border-radius:14px;padding:13px 20px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(239,68,68,0.4);}
 .arrived{position:absolute;top:140px;left:14px;right:14px;z-index:61;background:rgba(34,197,94,0.92);border-radius:14px;padding:12px 16px;display:none;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(34,197,94,0.4);}
 .arrived.show{display:flex;}
 .arrived p{color:#fff;font-size:14px;font-weight:600;}
@@ -671,12 +671,12 @@ button:active{filter:brightness(.97);}
 .filt-btn svg{vertical-align:-2px;margin-right:4px;}
 .op-btn svg{vertical-align:-2px;margin-right:3px;}
 .hp-ic svg{vertical-align:-4px;} .mng-del svg{vertical-align:-2px;margin-right:3px;} .md-act svg{width:15px;height:15px;vertical-align:-2px;}
-.bcard{overflow:hidden;}
-.bcard.snap{transition:height .32s var(--ease-out);}
+.binner{overflow:hidden;}
+.binner.snap{transition:height .32s var(--ease-out);}
 .bhandle{cursor:grab;}
 
-/* ===== MOTIF WAJIK PKT (login, tema Default) ===== */
-#screen-login{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22264%22%20height%3D%22264%22%20viewBox%3D%220%200%20264%20264%22%3E%3Crect%20x%3D%2222.0%22%20y%3D%2222.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%2030%2030%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%2266.0%22%20y%3D%2214.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%2070%2018%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22104.0%22%20y%3D%2228.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20110%2034%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22147.0%22%20y%3D%2211.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%20150%2014%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22183.0%22%20y%3D%2233.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%20190%2040%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22227.5%22%20y%3D%2217.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20232%2022%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%2212.0%22%20y%3D%2280.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%2016%2084%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2248.0%22%20y%3D%2266.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%2054%2072%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%2287.0%22%20y%3D%2279.0%22%20width%3D%2218%22%20height%3D%2218%22%20transform%3D%22rotate%2845%2096%2088%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22136.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20140%2070%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22172.0%22%20y%3D%2286.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20178%2092%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22214.0%22%20y%3D%2268.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%20222%2076%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%2230.0%22%20y%3D%22134.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%2036%20140%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%2275.0%22%20y%3D%22125.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%2078%20128%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22111.0%22%20y%3D%22139.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%20118%20146%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22157.0%22%20y%3D%22121.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20162%20126%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22200.5%22%20y%3D%22144.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20204%20148%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22238.0%22%20y%3D%22126.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20244%20132%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2215.0%22%20y%3D%22189.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%2022%20196%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2259.5%22%20y%3D%22179.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2064%20184%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22100.0%22%20y%3D%22196.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20106%20202%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22142.0%22%20y%3D%22174.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%20150%20182%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22192.0%22%20y%3D%22202.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20196%20206%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22232.5%22%20y%3D%22184.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%20238%20190%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%2240.5%22%20y%3D%22240.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%2044%20244%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3Crect%20x%3D%22127.0%22%20y%3D%22233.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20132%20238%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22207.5%22%20y%3D%22239.5%22%20width%3D%2213%22%20height%3D%2213%22%20transform%3D%22rotate%2845%20214%20246%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22/%3E%3C/svg%3E"),linear-gradient(160deg,var(--bld) 0%,var(--bl) 45%,var(--bl2) 100%);background-size:264px 264px,auto;background-repeat:repeat,no-repeat;}
+/* ===== MOTIF WAJIK PKT: kluster simetris di bagian atas (hanya tema Default) ===== */
+#screen-login{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22260%22%20height%3D%22220%22%20viewBox%3D%220%200%20260%20220%22%3E%3Crect%20x%3D%22119.0%22%20y%3D%2299.0%22%20width%3D%2222%22%20height%3D%2222%22%20transform%3D%22rotate%2845%20130%20110%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22157.0%22%20y%3D%22121.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%20164%20128%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2289.0%22%20y%3D%22121.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%2096%20128%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22145.0%22%20y%3D%22149.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20150%20154%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22105.0%22%20y%3D%22149.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20110%20154%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22174.0%22%20y%3D%22142.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%20182%20150%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2270.0%22%20y%3D%22142.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%2078%20150%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22195.5%22%20y%3D%22117.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20200%20122%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2255.5%22%20y%3D%22117.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2060%20122%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22168.0%22%20y%3D%2282.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20174%2088%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2280.0%22%20y%3D%2282.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%2086%2088%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22142.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20146%2070%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22110.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20114%2070%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22188.5%22%20y%3D%2270.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%20194%2076%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2260.5%22%20y%3D%2270.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%2066%2076%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22214.0%22%20y%3D%22138.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20218%20142%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2238.0%22%20y%3D%22138.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%2042%20142%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22213.0%22%20y%3D%2299.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%20216%20102%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2241.0%22%20y%3D%2299.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%2044%20102%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22134.5%22%20y%3D%22178.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20138%20182%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22118.5%22%20y%3D%22178.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20122%20182%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22169.5%22%20y%3D%22173.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20174%20178%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2281.5%22%20y%3D%22173.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2086%20178%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22225.5%22%20y%3D%22165.5%22%20width%3D%225%22%20height%3D%225%22%20transform%3D%22rotate%2845%20228%20168%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2229.5%22%20y%3D%22165.5%22%20width%3D%225%22%20height%3D%225%22%20transform%3D%22rotate%2845%2032%20168%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22260%22%20height%3D%22220%22%20viewBox%3D%220%200%20260%20220%22%3E%3Crect%20x%3D%22119.0%22%20y%3D%2299.0%22%20width%3D%2222%22%20height%3D%2222%22%20transform%3D%22rotate%2845%20130%20110%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22157.0%22%20y%3D%22121.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%20164%20128%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2289.0%22%20y%3D%22121.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%2096%20128%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22145.0%22%20y%3D%22149.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20150%20154%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22105.0%22%20y%3D%22149.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20110%20154%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22174.0%22%20y%3D%22142.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%20182%20150%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2270.0%22%20y%3D%22142.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%2078%20150%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22195.5%22%20y%3D%22117.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20200%20122%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2255.5%22%20y%3D%22117.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2060%20122%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22168.0%22%20y%3D%2282.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20174%2088%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2280.0%22%20y%3D%2282.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%2086%2088%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22142.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20146%2070%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22110.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20114%2070%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22188.5%22%20y%3D%2270.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%20194%2076%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2260.5%22%20y%3D%2270.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%2066%2076%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22214.0%22%20y%3D%22138.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20218%20142%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2238.0%22%20y%3D%22138.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%2042%20142%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22213.0%22%20y%3D%2299.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%20216%20102%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2241.0%22%20y%3D%2299.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%2044%20102%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22134.5%22%20y%3D%22178.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20138%20182%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22118.5%22%20y%3D%22178.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20122%20182%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22169.5%22%20y%3D%22173.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20174%20178%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2281.5%22%20y%3D%22173.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2086%20178%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22225.5%22%20y%3D%22165.5%22%20width%3D%225%22%20height%3D%225%22%20transform%3D%22rotate%2845%20228%20168%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2229.5%22%20y%3D%22165.5%22%20width%3D%225%22%20height%3D%225%22%20transform%3D%22rotate%2845%2032%20168%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22260%22%20height%3D%22220%22%20viewBox%3D%220%200%20260%20220%22%3E%3Crect%20x%3D%22119.0%22%20y%3D%2299.0%22%20width%3D%2222%22%20height%3D%2222%22%20transform%3D%22rotate%2845%20130%20110%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22157.0%22%20y%3D%22121.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%20164%20128%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2289.0%22%20y%3D%22121.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%2096%20128%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22145.0%22%20y%3D%22149.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20150%20154%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22105.0%22%20y%3D%22149.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20110%20154%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22174.0%22%20y%3D%22142.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%20182%20150%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2270.0%22%20y%3D%22142.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%2078%20150%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22195.5%22%20y%3D%22117.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20200%20122%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2255.5%22%20y%3D%22117.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2060%20122%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22168.0%22%20y%3D%2282.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20174%2088%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2280.0%22%20y%3D%2282.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%2086%2088%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22142.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20146%2070%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22110.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20114%2070%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22188.5%22%20y%3D%2270.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%20194%2076%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2260.5%22%20y%3D%2270.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%2066%2076%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22214.0%22%20y%3D%22138.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20218%20142%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2238.0%22%20y%3D%22138.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%2042%20142%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22213.0%22%20y%3D%2299.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%20216%20102%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2241.0%22%20y%3D%2299.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%2044%20102%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22134.5%22%20y%3D%22178.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20138%20182%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22118.5%22%20y%3D%22178.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20122%20182%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%22169.5%22%20y%3D%22173.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20174%20178%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2281.5%22%20y%3D%22173.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2086%20178%29%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.18%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22225.5%22%20y%3D%22165.5%22%20width%3D%225%22%20height%3D%225%22%20transform%3D%22rotate%2845%20228%20168%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3Crect%20x%3D%2229.5%22%20y%3D%22165.5%22%20width%3D%225%22%20height%3D%225%22%20transform%3D%22rotate%2845%2032%20168%29%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.12%22/%3E%3C/svg%3E"),linear-gradient(160deg,var(--bld) 0%,var(--bl) 45%,var(--bl2) 100%);background-position:top -60px left -70px,top -30px center,top -60px right -70px,0 0;background-size:260px 220px,260px 220px,260px 220px,auto;background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;}
 
 /* ===== TEMA GALAXY ===== */
 [data-theme="dark"] .phone{background-image:
@@ -708,11 +708,12 @@ button:active{filter:brightness(.97);}
 /* ===== TEMA CLASSIC ===== */
 [data-theme="light"] h1,[data-theme="light"] h2,[data-theme="light"] h3,[data-theme="light"] .ph-title,[data-theme="light"] .login-logo h1{font-family:Georgia,'Times New Roman',serif;letter-spacing:.3px;}
 [data-theme="light"] .phone{background-image:repeating-linear-gradient(0deg,rgba(120,90,50,.04) 0 2px,transparent 2px 5px),linear-gradient(#efe2cb,#e7d6b8);}
-[data-theme="light"] #screen-login{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22264%22%20height%3D%22264%22%20viewBox%3D%220%200%20264%20264%22%3E%3Crect%20x%3D%2222.0%22%20y%3D%2222.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%2030%2030%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%2266.0%22%20y%3D%2214.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%2070%2018%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22104.0%22%20y%3D%2228.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20110%2034%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22147.0%22%20y%3D%2211.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%20150%2014%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22183.0%22%20y%3D%2233.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%20190%2040%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22227.5%22%20y%3D%2217.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%20232%2022%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%2212.0%22%20y%3D%2280.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%2016%2084%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2248.0%22%20y%3D%2266.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%2054%2072%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%2287.0%22%20y%3D%2279.0%22%20width%3D%2218%22%20height%3D%2218%22%20transform%3D%22rotate%2845%2096%2088%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22136.0%22%20y%3D%2266.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20140%2070%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22172.0%22%20y%3D%2286.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20178%2092%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22214.0%22%20y%3D%2268.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%20222%2076%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%2230.0%22%20y%3D%22134.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%2036%20140%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%2275.0%22%20y%3D%22125.0%22%20width%3D%226%22%20height%3D%226%22%20transform%3D%22rotate%2845%2078%20128%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22111.0%22%20y%3D%22139.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%20118%20146%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22157.0%22%20y%3D%22121.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20162%20126%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22200.5%22%20y%3D%22144.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%20204%20148%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22238.0%22%20y%3D%22126.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20244%20132%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2215.0%22%20y%3D%22189.0%22%20width%3D%2214%22%20height%3D%2214%22%20transform%3D%22rotate%2845%2022%20196%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%2259.5%22%20y%3D%22179.5%22%20width%3D%229%22%20height%3D%229%22%20transform%3D%22rotate%2845%2064%20184%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22100.0%22%20y%3D%22196.0%22%20width%3D%2212%22%20height%3D%2212%22%20transform%3D%22rotate%2845%20106%20202%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22142.0%22%20y%3D%22174.0%22%20width%3D%2216%22%20height%3D%2216%22%20transform%3D%22rotate%2845%20150%20182%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22192.0%22%20y%3D%22202.0%22%20width%3D%228%22%20height%3D%228%22%20transform%3D%22rotate%2845%20196%20206%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22232.5%22%20y%3D%22184.5%22%20width%3D%2211%22%20height%3D%2211%22%20transform%3D%22rotate%2845%20238%20190%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%2240.5%22%20y%3D%22240.5%22%20width%3D%227%22%20height%3D%227%22%20transform%3D%22rotate%2845%2044%20244%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3Crect%20x%3D%22127.0%22%20y%3D%22233.0%22%20width%3D%2210%22%20height%3D%2210%22%20transform%3D%22rotate%2845%20132%20238%29%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%221.6%22/%3E%3Crect%20x%3D%22207.5%22%20y%3D%22239.5%22%20width%3D%2213%22%20height%3D%2213%22%20transform%3D%22rotate%2845%20214%20246%29%22%20fill%3D%22%23d4af37%22%20fill-opacity%3D%220.14%22/%3E%3C/svg%3E"),linear-gradient(160deg,#4a3621 0%,#6a4c2c 50%,#8a6a3c 100%);background-size:264px 264px,auto;background-repeat:repeat,no-repeat;}
+[data-theme="light"] #screen-login{background-image:linear-gradient(160deg,#4a3621 0%,#6a4c2c 50%,#8a6a3c 100%);}
 [data-theme="light"] .login-card,[data-theme="light"] .pick-card,[data-theme="light"] .admin-menu,[data-theme="light"] .sheet,[data-theme="light"] .bcard{border:1px solid #c9a96e;box-shadow:0 12px 34px rgba(90,60,20,.20),inset 0 0 0 3px rgba(201,169,110,.22);}
 [data-theme="light"] .btn-login{background:linear-gradient(135deg,#7a5230,#b8860b);box-shadow:0 5px 18px rgba(122,82,48,.35);}
 [data-theme="light"] .bottom-nav{border-top:1px solid #c9a96e;}
 [data-theme="light"] .login-logo-img{filter:sepia(.35) saturate(.9);}
+#screen-map.navving .map-topbar{display:none;}
 </style>
 </head>
 <body>
@@ -1053,7 +1054,7 @@ button:active{filter:brightness(.97);}
     <div class="mi-search"><input id="mng-search" placeholder="Cari item…" oninput="renderAllItems()"><span>🔎</span></div>
     <div class="mng-filterbar">
       <button class="filt-btn" id="filt-toggle" onclick="toggleMngPanel()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1"/></svg> Filter</button>
-      <button class="filt-btn" id="filt-inc" onclick="toggleFiltInc()">🔴 Belum lengkap</button>
+      <button class="filt-btn" id="filt-inc" onclick="toggleFiltInc()"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#ef4444;vertical-align:0;"></span> Belum lengkap</button>
       <button class="filt-btn" id="filt-reset" onclick="resetFilt()" style="display:none">Reset</button>
     </div>
   </div>
@@ -1170,12 +1171,9 @@ button:active{filter:brightness(.97);}
       <div class="brow1">
         <div><div class="btag" id="btag">—</div><div class="bname" id="bname">—</div></div>
         <div class="bbadge" id="btype">—</div>
-      <div class="bacts">
-        <button class="bact bact-x" onclick="closePop()">✕</button>
-        <button class="bact bact-sv" onclick="openSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3.4 2.8 14.6 0 18M12 3c-2.8 3.4-2.8 14.6 0 18"/></svg> Foto 360°</button>
-        <button class="bact bact-nav" onclick="startNav()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l4.5 18-4.5-4.2L7.5 20 12 2z"/></svg> Navigasi</button>
+      
       </div>
-      </div>
+      <div class="binner" id="binner">
       <div class="binforow">
         <div class="bibox"><div class="bival" id="barea" style="color:var(--bl)">—</div><div class="bilbl">Area</div></div>
         <div class="bibox"><div class="bival" id="bfloor">—</div><div class="bilbl">Lantai</div></div>
@@ -1183,6 +1181,12 @@ button:active{filter:brightness(.97);}
       </div>
       <div class="bhint" id="bhint"><b>Petunjuk:</b> —</div>
       <div class="bphoto" id="bphoto" style="display:none;"></div>
+      </div>
+      <div class="bacts">
+        <button class="bact bact-x" onclick="closePop()">✕</button>
+        <button class="bact bact-sv" onclick="openSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3.4 2.8 14.6 0 18M12 3c-2.8 3.4-2.8 14.6 0 18"/></svg> Foto 360°</button>
+        <button class="bact bact-nav" onclick="startNav()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l4.5 18-4.5-4.2L7.5 20 12 2z"/></svg> Navigasi</button>
+      </div>
       
     </div>
   </div>
@@ -2045,9 +2049,9 @@ function resetFilt(){ mngFilt={inc:false,types:new Set()}; renderAllItems(); }
 function buildFilterPanel(){
   const types=[...new Set(allItemsCache.map(i=>i.type||'(tanpa tipe)'))].sort();
   let h='<div class="filt-panel"><div class="filt-sec">Kelengkapan</div>';
-  h+=`<span class="filt-chk ${mngFilt.inc?'sel':''}" onclick="toggleFiltInc()">${mngFilt.inc?'☑':'☐'} 🔴 Belum lengkap saja</span>`;
+  h+=`<span class="filt-chk ${mngFilt.inc?'sel':''}" onclick="toggleFiltInc()">${mngFilt.inc?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;opacity:.55"><rect x="4" y="4" width="16" height="16" rx="4"/></svg>'} <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#ef4444;vertical-align:0;"></span> Belum lengkap saja</span>`;
   h+='<div class="filt-sec" style="margin-top:10px">Jenis Item</div>';
-  h+=types.map(t=>`<span class="filt-chk ${mngFilt.types.has(t)?'sel':''}" onclick="toggleFiltType('${(t+'').replace(/'/g,"\\'")}')">${mngFilt.types.has(t)?'☑':'☐'} ${t}</span>`).join('');
+  h+=types.map(t=>`<span class="filt-chk ${mngFilt.types.has(t)?'sel':''}" onclick="toggleFiltType('${(t+'').replace(/'/g,"\\'")}')">${mngFilt.types.has(t)?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;opacity:.55"><rect x="4" y="4" width="16" height="16" rx="4"/></svg>'} ${t}</span>`).join('');
   h+='</div>';
   return h;
 }
@@ -2125,7 +2129,7 @@ async function renderDash(){
   const areasInc=Object.entries(byAreaInc).sort((a,b)=>b[1]-a[1]);
   function card(n,l,c){ return '<div class="dash-card '+(c||'')+'"><div class="dash-num">'+n+'</div><div class="dash-lbl">'+l+'</div></div>'; }
   let h='<div class="dash-grid">';
-  h+=card(total,'Item aktif','blue')+card(lengkap,'Lengkap 🟢','green')+card(belum,'Belum lengkap 🔴','red')+card(nonaktif,'Non-aktif','');
+  h+=card(total,'Item aktif','blue')+card(lengkap,'Lengkap <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22c55e;"></span>','green')+card(belum,'Belum lengkap <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#ef4444;vertical-align:0;"></span>','red')+card(nonaktif,'Non-aktif','');
   h+=card(pend,'WR Menunggu','amber')+card(prog,'WR Dikerjakan','blue')+card(done,'WR Selesai','green');
   h+='</div>';
   const pct=total?Math.round(lengkap/total*100):0;
@@ -2647,14 +2651,14 @@ function showPop(item){
   else { ph.innerHTML=''; ph.style.display='none'; ph.onclick=null; }
   const il=itemLL(item);
   document.getElementById('bdist').textContent=(myLat!==null)?distText(haversine(myLat,myLon,il.lat,il.lon)):'—';
-  (function(){const p=document.getElementById('bpop');p.classList.remove('peek');const c=p.querySelector('.bcard');if(c){c.classList.remove('snap');c.style.height='';}})();
+  (function(){const p=document.getElementById('bpop');p.classList.remove('peek');const c=document.getElementById('binner');if(c){c.classList.remove('snap');c.style.height='';}})();
   document.getElementById('bpop').classList.add('show');
   focusItem(item);
 }
 
 function closePop(){
   document.getElementById('bpop').classList.remove('show');
-  (function(){const p=document.getElementById('bpop');p.classList.remove('peek');const c=p.querySelector('.bcard');if(c){c.classList.remove('snap');c.style.height='';}})();
+  (function(){const p=document.getElementById('bpop');p.classList.remove('peek');const c=document.getElementById('binner');if(c){c.classList.remove('snap');c.style.height='';}})();
   activeItem=null;
   document.getElementById('map-search').value='';
   document.getElementById('map-clear').style.display='none';
@@ -2671,6 +2675,7 @@ function startNav(){
   startCompass();
   updateNavUI();
   document.getElementById('novo').classList.add('active');
+  document.getElementById('screen-map').classList.add('navving');
   document.getElementById('bpop').classList.remove('show');
   focusItem(activeItem);
   if(map&&myLat!==null){const il=itemLL(activeItem);try{map.fitBounds([[Math.min(myLon,il.lon),Math.min(myLat,il.lat)],[Math.max(myLon,il.lon),Math.max(myLat,il.lat)]],{padding:70,maxZoom:20});}catch(e){}}
@@ -2680,6 +2685,7 @@ function startNav(){
 function stopNav(){
   navigating=false;
   document.getElementById('novo').classList.remove('active');
+  document.getElementById('screen-map').classList.remove('navving');
   document.getElementById('arrived').classList.remove('show');
   updateNavLine();
   if(activeItem) document.getElementById('bpop').classList.add('show');
@@ -2698,7 +2704,7 @@ function updateNavUI(){
   targetBearing=brg;
   const dt=distText(dist),est=estimate(dist);
   document.getElementById('nvdist').innerHTML=Math.round(dist<1000?dist:dist/1000)+'<span>'+(dist<1000?' m':' km')+'</span>';
-  document.getElementById('nvdir').textContent=bearingName(brg);
+  document.getElementById('nvdir').innerHTML=bearingHTML(brg);
   document.getElementById('nvb1').textContent=dt;
   document.getElementById('nvb2').textContent='Lt. '+floorTxt(activeItem.floor);
   document.getElementById('nvb3').textContent=est;
@@ -2800,10 +2806,19 @@ function activeEl(item){
   return d.firstChild;
 }
 function meEl(){ const d=document.createElement('div'); d.innerHTML='<div class="me-dot"></div>'; return d.firstChild; }
+let _dLat=null,_dLon=null,_lerpOn=false;
+function _lerpLoop(){
+  if(myLat===null){ _lerpOn=false; return; }
+  if(_dLat===null){ _dLat=myLat; _dLon=myLon; }
+  _dLat+=(myLat-_dLat)*0.12; _dLon+=(myLon-_dLon)*0.12;   // gerak meluncur, bukan teleport
+  if(map&&mapReady&&meMarker) meMarker.setLngLat([_dLon,_dLat]);
+  if(navigating) updateNavLine();
+  requestAnimationFrame(_lerpLoop);
+}
 function updateMe(){
-  if(!map||myLat===null)return;
-  if(!meMarker){ meMarker=new maplibregl.Marker({element:meEl(),anchor:'center'}).setLngLat([myLon,myLat]).addTo(map); }
-  else { meMarker.setLngLat([myLon,myLat]); }
+  if(!map||!mapReady||myLat===null)return;
+  if(!meMarker){ meMarker=new maplibregl.Marker({element:meEl(),anchor:'center'}).setLngLat([myLon,myLat]).addTo(map); _dLat=myLat; _dLon=myLon; }
+  if(!_lerpOn){ _lerpOn=true; requestAnimationFrame(_lerpLoop); }
 }
 
 // fx=0 kiri..1 kanan, fy=0 atas..1 bawah  -> [lat,lon]
@@ -2941,7 +2956,8 @@ function updateNavLine(){
   const src=map.getSource('navline-src'); if(!src)return;
   if(navigating&&activeItem&&myLat!==null){
     const il=itemLL(activeItem);
-    src.setData({type:'Feature',geometry:{type:'LineString',coordinates:[[myLon,myLat],[il.lon,il.lat]]}});
+    const sLat=(_dLat!==null?_dLat:myLat), sLon=(_dLon!==null?_dLon:myLon);
+    src.setData({type:'Feature',geometry:{type:'LineString',coordinates:[[sLon,sLat],[il.lon,il.lat]]}});
   } else {
     src.setData({type:'Feature',geometry:{type:'LineString',coordinates:[]}});
   }
@@ -3029,7 +3045,8 @@ function openLightbox(src){ const lb=document.getElementById('imgLightbox'); doc
 function closeLightbox(){ document.getElementById('imgLightbox').style.display='none'; }
 function smoothAngle(prev,next,a){ if(prev===null||isNaN(prev))return next; let d=((next-prev+540)%360)-180; return (prev+d*a+360)%360; }
 function bearing(la1,lo1,la2,lo2){const dO=(lo2-lo1)*Math.PI/180,y=Math.sin(dO)*Math.cos(la2*Math.PI/180),x=Math.cos(la1*Math.PI/180)*Math.sin(la2*Math.PI/180)-Math.sin(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.cos(dO);return(Math.atan2(y,x)*180/Math.PI+360)%360;}
-function bearingName(d){const a=['↑ Utara','↗️ Timur Laut','→ Timur','↘️ Tenggara','↓ Selatan','↙️ Barat Daya','← Barat','↖️ Barat Laut'];return a[Math.round(d/45)%8];}
+function bearingName(d){const a=['Utara','Timur Laut','Timur','Tenggara','Selatan','Barat Daya','Barat','Barat Laut'];return a[Math.round(d/45)%8];}
+function bearingHTML(d){const ang=Math.round(d);return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;transform:rotate('+ang+'deg)"><path d="M12 19V5M5 12l7-7 7 7"/></svg> '+bearingName(d);}
 function distText(m){return m>=1000?(m/1000).toFixed(1)+' km':Math.round(m)+' m';}
 function estimate(m){const s=m/1.2;return s<60?'<1 min':Math.ceil(s/60)+' min';}
 
@@ -3137,48 +3154,44 @@ window.addEventListener('resize',()=>{if(document.getElementById('screen-map').c
   window.addEventListener('mouseup', end);
 })();
 
-// ===== SHEET kartu info: DRAG MENGIKUTI JARI (geser setengah = terlihat setengah), lepas = snap halus =====
+// ===== SHEET kartu info: DRAG MENGIKUTI JARI - hanya bagian INFO yang menyusut; tombol tetap di bawah =====
 (function(){
   const pop=document.getElementById('bpop');
   if(!pop)return;
   const card=pop.querySelector('.bcard');
-  const acts=pop.querySelector('.bacts');
-  let on=false, sy=0, startH=0, full=0, peekH=0, lastY=0, lastT=0, vel=0;
-  function measure(){
-    const prev=card.style.height; card.style.height='';
-    full=card.offsetHeight;
-    peekH=acts.offsetTop+acts.offsetHeight+12;
-    card.style.height=prev;
-  }
-  function down(y,ev){
+  const inner=document.getElementById('binner');
+  if(!inner)return;
+  let on=false, sy=0, startH=0, full=0, lastY=0, lastT=0, vel=0;
+  function measure(){ const prev=inner.style.height; inner.style.height=''; full=inner.offsetHeight; inner.style.height=prev; }
+  function down(y){
     if(!pop.classList.contains('show'))return;
-    on=true; card.classList.remove('snap');
+    on=true; inner.classList.remove('snap');
     measure();
-    startH=card.offsetHeight; card.style.height=startH+'px';
+    startH=inner.offsetHeight; inner.style.height=startH+'px';
     sy=y; lastY=y; lastT=performance.now(); vel=0;
   }
   function move(y){
     if(!on)return;
     const t=performance.now(); vel=(y-lastY)/Math.max(1,(t-lastT)); lastY=y; lastT=t;
     let hh=startH-(y-sy);
-    hh=Math.max(peekH, Math.min(hh, full));
-    card.style.height=hh+'px';
+    hh=Math.max(0, Math.min(hh, full));
+    inner.style.height=hh+'px';
   }
   function up(){
     if(!on)return; on=false;
-    const cur=card.offsetHeight;
+    const cur=inner.offsetHeight;
     let toPeek;
-    if(Math.abs(vel)>0.35) toPeek=vel>0;            // lempar cepat ikut arah jari
-    else toPeek=cur<(peekH+full)/2;                  // pelan: snap ke yang terdekat
-    card.classList.add('snap');
-    card.style.height=(toPeek?peekH:full)+'px';
+    if(Math.abs(vel)>0.35) toPeek=vel>0;
+    else toPeek=cur<full/2;
+    inner.classList.add('snap');
+    inner.style.height=(toPeek?0:full)+'px';
     pop.classList.toggle('peek',toPeek);
-    if(!toPeek){ setTimeout(()=>{ if(!pop.classList.contains('peek')&&!on) card.style.height=''; },340); }
+    if(!toPeek){ setTimeout(()=>{ if(!pop.classList.contains('peek')&&!on) inner.style.height=''; },340); }
   }
-  card.addEventListener('touchstart',e=>down(e.touches[0].clientY,e),{passive:true});
+  card.addEventListener('touchstart',e=>down(e.touches[0].clientY),{passive:true});
   card.addEventListener('touchmove', e=>move(e.touches[0].clientY),{passive:true});
   card.addEventListener('touchend', up);
-  card.addEventListener('mousedown',e=>{ down(e.clientY,e); });
+  card.addEventListener('mousedown',e=>{ down(e.clientY); });
   window.addEventListener('mousemove',e=>{ if(on) move(e.clientY); });
   window.addEventListener('mouseup', up);
 })();
