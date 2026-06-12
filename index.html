@@ -263,7 +263,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .zone-label::before{display:none!important;}
 .map-topbar{position:absolute;top:0;left:0;right:0;z-index:50;padding:calc(12px + env(safe-area-inset-top)) 14px 0;pointer-events:none;}
 .map-search-row{display:flex;gap:8px;pointer-events:all;}
-.base-btn{position:absolute;right:14px;bottom:150px;z-index:600;width:44px;height:44px;border-radius:12px;border:none;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18);font-size:20px;cursor:pointer;}
+.base-btn{position:absolute;right:14px;bottom:150px;z-index:205;width:44px;height:44px;border-radius:12px;border:none;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18);font-size:20px;cursor:pointer;}
 .base-btn:active{transform:scale(.92);}
 .k-filterbar{display:flex;gap:8px;margin-top:10px;align-items:center;}
 .k-filterbar select{flex:1;min-width:0;padding:9px 8px;border:1px solid var(--g200);border-radius:10px;font-size:13px;background:#fff;color:var(--g700);}
@@ -634,6 +634,43 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 .img-lb img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 12px 44px rgba(0,0,0,.6);}
 .img-lb-x{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:46px;height:46px;border-radius:50%;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:20px;backdrop-filter:blur(8px);cursor:pointer;}
 .bphoto{cursor:zoom-in;}
+:root{--ease:cubic-bezier(.4,0,.2,1);--ease-out:cubic-bezier(.16,1,.3,1);--spring:cubic-bezier(.34,1.4,.6,1);}
+.modal-bg>*{animation:modalIn .26s var(--ease-out);}
+@keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.985);}to{opacity:1;transform:none;}}
+.login-card{animation:modalIn .42s var(--ease-out);}
+.bcard{transition:transform .26s var(--spring);}
+.theme-opt,.pabrik-card,.atc-card{transition:all .2s var(--ease) !important;}
+button:active{filter:brightness(.97);}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.01ms !important;}}
+.pw-eye svg{width:20px;height:20px;display:block;}
+.btn-install svg{width:18px;height:18px;vertical-align:-3px;margin-right:4px;}
+.pw-eye{color:var(--g500);}
+.svtop{padding-top:calc(12px + env(safe-area-inset-top)) !important;padding-left:calc(14px + env(safe-area-inset-left));padding-right:calc(14px + env(safe-area-inset-right));}
+.svbot{padding-bottom:calc(28px + env(safe-area-inset-bottom)) !important;padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right));}
+.nvbar{padding-bottom:calc(22px + env(safe-area-inset-bottom)) !important;}
+.topbar{padding-left:calc(20px + env(safe-area-inset-left)) !important;padding-right:calc(20px + env(safe-area-inset-right)) !important;}
+.page-head{padding-left:calc(18px + env(safe-area-inset-left)) !important;padding-right:calc(18px + env(safe-area-inset-right)) !important;}
+.map-topbar{padding-left:calc(14px + env(safe-area-inset-left)) !important;padding-right:calc(14px + env(safe-area-inset-right)) !important;}
+.map-ctrl{right:calc(14px + env(safe-area-inset-right)) !important;}
+.base-btn{right:calc(14px + env(safe-area-inset-right)) !important;bottom:calc(150px + env(safe-area-inset-bottom)) !important;}
+.gps-badge{left:calc(14px + env(safe-area-inset-left)) !important;bottom:calc(14px + env(safe-area-inset-bottom)) !important;}
+.nvcompass{left:calc(14px + env(safe-area-inset-left)) !important;}
+.nvstop{right:calc(14px + env(safe-area-inset-right)) !important;}
+.nvpill{top:calc(18px + env(safe-area-inset-top)) !important;}
+.arrived{top:calc(86px + env(safe-area-inset-top)) !important;}
+.dz-text svg{width:22px;height:22px;vertical-align:-5px;margin-right:5px;}
+.mc-btn svg{width:20px;height:20px;}
+.base-btn svg{width:20px;height:20px;}
+.search-icon svg,.map-sico svg{width:18px;height:18px;display:block;}
+.am-item svg{width:18px;height:18px;vertical-align:-4px;margin-right:8px;flex:none;}
+.bact svg,.btn-ghost svg,.svbtn svg,.coord-mapbtn svg{vertical-align:-3px;margin-right:5px;}
+.coord-pin svg{vertical-align:-3px;}
+.sdrop-caret svg{vertical-align:-2px;}
+.ph-title svg{width:20px;height:20px;vertical-align:-3px;margin-right:7px;}
+.topbar-user svg{width:18px;height:18px;}
+.filt-btn svg{vertical-align:-2px;margin-right:4px;}
+.op-btn svg{vertical-align:-2px;margin-right:3px;}
+.hp-ic svg{vertical-align:-4px;} .mng-del svg{vertical-align:-2px;margin-right:3px;} .md-act svg{width:15px;height:15px;vertical-align:-2px;}
 </style>
 </head>
 <body>
@@ -651,10 +688,10 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
     <h2>Selamat Datang</h2>
     <p>Masuk dengan NPK & Password</p>
     <div class="form-group"><label>NPK</label><input type="text" id="login-user" placeholder="mis. 4112233" autocapitalize="off" autocomplete="username"></div>
-    <div class="form-group"><label>Password</label><div class="pw-wrap"><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password"><button type="button" class="pw-eye" onclick="togglePw('login-pass',this)" aria-label="Lihat password">👁️</button></div></div>
+    <div class="form-group"><label>Password</label><div class="pw-wrap"><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password"><button type="button" class="pw-eye" onclick="togglePw('login-pass',this)" aria-label="Lihat password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <p id="login-err" style="display:none;color:#e02424;font-size:12px;margin:-8px 0 14px;">NPK atau password salah.</p>
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
-    <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()">📲 Pasang ke Layar HP</button>
+    <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
   <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2</div>
 </div>
@@ -688,7 +725,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <div id="setModal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;">
   <div class="login-card" style="max-width:340px;">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
-      <div style="width:46px;height:46px;border-radius:50%;background:var(--bll);display:flex;align-items:center;justify-content:center;font-size:22px;">👤</div>
+      <div style="width:46px;height:46px;border-radius:50%;background:var(--bll);display:flex;align-items:center;justify-content:center;font-size:22px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div>
       <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--g800);">Admin</div><div style="font-size:12px;color:var(--g400);">Operator · Pabrik 2</div></div>
     </div>
     <div style="font-size:12px;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Tema Aplikasi</div>
@@ -697,8 +734,8 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
       <div class="theme-opt" id="th-dark" onclick="setTheme('dark')">Gelap</div>
       <div class="theme-opt" id="th-light" onclick="setTheme('light')">Classic</div>
     </div>
-    <button class="btn-login" style="background:var(--bll);color:var(--bl);box-shadow:none;margin-top:0;" onclick="closeSettings();openPwdModal()">🔑 Ubah Password</button>
-    <button class="btn-login" style="background:#fde8e8;color:#d92020;box-shadow:none;margin-top:10px;" onclick="logout()">🚪 Logout</button>
+    <button class="btn-login" style="background:var(--bll);color:var(--bl);box-shadow:none;margin-top:0;" onclick="closeSettings();openPwdModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="3.5"/><path d="M10.5 12.5L20 3M16.5 6.5l2.5 2.5M14.5 8.5l2 2"/></svg> Ubah Password</button>
+    <button class="btn-login" style="background:#fde8e8;color:#d92020;box-shadow:none;margin-top:10px;" onclick="logout()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 12H3M6 8l-4 4 4 4"/></svg> Logout</button>
     <p class="login-note" style="cursor:pointer" onclick="closeSettings()">Tutup</p>
   </div>
 </div>
@@ -747,20 +784,20 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
         <div class="topbar-sub" id="topbar-sub-label">Pabrik 2 · Ammonia</div>
       </div>
     </div>
-    <div class="topbar-actions"><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div><div class="topbar-user" onclick="toggleAdminMenu(event)">👤</div></div>
+    <div class="topbar-actions"><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div><div class="topbar-user" onclick="toggleAdminMenu(event)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div></div>
     <div id="adminMenu" class="admin-menu">
       <div class="am-head"><b id="am-role">Master Admin</b><span id="am-npk">NPK: admin</span></div>
-      <div class="am-item admin-only" onclick="closeAdminMenu();openAddItem()">➕ Tambah Item</div>
-      <div class="am-item" onclick="closeAdminMenu();goTo('dash')">📊 Dashboard</div>
-      <div class="am-item admin-only" onclick="closeAdminMenu();goTo('karyawan')">👥 Data Karyawan</div>
-      <div class="am-item admin-only" onclick="closeAdminMenu();openMD()">🗂️ Kelola Unit & Area</div>
-      <div class="am-item" onclick="closeAdminMenu();goTo('pending')">⏳ Pending</div>
-      <div class="am-item" onclick="closeAdminMenu();goTo('maint')">🛠️ Maintenance</div>
-      <div class="am-item" onclick="closeAdminMenu();downloadOffline()">⬇️ Unduh Offline</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();openAddItem()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> Tambah Item</div>
+      <div class="am-item" onclick="closeAdminMenu();goTo('dash')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6.5 21v-7M12 21V5M17.5 21v-9"/></svg> Dashboard</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();goTo('karyawan')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16.5 5.2a3.2 3.2 0 0 1 0 6.1M20.5 19a5.5 5.5 0 0 0-3.6-5.2"/></svg> Data Karyawan</div>
+      <div class="am-item admin-only" onclick="closeAdminMenu();openMD()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg> Kelola Unit & Area</div>
+      <div class="am-item" onclick="closeAdminMenu();goTo('pending')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg> Pending</div>
+      <div class="am-item" onclick="closeAdminMenu();goTo('maint')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.7 5.3a1 1 0 0 0-1.6-.3l-2.9 2.9-2.1-2.1 2.9-2.9a1 1 0 0 0-.3-1.6 5.5 5.5 0 0 0-7 7L3.3 17.6a1.6 1.6 0 0 0 0 2.3l.8.8a1.6 1.6 0 0 0 2.3 0l9.3-9.3a5.5 5.5 0 0 0 6-6z"/></svg> Maintenance</div>
+      <div class="am-item" onclick="closeAdminMenu();downloadOffline()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg> Unduh Offline</div>
       <div class="am-sep"></div>
       <div class="am-item" onclick="closeAdminMenu();openSettings()">👤 Profil & Tema</div>
       <div class="am-item" onclick="closeAdminMenu();openPwdModal()">🔑 Ubah Password</div>
-      <div class="am-item danger" onclick="closeAdminMenu();logout()">🚪 Logout</div>
+      <div class="am-item danger" onclick="closeAdminMenu();logout()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 12H3M6 8l-4 4 4 4"/></svg> Logout</div>
     </div>
   </div>
 
@@ -781,7 +818,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 
     <!-- Search -->
     <div class="search-wrap">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
       <input type="text" id="home-search" placeholder="Cari tag item… cth: FV-3, PT-101"
         oninput="homeSearch(this.value)"
         onkeydown="if(event.key==='Enter')homeSearchEnter()"
@@ -797,7 +834,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
     </div>
 
     <div class="home-pending" id="home-pending" onclick="goTo('pending')">
-      <div class="hp-ic">⏳</div>
+      <div class="hp-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
       <div class="hp-txt"><b id="hp-count">—</b><span id="hp-sub">memuat data pending…</span></div>
       <div class="hp-arrow">›</div>
     </div>
@@ -814,7 +851,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== PENDING ===== -->
 <div id="screen-pending" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">⏳ Pending</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg> Pending</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="pend-sub">Item menunggu perbaikan</p>
     <div class="mi-search"><input id="pend-search" placeholder="Cari item pending…" oninput="renderPending()"><span>🔎</span></div>
   </div>
@@ -827,10 +864,10 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== MAINTENANCE ===== -->
 <div id="screen-maint" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🛠️ Maintenance</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.7 5.3a1 1 0 0 0-1.6-.3l-2.9 2.9-2.1-2.1 2.9-2.9a1 1 0 0 0-.3-1.6 5.5 5.5 0 0 0-7 7L3.3 17.6a1.6 1.6 0 0 0 0 2.3l.8.8a1.6 1.6 0 0 0 2.3 0l9.3-9.3a5.5 5.5 0 0 0 6-6z"/></svg> Maintenance</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub">Item yang memiliki riwayat perbaikan</p>
     <div class="mi-search"><input id="maint-search" placeholder="Cari item…" oninput="renderMaint()"><span>🔎</span></div>
-    <div class="k-filterbar"><button class="filt-btn" onclick="exportMaintCSV()">⬇️ Export riwayat (CSV)</button></div>
+    <div class="k-filterbar"><button class="filt-btn" onclick="exportMaintCSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg> Export riwayat (CSV)</button></div>
   </div>
   <div class="page-body"><div id="maint-list" class="mt-list"></div></div>
 </div>
@@ -855,7 +892,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
     <div class="form-group"><label>No. WR</label><input id="wr-no" placeholder="mis. 00011122233344" inputmode="numeric"></div>
     <div class="form-group"><label>Deskripsi Masalah</label><textarea id="wr-prob" rows="3" placeholder="mis. Bocor di bonnet"></textarea></div>
     <div class="form-group"><label>Foto (opsional)</label>
-      <div class="dropzone" id="dz-wr"><input type="file" id="file-wr" accept="image/*" hidden><div class="dz-text" id="dz-wr-text">📷 Pilih file atau seret ke sini</div></div>
+      <div class="dropzone" id="dz-wr"><input type="file" id="file-wr" accept="image/*" hidden><div class="dz-text" id="dz-wr-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg> Pilih file atau seret ke sini</div></div>
       <input type="hidden" id="wr-photo"></div>
     <p id="wr-msg" style="display:none;font-size:12px;margin:-8px 0 14px;"></p>
     <button class="btn-login" onclick="saveWR()">Simpan (jadi Pending)</button>
@@ -871,7 +908,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
     <p id="done-head"></p>
     <div class="form-group"><label>Catatan Perbaikan</label><textarea id="done-note" rows="3" placeholder="mis. Ganti packing"></textarea></div>
     <div class="form-group"><label>Foto Perbaikan (opsional)</label>
-      <div class="dropzone" id="dz-done"><input type="file" id="file-done" accept="image/*" hidden><div class="dz-text" id="dz-done-text">📷 Pilih file atau seret ke sini</div></div>
+      <div class="dropzone" id="dz-done"><input type="file" id="file-done" accept="image/*" hidden><div class="dz-text" id="dz-done-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg> Pilih file atau seret ke sini</div></div>
       <input type="hidden" id="done-photo"></div>
     <p id="done-msg" style="display:none;font-size:12px;margin:-8px 0 14px;"></p>
     <button class="btn-login" onclick="confirmDone()">Tandai Selesai →</button>
@@ -904,27 +941,27 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
     <div class="form-group"><label>Nama Item *</label><input id="ai-name" placeholder="mis. Flow Valve 99"></div>
     <div class="form-group"><label>Fungsi / Deskripsi</label><input id="ai-func" placeholder="mis. Mengatur aliran proses"></div>
     <div class="form-group"><label>Tipe</label>
-      <div class="sdrop"><input id="ai-type" autocomplete="off" placeholder="Pilih atau ketik tipe…"><div class="sdrop-caret" onclick="sdropToggle('ai-type')">▾</div><div class="sdrop-list" id="ai-type-list"></div></div>
+      <div class="sdrop"><input id="ai-type" autocomplete="off" placeholder="Pilih atau ketik tipe…"><div class="sdrop-caret" onclick="sdropToggle('ai-type')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="sdrop-list" id="ai-type-list"></div></div>
     </div>
     <div class="form-group"><label>Area</label>
-      <div class="sdrop"><input id="ai-area" autocomplete="off" placeholder="Pilih atau ketik area (kosong = tanpa area)"><div class="sdrop-caret" onclick="sdropToggle('ai-area')">▾</div><div class="sdrop-list" id="ai-area-list"></div></div>
+      <div class="sdrop"><input id="ai-area" autocomplete="off" placeholder="Pilih atau ketik area (kosong = tanpa area)"><div class="sdrop-caret" onclick="sdropToggle('ai-area')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="sdrop-list" id="ai-area-list"></div></div>
     </div>
     <div class="form-group"><label>Lantai / Elevasi</label><input id="ai-floor" placeholder="0 = lantai dasar, 1, 2 …" inputmode="numeric"></div>
     <div class="form-group"><label>Koordinat (lat,lon)</label>
       <div style="display:flex;gap:8px;">
         <input id="ai-coord" placeholder="0.1812345,117.4901230" inputmode="text" style="flex:1;">
-        <button type="button" class="coord-pin" title="Pakai lokasi saya sekarang" onclick="useMyLocation()">📍</button>
+        <button type="button" class="coord-pin" title="Pakai lokasi saya sekarang" onclick="useMyLocation()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.4"/></svg></button>
       </div>
-      <button type="button" class="coord-mapbtn" onclick="openCoordPicker()">🗺️ Pilih di peta (tap lokasi)</button>
+      <button type="button" class="coord-mapbtn" onclick="openCoordPicker()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6.2v13.8l6-2.2 6 2.2 6-2.2V4l-6 2.2L9 4z"/><path d="M9 4v13.8M15 6.2V20"/></svg> Pilih di peta (tap lokasi)</button>
       <p id="coord-hint" style="font-size:11px;color:#9ca3af;margin:6px 0 0;"></p></div>
     <div class="form-group"><label>Petunjuk Lokasi</label><textarea id="ai-hint" rows="2" placeholder="Arah/patokan menuju item"></textarea></div>
     <div class="form-group"><label>Foto Item</label>
-      <div class="dropzone" id="dz-photo"><input type="file" id="file-photo" accept="image/*" hidden><div class="dz-text" id="dz-photo-text">📷 Pilih file atau seret ke sini</div></div>
-      <div class="dz-act" id="dz-photo-act" style="display:none;"><span onclick="clearPhotoField('photo')">🗑️ Hapus foto</span></div>
+      <div class="dropzone" id="dz-photo"><input type="file" id="file-photo" accept="image/*" hidden><div class="dz-text" id="dz-photo-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg> Pilih file atau seret ke sini</div></div>
+      <div class="dz-act" id="dz-photo-act" style="display:none;"><span onclick="clearPhotoField('photo')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Hapus foto</span></div>
       <input type="hidden" id="ai-photo"></div>
     <div class="form-group"><label>Foto 360° (equirectangular)</label>
-      <div class="dropzone" id="dz-sv"><input type="file" id="file-sv" accept="image/*" hidden><div class="dz-text" id="dz-sv-text">🌐 Pilih file atau seret ke sini</div></div>
-      <div class="dz-act" id="dz-sv-act" style="display:none;"><span onclick="clearPhotoField('sv')">🗑️ Hapus foto</span></div>
+      <div class="dropzone" id="dz-sv"><input type="file" id="file-sv" accept="image/*" hidden><div class="dz-text" id="dz-sv-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3.4 2.8 14.6 0 18M12 3c-2.8 3.4-2.8 14.6 0 18"/></svg> Pilih file atau seret ke sini</div></div>
+      <div class="dz-act" id="dz-sv-act" style="display:none;"><span onclick="clearPhotoField('sv')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Hapus foto</span></div>
       <input type="hidden" id="ai-sv"></div>
     <p id="ai-msg" style="display:none;font-size:12px;margin:-8px 0 14px;"></p>
     <button class="btn-login" onclick="saveNewItem()">Simpan Item</button>
@@ -969,11 +1006,11 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== KELOLA ITEM ===== -->
 <div id="screen-manage" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📋 Semua Item</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h4"/></svg> Semua Item</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="mng-sub">Termasuk item non-aktif · ketuk untuk detail</p>
     <div class="mi-search"><input id="mng-search" placeholder="Cari item…" oninput="renderAllItems()"><span>🔎</span></div>
     <div class="mng-filterbar">
-      <button class="filt-btn" id="filt-toggle" onclick="toggleMngPanel()">⚙ Filter</button>
+      <button class="filt-btn" id="filt-toggle" onclick="toggleMngPanel()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1"/></svg> Filter</button>
       <button class="filt-btn" id="filt-inc" onclick="toggleFiltInc()">🔴 Belum lengkap</button>
       <button class="filt-btn" id="filt-reset" onclick="resetFilt()" style="display:none">Reset</button>
     </div>
@@ -984,7 +1021,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- HALAMAN DASHBOARD -->
 <div id="screen-dash" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">📊 Dashboard</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M6.5 21v-7M12 21V5M17.5 21v-9"/></svg> Dashboard</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="dash-sub">—</p>
   </div>
   <div class="page-body"><div id="dash-body"><div class="empty">Memuat…</div></div></div>
@@ -993,7 +1030,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- HALAMAN DATA KARYAWAN -->
 <div id="screen-karyawan" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">👥 Data Karyawan</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16.5 5.2a3.2 3.2 0 0 1 0 6.1M20.5 19a5.5 5.5 0 0 0-3.6-5.2"/></svg> Data Karyawan</div><div class="refresh-btn" onclick="refreshCurrent(true)" title="Segarkan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="k-sub">—</p>
     <div class="mi-search"><input id="k-search" placeholder="Cari nama / NPK…" oninput="kSearch()"><span>🔎</span></div>
     <div class="k-filterbar">
@@ -1009,7 +1046,7 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- HALAMAN KELOLA UNIT & AREA -->
 <div id="screen-md" class="screen page">
   <div class="page-head">
-    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title">🗂️ Kelola Unit & Area</div><div class="refresh-btn" onclick="mdReload()" title="Segarkan">🔄</div></div>
+    <div class="ph-row"><div class="ph-back" onclick="goTo('home')">‹ Home</div><div class="ph-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg> Kelola Unit & Area</div><div class="refresh-btn" onclick="mdReload()" title="Segarkan"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.7-6.4"/><path d="M21 3.5V9h-5.5"/></svg></div></div>
     <p class="ph-sub" id="md-plant-wrap">—</p>
   </div>
   <div class="page-body">
@@ -1037,9 +1074,9 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
     </div>
     <div class="sheet-body" id="im-body"></div>
     <div class="sheet-actions admin-only">
-      <button class="btn-ghost" onclick="editFromModal()">✏️ Edit</button>
+      <button class="btn-ghost" onclick="editFromModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg> Edit</button>
       <button class="btn-ghost" id="im-toggle" onclick="toggleStatusFromModal()">Non-aktifkan</button>
-      <button class="btn-ghost danger" onclick="deleteItemFromModal()">🗑️ Hapus permanen</button>
+      <button class="btn-ghost danger" onclick="deleteItemFromModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Hapus permanen</button>
     </div>
     <p class="login-note" style="cursor:pointer;text-align:center;margin-top:10px;" onclick="closeItemModal()">Tutup</p>
   </div>
@@ -1060,12 +1097,12 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
 <!-- ===== MAP ===== -->
 <div id="screen-map" class="screen">
   <div id="leafmap"></div>
-  <button id="baseBtn" class="base-btn" onclick="toggleBase()" title="Ganti peta 2D / satelit">🛰️</button>
+  <button id="baseBtn" class="base-btn" onclick="toggleBase()" title="Ganti peta 2D / satelit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>
   <div class="map-topbar">
     <div class="map-search-row">
       <div class="map-back-btn" onclick="goTo('home')">←</div>
       <div class="map-sbox">
-        <span class="map-sico">🔍</span>
+        <span class="map-sico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
         <input type="text" id="map-search" placeholder="Cari item di peta…" oninput="mapSearch(this.value)" autocomplete="off">
         <span id="map-clear" style="font-size:16px;color:var(--g400);cursor:pointer;display:none" onclick="mapClear()">✕</span>
       </div>
@@ -1075,8 +1112,8 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
   <div class="map-ctrl">
     <div class="mc-btn" onclick="zoom(1.3)">＋</div>
     <div class="mc-btn" onclick="zoom(0.77)">－</div>
-    <div class="mc-btn" onclick="centerMe()">📍</div>
-    <div class="mc-btn" id="calibBtn" onclick="toggleCalib()" title="Mode kalibrasi koordinat">⌖</div>
+    <div class="mc-btn" onclick="centerMe()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.4"/></svg></div>
+    <div class="mc-btn" id="calibBtn" onclick="toggleCalib()" title="Mode kalibrasi koordinat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
   </div>
   <div id="calibBox" style="display:none;position:absolute;top:120px;left:14px;right:14px;z-index:55;background:rgba(8,17,31,.92);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;color:#fff;font-size:12px;line-height:1.5;">
     <b>Mode Kalibrasi aktif.</b> Tap sudut zona di peta → koordinat muncul di sini untuk disalin.
@@ -1101,8 +1138,8 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
       <div class="bphoto" id="bphoto" style="display:none;"></div>
       <div class="bacts">
         <button class="bact bact-x" onclick="closePop()">✕</button>
-        <button class="bact bact-sv" onclick="openSV()">🌐 Foto 360°</button>
-        <button class="bact bact-nav" onclick="startNav()">🧭 Navigasi</button>
+        <button class="bact bact-sv" onclick="openSV()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3.4 2.8 14.6 0 18M12 3c-2.8 3.4-2.8 14.6 0 18"/></svg> Foto 360°</button>
+        <button class="bact bact-nav" onclick="startNav()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l4.5 18-4.5-4.2L7.5 20 12 2z"/></svg> Navigasi</button>
       </div>
     </div>
   </div>
@@ -1156,8 +1193,8 @@ input:focus,textarea:focus,select:focus,.sdrop input:focus{outline:none;border-c
       </div>
     </div>
     <div class="svarow">
-      <button class="svbtn svbtn-map" onclick="goTo('map')">🗺️ Kembali ke Peta</button>
-      <button class="svbtn svbtn-nav" onclick="goTo('map');setTimeout(startNav,80)">🧭 Navigasi ke Sini</button>
+      <button class="svbtn svbtn-map" onclick="goTo('map')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6.2v13.8l6-2.2 6 2.2 6-2.2V4l-6 2.2L9 4z"/><path d="M9 4v13.8M15 6.2V20"/></svg> Kembali ke Peta</button>
+      <button class="svbtn svbtn-nav" onclick="goTo('map');setTimeout(startNav,80)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l4.5 18-4.5-4.2L7.5 20 12 2z"/></svg> Navigasi ke Sini</button>
     </div>
   </div>
 </div>
@@ -1444,7 +1481,7 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 let profile=null;
 function roleLabel(p){ return p.role==='master'?'Master Admin':p.role==='plant_admin'?('Admin Pabrik '+(p.plant_id||'').replace('P','')):('Operator'+(p.plant_id?(' · '+p.plant_id):'')); }
 function greetName(p){ if(!p) return 'Operator'; if(p.name && p.name.trim()) return p.name.trim(); if(p.role==='master') return 'Admin Master'; if(p.role==='plant_admin') return 'Admin '+(p.plant_id||''); return 'Operator'; }
-function togglePw(id,btn){ var el=document.getElementById(id); if(!el)return; if(el.type==='password'){ el.type='text'; if(btn)btn.textContent='🙈'; } else { el.type='password'; if(btn)btn.textContent='👁️'; } }
+function togglePw(id,btn){ var el=document.getElementById(id); if(!el)return; var EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>', OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.1A9.6 9.6 0 0 1 12 6c6.5 0 10 7 10 7a16.8 16.8 0 0 1-3 3.6"/><path d="M6.6 6.6A16.9 16.9 0 0 0 2 12s3.5 7 10 7a9.5 9.5 0 0 0 4.4-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'; if(el.type==='password'){ el.type='text'; if(btn)btn.innerHTML=OFF; } else { el.type='password'; if(btn)btn.innerHTML=EYE; } }
 async function doLogin(){
   const u=document.getElementById('login-user').value.trim().toLowerCase();
   const p=document.getElementById('login-pass').value;
@@ -1678,7 +1715,7 @@ function openPendDetail(id){
   document.getElementById('wrs-body').innerHTML=body;
   var acts = dik
     ? '<button class="btn-ghost" onclick="openDone()">✅ Selesaikan</button>'
-    : '<button class="btn-ghost" onclick="markProgress()">🔧 Mulai Dikerjakan</button><button class="btn-ghost" onclick="openDone()">✅ Selesaikan</button>';
+    : '<button class="btn-ghost" onclick="markProgress()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.7 5.3a1 1 0 0 0-1.6-.3l-2.9 2.9-2.1-2.1 2.9-2.9a1 1 0 0 0-.3-1.6 5.5 5.5 0 0 0-7 7L3.3 17.6a1.6 1.6 0 0 0 0 2.3l.8.8a1.6 1.6 0 0 0 2.3 0l9.3-9.3a5.5 5.5 0 0 0 6-6z"/></svg> Mulai Dikerjakan</button><button class="btn-ghost" onclick="openDone()">✅ Selesaikan</button>';
   document.getElementById('wrs-actions').innerHTML=acts;
   document.getElementById('wrSheet').style.display='flex';
 }
@@ -1991,7 +2028,7 @@ async function renderAllItems(){
 
   const nIncomplete=allItemsCache.filter(i=>!isComplete(i)).length;
   const nActiveFilters=(mngFilt.inc?1:0)+mngFilt.types.size;
-  document.getElementById('filt-toggle').className='filt-btn'+(mngPanelOpen?' on':''); document.getElementById('filt-toggle').textContent='⚙ Filter'+(nActiveFilters?(' ('+nActiveFilters+')'):'');
+  document.getElementById('filt-toggle').className='filt-btn'+(mngPanelOpen?' on':''); document.getElementById('filt-toggle').innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1"/></svg> Filter'+(nActiveFilters?(' ('+nActiveFilters+')'):'');
   document.getElementById('filt-inc').className='filt-btn'+(mngFilt.inc?' on':'');
   document.getElementById('filt-reset').style.display=nActiveFilters?'':'none';
   document.getElementById('mng-top').innerHTML=mngPanelOpen?buildFilterPanel():'';
@@ -2012,7 +2049,7 @@ function paintMng(){
         <div class="mt-name">${i.name||''}</div>
         <div class="mt-meta">${i.type||'(tanpa tipe)'} · ${areaById[i.area_id]||'(tanpa area)'} · Lt. ${floorTxt(flNum(i.floor))}</div>
       </div>
-      ${adm?`<button class="mng-del" onclick="event.stopPropagation();deleteItemRow('${i.id}')">🗑️ Hapus</button>`:''}
+      ${adm?`<button class="mng-del" onclick="event.stopPropagation();deleteItemRow('${i.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Hapus</button>`:''}
       <div class="mt-arrow">›</div>
     </div>`;}).join(''):'<div class="empty">Tidak ada item sesuai filter.</div>';
   const sisa=mngList.length-shown.length;
@@ -2263,8 +2300,8 @@ async function mdLoadUnits(){
     const sel=(mdUnit===u.id)?' sel':'';
     return '<div class="md-row'+sel+'" id="mdu-'+u.id+'">'
       +'<div class="md-nm" onclick="mdSelectUnit(\''+u.id+'\',\''+escq(u.name)+'\')">'+u.name+'</div>'
-      +'<div class="md-act"><button onclick="mdRenameUnit(\''+u.id+'\',\''+escq(u.name)+'\')">✏️</button>'
-      +'<button class="danger" onclick="mdDeleteUnit(\''+u.id+'\',\''+escq(u.name)+'\')">🗑️</button></div></div>';
+      +'<div class="md-act"><button onclick="mdRenameUnit(\''+u.id+'\',\''+escq(u.name)+'\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>'
+      +'<button class="danger" onclick="mdDeleteUnit(\''+u.id+'\',\''+escq(u.name)+'\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button></div></div>';
   }).join('');
 }
 function mdSelectUnit(id,name){
@@ -2282,8 +2319,8 @@ async function mdLoadAreas(){
   if(!areas.length){ box.innerHTML='<div class="empty">Belum ada area di unit ini.</div>'; return; }
   box.innerHTML=areas.map(function(a){
     return '<div class="md-row"><div class="md-nm" style="cursor:default">'+a.name+'</div>'
-      +'<div class="md-act"><button onclick="mdRenameArea(\''+a.id+'\',\''+escq(a.name)+'\')">✏️</button>'
-      +'<button class="danger" onclick="mdDeleteArea(\''+a.id+'\',\''+escq(a.name)+'\')">🗑️</button></div></div>';
+      +'<div class="md-act"><button onclick="mdRenameArea(\''+a.id+'\',\''+escq(a.name)+'\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>'
+      +'<button class="danger" onclick="mdDeleteArea(\''+a.id+'\',\''+escq(a.name)+'\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button></div></div>';
   }).join('');
 }
 async function mdAddUnit(){
@@ -2358,11 +2395,11 @@ function applyKaryawanFilter(){
     return `<div class="op-row">
       <div class="op-head"><div class="op-npk">${o.npk} <span class="op-tag">${tag}</span></div><div class="op-name">${o.name||''}</div></div>
       <div class="op-acts">
-        <button class="op-btn" onclick="editOp('${o.npk}')">✏️ Edit</button>
-        <button class="op-btn" onclick="resetOp('${o.npk}')">🔑 Reset Password</button>
-        <button class="op-btn" onclick="toggleOp('${o.npk}','deactivate')">🚫 Nonaktifkan</button>
+        <button class="op-btn" onclick="editOp('${o.npk}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg> Edit</button>
+        <button class="op-btn" onclick="resetOp('${o.npk}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="3.5"/><path d="M10.5 12.5L20 3M16.5 6.5l2.5 2.5M14.5 8.5l2 2"/></svg> Reset Password</button>
+        <button class="op-btn" onclick="toggleOp('${o.npk}','deactivate')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg> Nonaktifkan</button>
         <button class="op-btn" onclick="toggleOp('${o.npk}','activate')">✅ Aktifkan</button>
-        <button class="op-btn danger" onclick="deleteOp('${o.npk}')">🗑️ Hapus</button>
+        <button class="op-btn danger" onclick="deleteOp('${o.npk}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Hapus</button>
       </div></div>`;}).join(''):'<div class="empty">Tidak ada karyawan sesuai filter.</div>';
 }
 
@@ -2739,7 +2776,7 @@ function toggleBase(){
   if(!map||!mapReady)return;
   mapBase=(mapBase==='light')?'sat':'light';
   if(map.getLayer('sat-layer')) map.setLayoutProperty('sat-layer','visibility', mapBase==='sat'?'visible':'none');
-  const b=document.getElementById('baseBtn'); if(b)b.textContent=(mapBase==='sat'?'🗺️':'🛰️');
+  const b=document.getElementById('baseBtn'); if(b)b.innerHTML=(mapBase==='sat'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6.2v13.8l6-2.2 6 2.2 6-2.2V4l-6 2.2L9 4z"/><path d="M9 4v13.8M15 6.2V20"/></svg>':'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>');
 }
 function addSatLayer(){
   if(!map||map.getSource('sat-src'))return;
@@ -2987,7 +3024,7 @@ function setFile(prefix,file){
   dzActToggle(prefix,true);
 }
 function setDropName(prefix,name){
-  const def={photo:'📷 Pilih file atau seret ke sini',sv:'🌐 Pilih file atau seret ke sini',done:'📷 Pilih file atau seret ke sini',wr:'📷 Pilih file atau seret ke sini'};
+  const def={photo:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg> Pilih file atau seret ke sini',sv:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3.4 2.8 14.6 0 18M12 3c-2.8 3.4-2.8 14.6 0 18"/></svg> Pilih file atau seret ke sini',done:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg> Pilih file atau seret ke sini',wr:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg> Pilih file atau seret ke sini'};
   try{ if(!name) pendingFiles[prefix]=null; }catch(e){}
   hiddenOf(prefix).value=name||'';
   document.getElementById('dz-'+prefix+'-text').innerHTML = name ? '<span class="dz-has">✓ '+name+'</span>' : def[prefix];
