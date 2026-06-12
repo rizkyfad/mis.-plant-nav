@@ -3029,15 +3029,16 @@ function startCompass(){
   }
 }
 function onOrient(e){
-  let h=null;
+  let h=null, webkit=false;
   if(typeof e.webkitCompassHeading==='number' && !isNaN(e.webkitCompassHeading)){
-    h=e.webkitCompassHeading;                  // iOS: relatif Utara magnetis (acuan = atas perangkat saat portrait)
+    h=e.webkitCompassHeading; webkit=true;     // iOS/iPadOS: SUDAH dikoreksi sistem thd rotasi layar - JANGAN dikoreksi lagi (bukti lapangan: iPad landscape melenceng saat dikoreksi dobel)
   } else if(e.absolute===true && typeof e.alpha==='number'){
-    h=(360-e.alpha)%360;                       // Android: hanya pakai yang ABSOLUT (mengacu Utara)
+    h=(360-e.alpha)%360;                       // Android: sensor mentah kerangka-perangkat, PERLU kompensasi rotasi layar
   }
   if(h===null || isNaN(h)) return;             // abaikan data relatif (tanpa acuan Utara) -> cegah arah ngawur
-  // kompensasi rotasi layar utk SEMUA jalur (iOS landscape pun melenceng 90 derajat tanpa ini)
-  try{ const so=(screen.orientation&&typeof screen.orientation.angle==='number')?screen.orientation.angle:(window.orientation||0); h=(h+so+360)%360; }catch(_){}
+  if(!webkit){
+    try{ const so=(screen.orientation&&typeof screen.orientation.angle==='number')?screen.orientation.angle:(window.orientation||0); h=(h+so+360)%360; }catch(_){}
+  }
   heading=smoothAngle(heading,h,0.25); updateArrow();
 }
 function haversine(la1,lo1,la2,lo2){const R=6371000,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180,a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
@@ -3124,6 +3125,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#adminMenu')&&!e.target.closest('.topbar-user'))closeAdminMenu();
 });
 window.addEventListener('resize',()=>{if(document.getElementById('screen-map').classList.contains('active'))initMap();});
+window.addEventListener('orientationchange',()=>{ _lastEffShown=null; });
 
 // ===== KOMPAS NAVIGASI: BISA DI-DRAG (dijepit dalam peta, tidak akan hilang) =====
 (function(){
