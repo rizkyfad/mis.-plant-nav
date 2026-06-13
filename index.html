@@ -781,7 +781,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0613-H</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0613-I</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -1068,8 +1068,9 @@ button{color:var(--g800);}
     <div class="pick-hint">Ketuk peta untuk menaruh pin. Nyalakan satelit agar tepat di atas alat. Pin bisa digeser.</div>
     <div id="pickmap" class="pickmap"></div>
     <div class="pick-coord" id="pick-coord">Ketuk peta untuk menaruh pin</div>
+    <button class="bact" type="button" onclick="pickHere()" style="width:100%;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.4"/></svg> Lokasi Saya (GPS akurat)</button>
     <div class="pick-acts">
-      <button class="bact bact-sv" type="button" id="pickBaseBtn" onclick="togglePickBase()">🗺️ Peta</button>
+      <button class="bact bact-sv" type="button" id="pickBaseBtn" onclick="togglePickBase()">Satelit</button>
       <button class="bact bact-nav" type="button" onclick="confirmCoordPick()">✓ Gunakan koordinat</button>
     </div>
   </div>
@@ -2930,7 +2931,8 @@ function initMap(){
 }
 
 // ===== PEMILIH KOORDINAT DI PETA (create/edit) =====
-let pickMap=null,pickMarker=null,pickMe=null,pickBase='sat',pickLL=null,pickReady=false;
+let pickMap=null,pickMarker=null,pickMe=null,pickBase='light',pickLL=null,pickReady=false,pickWatch=null,pickCentered=false;
+function _pickResizeBurst(){ [60,180,360,600,900].forEach(t=>setTimeout(()=>{try{pickMap&&pickMap.resize();}catch(e){}},t)); }
 function openCoordPicker(){
   document.getElementById('pickModal').style.display='flex';
   let clat=(PLANT.latMin+PLANT.latMax)/2, clon=(PLANT.lonMin+PLANT.lonMax)/2;
@@ -2944,17 +2946,44 @@ function openCoordPicker(){
       pickMap.on('load',function(){
         pickReady=true;
         try{ pickMap.addSource('psat-src',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19}); pickMap.addLayer({id:'psat-layer',type:'raster',source:'psat-src',layout:{visibility:(pickBase==='sat'?'visible':'none')}}); }catch(e){}
-        try{ pickMap.resize(); }catch(e){}
+        _pickResizeBurst();
         if(myLat!==null) updatePickMe();
       });
       pickMap.on('click',function(e){ setPick(e.lngLat.lat,e.lngLat.lng); });
-      const bb=document.getElementById('pickBaseBtn'); if(bb)bb.textContent=(pickBase==='sat'?'🗺️ Peta':'🛰️ Satelit');
+      const bb=document.getElementById('pickBaseBtn'); if(bb)bb.textContent=(pickBase==='sat'?'Peta':'Satelit');
     } else {
       pickMap.setCenter([clon,clat]); pickMap.setZoom(19);
-      setTimeout(()=>{try{pickMap.resize();}catch(e){}},60);
+      _pickResizeBurst();
+      if(myLat!==null) updatePickMe();
     }
-    if(has){ setPick(la,lo); } else { pickLL=null; if(pickMarker){pickMarker.remove();pickMarker=null;} document.getElementById('pick-coord').textContent='Ketuk peta untuk menaruh pin'; }
-  },150);
+    if(has){ setPick(la,lo); pickCentered=true; } else { pickLL=null; if(pickMarker){pickMarker.remove();pickMarker=null;} document.getElementById('pick-coord').textContent='Ketuk peta atau tekan "Lokasi Saya"'; }
+    _pickStartWatch();
+  },420);
+}
+function _pickStartWatch(){
+  if(!navigator.geolocation || pickWatch!==null) return;
+  pickWatch=navigator.geolocation.watchPosition(function(pos){
+    myLat=pos.coords.latitude; myLon=pos.coords.longitude; myAcc=pos.coords.accuracy;
+    updatePickMe();
+    if(!pickCentered && pickMap){ try{ pickMap.easeTo({center:[myLon,myLat],zoom:20,duration:600}); }catch(e){} pickCentered=true; }
+  }, function(){}, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
+}
+function pickHere(){
+  const cd=document.getElementById('pick-coord');
+  if(!navigator.geolocation){ cd.textContent='Perangkat tidak mendukung GPS.'; return; }
+  cd.textContent='Mengambil GPS paling akurat… ±6 dtk, berdiri dekat item.';
+  let best=null,n=0,done=false;
+  const w=navigator.geolocation.watchPosition(function(pos){
+    n++; if(!best||pos.coords.accuracy<best.coords.accuracy) best=pos;
+    cd.textContent='GPS… ±'+Math.round(pos.coords.accuracy)+' m (mencari terbaik)';
+    if(n>=6||pos.coords.accuracy<=5) fin();
+  }, function(err){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} cd.textContent=(err.code===1)?'Izin lokasi ditolak.':'Gagal ambil GPS.'; }, {enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  setTimeout(fin,6500);
+  function fin(){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} if(!best){ cd.textContent='GPS gagal, coba lagi.'; return; }
+    const la=best.coords.latitude, lo=best.coords.longitude;
+    if(pickMap){ try{ pickMap.easeTo({center:[lo,la],zoom:20,duration:500}); }catch(e){} }
+    pickCentered=true; setPick(la,lo);
+    cd.textContent=la.toFixed(7)+', '+lo.toFixed(7)+'  ·  ±'+Math.round(best.coords.accuracy)+' m'; }
 }
 function pickMeEl(){ const d=document.createElement('div'); d.innerHTML='<div class="me-dot"></div>'; return d.firstChild; }
 function updatePickMe(){
@@ -2974,7 +3003,7 @@ function togglePickBase(){
   if(!pickMap||!pickReady)return;
   pickBase=(pickBase==='sat')?'light':'sat';
   if(pickMap.getLayer('psat-layer')) pickMap.setLayoutProperty('psat-layer','visibility', pickBase==='sat'?'visible':'none');
-  const b=document.getElementById('pickBaseBtn'); if(b)b.textContent=(pickBase==='sat'?'🗺️ Peta':'🛰️ Satelit');
+  const b=document.getElementById('pickBaseBtn'); if(b)b.textContent=(pickBase==='sat'?'Peta':'Satelit');
 }
 function confirmCoordPick(){
   if(!pickLL){ alert('Ketuk peta dulu untuk menaruh pin.'); return; }
@@ -2983,7 +3012,7 @@ function confirmCoordPick(){
   try{ inp.dispatchEvent(new Event('input')); }catch(e){}
   closeCoordPicker();
 }
-function closeCoordPicker(){ document.getElementById('pickModal').style.display='none'; }
+function closeCoordPicker(){ document.getElementById('pickModal').style.display='none'; if(pickWatch!==null){ try{navigator.geolocation.clearWatch(pickWatch);}catch(e){} pickWatch=null; } }
 
 function showOnlyActive(){
   if(!map)return;
@@ -3140,14 +3169,19 @@ async function pasteGMaps(){
 function useMyLocation(){
   const hint=document.getElementById('coord-hint');
   if(!navigator.geolocation){ hint.style.color='#e02424'; hint.textContent='Perangkat/browser tidak mendukung lokasi.'; return; }
-  hint.style.color='#6b7280'; hint.textContent='Mengambil lokasi GPS… (izinkan akses lokasi)';
-  navigator.geolocation.getCurrentPosition(
-    pos=>{ const la=pos.coords.latitude.toFixed(7), lo=pos.coords.longitude.toFixed(7);
-      document.getElementById('ai-coord').value=la+','+lo;
-      hint.style.color='#16a34a'; hint.textContent='✅ Terisi otomatis (akurasi ±'+Math.round(pos.coords.accuracy)+' m). Pastikan kamu berdiri dekat item.'; },
-    err=>{ hint.style.color='#e02424'; hint.textContent=(err.code===1)?'Izin lokasi ditolak. Aktifkan izin lokasi untuk situs ini.':'Gagal ambil lokasi: '+(err.message||'coba lagi'); },
-    {enableHighAccuracy:true, timeout:12000, maximumAge:0}
-  );
+  hint.style.color='var(--g500)'; hint.textContent='Mengambil GPS paling akurat… ±6 dtk, berdiri dekat item.';
+  let best=null,n=0,done=false;
+  const w=navigator.geolocation.watchPosition(function(pos){
+    n++; if(!best||pos.coords.accuracy<best.coords.accuracy) best=pos;
+    hint.textContent='GPS… ±'+Math.round(pos.coords.accuracy)+' m (mencari terbaik)';
+    if(n>=6||pos.coords.accuracy<=5) fin();
+  }, function(err){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} hint.style.color='#e02424'; hint.textContent=(err.code===1)?'Izin lokasi ditolak.':'Gagal ambil lokasi.'; }, {enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  setTimeout(fin,6500);
+  function fin(){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} if(!best){ hint.style.color='#e02424'; hint.textContent='GPS gagal, coba lagi.'; return; }
+    const la=best.coords.latitude.toFixed(7), lo=best.coords.longitude.toFixed(7);
+    document.getElementById('ai-coord').value=la+','+lo;
+    try{ document.getElementById('ai-coord').dispatchEvent(new Event('input')); }catch(e){}
+    hint.style.color='#16a34a'; hint.textContent='Terisi (akurasi ±'+Math.round(best.coords.accuracy)+' m). Pastikan dekat item.'; }
 }
 function hiddenOf(prefix){ return document.getElementById(prefix==='done'?'done-photo':(prefix==='wr'?'wr-photo':'ai-'+prefix)); }
 function setFile(prefix,file){
