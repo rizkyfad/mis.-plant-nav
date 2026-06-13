@@ -758,7 +758,20 @@ button{color:var(--g800);}
 /* CLASSIC: ikon beraksen emas */
 [data-theme="light"] .nav-item svg,[data-theme="light"] .ph-title svg,[data-theme="light"] .am-item svg,[data-theme="light"] .bact svg,[data-theme="light"] .hp-ic svg,[data-theme="light"] .refresh-btn svg,[data-theme="light"] .filt-btn svg{filter:drop-shadow(0 0 1px rgba(184,134,11,.45));}
 [data-theme="light"] .nav-item.active{color:#9a6b12 !important;}
-[data-theme="dark"] #screen-pabrik,[data-theme="dark"] #screen-area{background:transparent !important;}
+[data-theme="dark"] #screen-pabrik,[data-theme="dark"] #screen-area,[data-theme="dark"] #screen-home{background:transparent !important;}
+.ph-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.ph-thumb{position:relative;width:62px;height:62px;border-radius:10px;overflow:hidden;border:1px solid var(--g200);}
+.ph-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.ph-thumb .x{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;border:none;font-size:13px;line-height:1;cursor:pointer;padding:0;}
+.ph-add{width:100%;padding:11px;border:1.5px dashed var(--g300);border-radius:10px;background:transparent;color:var(--g600);font-weight:600;font-size:13px;cursor:pointer;}
+.ph-add:disabled{opacity:.55;cursor:not-allowed;}
+.bphoto-multi{box-shadow:none;}
+.ph-gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:14px;}
+.ph-gal::-webkit-scrollbar{display:none;}
+.ph-gal img{flex:0 0 100%;scroll-snap-align:center;width:100%;max-height:200px;object-fit:cover;border-radius:14px;cursor:zoom-in;box-shadow:0 4px 14px rgba(0,0,0,.14);}
+.ph-dots{display:flex;gap:5px;justify-content:center;margin-top:7px;}
+.ph-dots span{width:6px;height:6px;border-radius:50%;background:var(--g300);transition:all .2s;}
+.ph-dots span.on{background:var(--or);width:18px;border-radius:3px;}
 </style>
 </head>
 <body>
@@ -781,7 +794,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0613-I</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0613-K</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -1044,9 +1057,12 @@ button{color:var(--g800);}
       <p id="coord-hint" style="font-size:11px;color:var(--g400);margin:6px 0 0;"></p></div>
     <div class="form-group"><label>Petunjuk Lokasi</label><textarea id="ai-hint" rows="2" placeholder="Arah/patokan menuju item"></textarea></div>
     <div class="form-group"><label>Foto Item</label>
-      <div class="dropzone" id="dz-photo"><input type="file" id="file-photo" accept="image/*" hidden><div class="dz-text" id="dz-photo-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.4-2h7.2L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg> Pilih file atau seret ke sini</div></div>
-      <div class="dz-act" id="dz-photo-act" style="display:none;"><span onclick="clearPhotoField('photo')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Hapus foto</span></div>
-      <input type="hidden" id="ai-photo"></div>
+      <div id="photoMulti">
+  <div id="photoGrid" class="ph-grid"></div>
+  <button type="button" id="photoAddBtn" class="ph-add" onclick="document.getElementById('file-photo').click()">+ Tambah foto (0/5)</button>
+  <input type="file" id="file-photo" accept="image/*" multiple hidden onchange="onPhotoPick(this.files)">
+</div>
+<input type="hidden" id="ai-photo"></div>
     <div class="form-group"><label>Foto 360° (equirectangular)</label>
       <div class="dropzone" id="dz-sv"><input type="file" id="file-sv" accept="image/*" hidden><div class="dz-text" id="dz-sv-text"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3.4 2.8 14.6 0 18M12 3c-2.8 3.4-2.8 14.6 0 18"/></svg> Pilih file atau seret ke sini</div></div>
       <div class="dz-act" id="dz-sv-act" style="display:none;"><span onclick="clearPhotoField('sv')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg> Hapus foto</span></div>
@@ -1708,6 +1724,26 @@ function floorTxt(f){return (f===0||f==='0')?'Dasar':f;}
 
 // ===== STORAGE FOTO =====
 let pendingFiles={photo:null,sv:null,done:null,wr:null};
+let photoState={existing:[],files:[]};
+function photoTotal(){ return photoState.existing.length+photoState.files.length; }
+function resetPhotoWidget(existingArr){ photoState={existing:(existingArr||[]).slice(),files:[]}; renderPhotoGrid(); }
+function renderPhotoGrid(){
+  const g=document.getElementById('photoGrid'); if(!g)return;
+  let html='';
+  photoState.existing.forEach((p,i)=>{ html+='<div class="ph-thumb"><img src="'+photoUrl(p)+'"><button type="button" class="x" data-k="e" data-i="'+i+'">\u00d7</button></div>'; });
+  photoState.files.forEach((f,i)=>{ let u=''; try{u=URL.createObjectURL(f);}catch(e){} html+='<div class="ph-thumb"><img src="'+u+'"><button type="button" class="x" data-k="f" data-i="'+i+'">\u00d7</button></div>'; });
+  g.innerHTML=html;
+  g.querySelectorAll('.x').forEach(b=>b.onclick=function(){ removePhoto(b.getAttribute('data-k'), parseInt(b.getAttribute('data-i'))); });
+  const btn=document.getElementById('photoAddBtn'); const n=photoTotal();
+  if(btn){ btn.disabled=n>=5; btn.textContent=n>=5?'Maks 5 foto tercapai':('+ Tambah foto ('+n+'/5)'); }
+}
+function onPhotoPick(files){
+  const slots=5-photoTotal(); const arr=Array.from(files||[]).slice(0,Math.max(0,slots));
+  arr.forEach(f=>photoState.files.push(f));
+  const inp=document.getElementById('file-photo'); if(inp)inp.value='';
+  renderPhotoGrid();
+}
+function removePhoto(kind,i){ if(kind==='e')photoState.existing.splice(i,1); else photoState.files.splice(i,1); renderPhotoGrid(); }
 // Kompres gambar di browser: maks sisi 1440px, kualitas ~0.82 (jelas, hemat).
 function compressImage(file, maxDim){
   return new Promise((resolve)=>{
@@ -1738,6 +1774,8 @@ async function uploadPhoto(file,folder,opts){
   if(error) throw error;
   return path;
 }
+function parsePhotos(v){ if(!v) return []; if(typeof v!=='string') return Array.isArray(v)?v:[]; const s=v.trim(); if(s[0]==='['){ try{ const a=JSON.parse(s); return Array.isArray(a)?a.filter(Boolean):[]; }catch(e){ return [s]; } } return [s]; }
+function photosToStore(arr){ arr=(arr||[]).filter(Boolean); if(!arr.length) return null; if(arr.length===1) return arr[0]; return JSON.stringify(arr); }
 function photoUrl(path){ if(!path) return ''; if(/^https?:/.test(path)) return path; try{ const {data}=sb.storage.from('photos').getPublicUrl(path); return data.publicUrl; }catch(e){ return ''; } }
 
 // ===== HELPER =====
@@ -2022,7 +2060,7 @@ function openAddItem(){
   sdropInit('ai-area',function(){ return (AREAS[selectedArea]||[]).slice().sort((a,b)=>a.localeCompare(b)); });
   document.getElementById('ai-type').value=''; document.getElementById('ai-area').value='';
   ['ai-tag','ai-name','ai-func','ai-floor','ai-coord','ai-hint','ai-photo','ai-sv'].forEach(id=>document.getElementById(id).value='');
-  setDropName('photo',''); setDropName('sv','');
+  resetPhotoWidget([]); setDropName('sv','');
   { const ch=document.getElementById('coord-hint'); if(ch)ch.textContent=''; }
   document.getElementById('ai-tag').readOnly=false;
   document.getElementById('ai-msg').style.display='none';
@@ -2048,15 +2086,15 @@ async function saveNewItem(){
   const areaName=document.getElementById('ai-area').value.trim();
   if(areaName && !(areaName in areaMap)){ err('Area "'+areaName+'" tidak ada di daftar. Pilih dari saran atau kosongkan.'); return; }
   const fv=parseInt(document.getElementById('ai-floor').value); const floor=isNaN(fv)?0:fv;
-  let photoPath=document.getElementById('ai-photo').value.trim(), svPath=document.getElementById('ai-sv').value.trim();
+  let svPath=document.getElementById('ai-sv').value.trim(); let photoArr=(photoState.existing||[]).slice();
   try{
-    if(pendingFiles.photo){ info('Mengunggah foto…'); photoPath=await uploadPhoto(pendingFiles.photo,'item'); }
+    for(let fi=0;fi<photoState.files.length;fi++){ info('Mengunggah foto '+(photoArr.length+1)+'…'); const pp=await uploadPhoto(photoState.files[fi],'item'); photoArr.push(pp); }
     if(pendingFiles.sv){ info('Mengunggah foto 360…'); svPath=await uploadPhoto(pendingFiles.sv,'item',{maxDim:4096}); }
   }catch(e){ err('Gagal unggah foto: '+e.message); return; }
   const payload={tag,name,func:document.getElementById('ai-func').value.trim(),type,
     area_id:(areaMap[areaName]||null),floor:String(floor),lat,lon,
     hint:document.getElementById('ai-hint').value.trim(),
-    photo_path:photoPath||null, sv_path:svPath||null};
+    photo_path:photosToStore(photoArr), sv_path:svPath||null};
   if(editingId){
     info('Menyimpan…');
     sb.from('items').update(payload).eq('id',editingDbId).then(async ({error})=>{
@@ -2237,7 +2275,7 @@ function openEditRow(r){
   document.getElementById('ai-floor').value=((r.floor===''||r.floor==null)?'':r.floor);
   document.getElementById('ai-coord').value=(r.lat!=null&&r.lon!=null)?(r.lat+','+r.lon):'';
   document.getElementById('ai-hint').value=(r.hint&&r.hint!=='(belum ada petunjuk)')?r.hint:'';
-  setDropName('photo',r.photo_path||''); setDropName('sv',r.sv_path||'');
+  resetPhotoWidget(parsePhotos(r.photo_path)); setDropName('sv',r.sv_path||'');
   { const ch=document.getElementById('coord-hint'); if(ch)ch.textContent=''; }
   document.getElementById('ai-msg').style.display='none';
   document.getElementById('addModal').style.display='flex';
@@ -2693,8 +2731,17 @@ function showPop(item){
   document.getElementById('bfloor').textContent='Lt. '+floorTxt(item.floor);
   document.getElementById('bhint').innerHTML='<b>Petunjuk:</b> '+item.hint;
   const ph=document.getElementById('bphoto');
-  if(item.photo){ const _u=photoUrl(item.photo); ph.innerHTML='<img src="'+_u+'" alt="" loading="lazy">'; ph.style.display='block'; ph.onclick=function(){ openLightbox(_u); }; }
-  else { ph.innerHTML=''; ph.style.display='none'; ph.onclick=null; }
+  const _photos=parsePhotos(item.photo).map(photoUrl).filter(Boolean);
+  if(_photos.length>1){
+    ph.className='bphoto bphoto-multi';
+    ph.innerHTML='<div class="ph-gal">'+_photos.map(u=>'<img src="'+u+'" loading="lazy" data-u="'+u+'">').join('')+'</div><div class="ph-dots">'+_photos.map((_,i)=>'<span class="'+(i===0?'on':'')+'"></span>').join('')+'</div>';
+    const gal=ph.querySelector('.ph-gal'), dots=ph.querySelectorAll('.ph-dots span');
+    gal.querySelectorAll('img').forEach(im=>im.onclick=function(){ openLightbox(im.getAttribute('data-u')); });
+    gal.onscroll=function(){ const k=Math.round(gal.scrollLeft/Math.max(1,gal.clientWidth)); dots.forEach((d,j)=>d.classList.toggle('on',j===k)); };
+    ph.onclick=null; ph.style.display='block';
+  } else if(_photos.length===1){
+    ph.className='bphoto'; const _u=_photos[0]; ph.innerHTML='<img src="'+_u+'" alt="" loading="lazy">'; ph.style.display='block'; ph.onclick=function(){ openLightbox(_u); };
+  } else { ph.innerHTML=''; ph.style.display='none'; ph.onclick=null; }
   const il=itemLL(item);
   document.getElementById('bdist').textContent=(myLat!==null)?distText(haversine(myLat,myLon,il.lat,il.lon)):'—';
   (function(){const p=document.getElementById('bpop');p.classList.remove('peek');const c=document.getElementById('binner');if(c){c.classList.remove('snap');c.style.height='';}})();
