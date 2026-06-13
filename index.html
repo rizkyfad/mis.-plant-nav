@@ -737,6 +737,27 @@ button{color:var(--g800);}
 [data-theme="dark"] .nav-item svg,[data-theme="dark"] .mc-btn svg,[data-theme="dark"] .map-back-btn,[data-theme="dark"] .refresh-btn svg,[data-theme="dark"] .am-item svg,[data-theme="dark"] .ph-title svg,[data-theme="dark"] .bact svg,[data-theme="dark"] .filt-btn svg,[data-theme="dark"] .hp-ic svg{filter:drop-shadow(0 0 5px rgba(120,170,255,.55));}
 /* CLASSIC: aksen emas pada ikon header */
 [data-theme="light"] .ph-title svg,[data-theme="light"] .nav-item.active svg{filter:drop-shadow(0 0 1px rgba(184,134,11,.5));}
+
+/* ===== CAKUPAN TEMA MENYELURUH ===== */
+/* GALAXY: jadikan permukaan kartu KACA TEMBUS -> semua kartu di semua halaman otomatis bertema */
+[data-theme="dark"]{--w:rgba(16,24,56,.86);}
+[data-theme="dark"] .home-content,[data-theme="dark"] .pabrik-header,[data-theme="dark"] .pabrik-body,[data-theme="dark"] .screen,[data-theme="dark"] .home-pending,[data-theme="dark"] .scrollbody{background-color:transparent;}
+[data-theme="dark"] .home-pending,[data-theme="dark"] .pabrik-card,[data-theme="dark"] .stat-card,[data-theme="dark"] .atc-card,[data-theme="dark"] .mng-card,[data-theme="dark"] .k-card,[data-theme="dark"] .wr-card,[data-theme="dark"] .pend-card,[data-theme="dark"] .mi-card,[data-theme="dark"] .md-card,[data-theme="dark"] .area-card,[data-theme="dark"] .list-card{background:var(--w) !important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(130,160,255,.18);}
+[data-theme="dark"] .topbar,[data-theme="dark"] .page-head{background:linear-gradient(135deg,rgba(37,99,235,.92),rgba(124,58,237,.55)) , #0c1233;backdrop-filter:blur(8px);}
+/* CLASSIC: kartu putih hangat + bingkai emas menyeluruh */
+[data-theme="light"]{--w:#fffdf6;}
+[data-theme="light"] .home-content,[data-theme="light"] .pabrik-header,[data-theme="light"] .pabrik-body,[data-theme="light"] .screen{background-color:transparent;}
+[data-theme="light"] .home-pending,[data-theme="light"] .pabrik-card,[data-theme="light"] .stat-card,[data-theme="light"] .atc-card,[data-theme="light"] .mng-card,[data-theme="light"] .k-card,[data-theme="light"] .wr-card,[data-theme="light"] .pend-card,[data-theme="light"] .mi-card,[data-theme="light"] .md-card,[data-theme="light"] .area-card,[data-theme="light"] .list-card{border:1px solid #cdb079;box-shadow:0 6px 20px rgba(90,60,20,.12);}
+[data-theme="light"] .topbar,[data-theme="light"] .page-head{background:linear-gradient(135deg,#6a4c2c,#8a6a3c) !important;}
+
+/* ===== IDENTITAS IKON PER TEMA ===== */
+/* GALAXY: ikon ber-glow biru + aktif cyan */
+[data-theme="dark"] .nav-item svg,[data-theme="dark"] .mc-btn svg,[data-theme="dark"] .ph-title svg,[data-theme="dark"] .refresh-btn svg,[data-theme="dark"] .am-item svg,[data-theme="dark"] .bact svg,[data-theme="dark"] .filt-btn svg,[data-theme="dark"] .hp-ic svg,[data-theme="dark"] .pabrik-card svg,[data-theme="dark"] .search-icon svg,[data-theme="dark"] .map-sico svg,[data-theme="dark"] .map-back-btn,[data-theme="dark"] .coord-pin svg{filter:drop-shadow(0 0 5px rgba(120,170,255,.6));}
+[data-theme="dark"] .nav-item.active{color:#5fd0ff !important;}
+[data-theme="dark"] .nav-item.active svg{filter:drop-shadow(0 0 7px rgba(95,208,255,.8));}
+/* CLASSIC: ikon beraksen emas */
+[data-theme="light"] .nav-item svg,[data-theme="light"] .ph-title svg,[data-theme="light"] .am-item svg,[data-theme="light"] .bact svg,[data-theme="light"] .hp-ic svg,[data-theme="light"] .refresh-btn svg,[data-theme="light"] .filt-btn svg{filter:drop-shadow(0 0 1px rgba(184,134,11,.45));}
+[data-theme="light"] .nav-item.active{color:#9a6b12 !important;}
 </style>
 </head>
 <body>
