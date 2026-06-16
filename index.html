@@ -822,7 +822,24 @@ button{color:var(--g800);}
 .login-card,.sheet,.home-content,.pabrik-body,.page,.area-body{-webkit-overflow-scrolling:touch;}
 .img-lb-gal{touch-action:pan-x;}
 .img-lb-gal img{transform-origin:center center;will-change:transform;}
-@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.001ms !important;} .modal-bg>*,.bpop{animation-duration:.001ms !important;}}
+.md-addbtn{flex:0 0 auto;padding:0 16px;min-height:44px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--or),var(--ord));color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;box-shadow:0 3px 12px rgba(255,106,19,.32);transition:transform .14s cubic-bezier(.34,1.4,.5,1),filter .2s ease;}
+[data-theme="dark"] .md-addbtn{background:linear-gradient(135deg,#7c3aed 0%,#2563eb 55%,#06b6d4 100%);box-shadow:0 4px 16px rgba(80,110,255,.45);}
+[data-theme="light"] .md-addbtn{background:linear-gradient(135deg,#7a5230,#b8860b);box-shadow:0 4px 14px rgba(122,82,48,.32);}
+.md-addbtn:active{transform:scale(.94);filter:brightness(1.05);}
+.img-lb-x{z-index:10 !important;width:50px !important;height:50px !important;font-size:24px !important;background:rgba(255,255,255,.22) !important;}
+.img-lb-x:active{background:rgba(255,255,255,.4) !important;}
+@keyframes pn-rise{0%{transform:translateY(2px);opacity:0}25%{opacity:1}100%{transform:translateY(-7px);opacity:0}}
+.ic-rise circle{transform-box:fill-box;animation:pn-rise 2.6s ease-in infinite;}
+.ic-rise circle:nth-child(2){animation-delay:.9s}
+.ic-rise circle:nth-child(3){animation-delay:1.7s}
+@keyframes pn-flicker{0%,100%{transform:scaleY(1)}45%{transform:scaleY(1.28)}70%{transform:scaleY(.92)}}
+.ic-flicker{transform-box:fill-box;transform-origin:center bottom;animation:pn-flicker .55s ease-in-out infinite;}
+.item-icon.exchanger{background:#e3f6f6;}.item-icon.column{background:#e4f6f0;}.item-icon.furnace{background:#fdeaea;}.item-icon.compressor{background:#f1ecfd;}.item-icon.fan{background:#e6f6fa;}.item-icon.default{background:var(--g100);}
+@keyframes pn-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-1.3px)}75%{transform:translateX(1.3px)}}
+.ic-shake{transform-box:fill-box;transform-origin:center;animation:pn-shake .34s linear infinite;}
+@keyframes pn-toggle{0%,42%{transform:translateX(0)}58%,100%{transform:translateX(10px)}}
+.ic-toggle{transform-box:fill-box;animation:pn-toggle 2.4s ease-in-out infinite;}
 </style>
 </head>
 <body>
@@ -845,7 +862,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0613-T</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0613-Y</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -1211,17 +1228,22 @@ button{color:var(--g800);}
   <div class="page-body">
     <div class="md-sec" id="md-plant-sec" style="display:none;">
       <div class="md-sec-h">Pabrik</div>
-      <div class="md-add"><input id="md-plant-name" placeholder="Nama pabrik baru…" autocomplete="off"><button class="filt-btn" onclick="mdAddPlant()">＋ Tambah</button></div>
+      <div class="md-add"><input id="md-plant-code" placeholder="Kode (mis. P7)" autocomplete="off" style="max-width:118px;"><input id="md-plant-name" placeholder="Nama (mis. Pabrik 7 (NPK))" autocomplete="off"><button class="md-addbtn" onclick="mdAddPlant()">＋ Tambah</button></div>
       <div id="md-plant-list" class="md-list"></div>
+    </div>
+    <div class="md-sec" id="md-type-sec" style="display:none;">
+      <div class="md-sec-h">Tipe Item</div>
+      <div class="md-add"><input id="md-type-name" placeholder="Nama tipe baru…" autocomplete="off"><button class="md-addbtn" onclick="mdAddType()">＋ Tambah</button></div>
+      <div id="md-type-list" class="md-list"></div>
     </div>
     <div class="md-sec">
       <div class="md-sec-h">Unit</div>
-      <div class="md-add"><input id="md-unit-name" placeholder="Nama unit baru…" autocomplete="off"><button class="filt-btn" onclick="mdAddUnit()">＋ Tambah</button></div>
+      <div class="md-add"><input id="md-unit-name" placeholder="Nama unit baru…" autocomplete="off"><button class="md-addbtn" onclick="mdAddUnit()">＋ Tambah</button></div>
       <div id="md-units" class="md-list"></div>
     </div>
     <div class="md-sec">
       <div class="md-sec-h">Area <span id="md-area-unit" style="color:var(--g400);font-weight:500;font-size:12px;"></span></div>
-      <div id="md-area-add" class="md-add" style="display:none"><input id="md-area-name" placeholder="Nama area baru…" autocomplete="off"><button class="filt-btn" onclick="mdAddArea()">＋ Tambah</button></div>
+      <div id="md-area-add" class="md-add" style="display:none"><input id="md-area-name" placeholder="Nama area baru…" autocomplete="off"><button class="md-addbtn" onclick="mdAddArea()">＋ Tambah</button></div>
       <div id="md-areas" class="md-list"><div class="empty">Pilih unit dulu di atas.</div></div>
     </div>
   </div>
@@ -1496,7 +1518,7 @@ function mapRowsToItems(items){
   (items||[]).forEach(r=>{
     const fl=(r.floor===''||r.floor==null)?0:(isNaN(+r.floor)?r.floor:+r.floor);
     ITEMS.push({_dbid:r.id,id:r.tag,name:r.name,func:r.func||'',type:r.type||'',plant:selectedArea,
-      area:areaById[r.area_id]||'',floor:fl,icon:iconForType(r.type),cls:'valve',
+      area:areaById[r.area_id]||'',floor:fl,icon:iconForType(r.type),cls:clsForType(r.type),
       hint:r.hint||'(belum ada petunjuk)',lat:r.lat,lon:r.lon,photo:r.photo_path||'',sv:r.sv_path||''});
   });
   if(map){ try{ showOnlyActive(); }catch(e){} }
@@ -1688,6 +1710,7 @@ async function doLogin(){
   }catch(e){ err.textContent='Gangguan koneksi. Coba lagi.'; err.style.color='#e02424'; err.style.display='block'; }
 }
 async function afterLogin(user){
+  loadTypes();
   const err=document.getElementById('login-err');
   const {data,error}=await sb.from('profiles').select('npk,name,role,plant_id,unit_id').eq('id',user.id).single();
   if(error||!data){ if(err){err.textContent='Profil tidak ditemukan. Hubungi admin.';err.style.color='#e02424';err.style.display='block';} await sb.auth.signOut(); return; }
@@ -2048,39 +2071,74 @@ function openMaintDetail(id){
 }
 
 // ===== ADMIN MENU + TAMBAH ITEM (master admin = admin/admin) =====
-const TYPES=['Control Valve','Gate Valve','Globe Valve','Ball Valve','Butterfly Valve','Angle Valve','Check Valve','Solenoid Valve','Relief/Safety Valve','Pressure Indicator','Pressure Transmitter','Pressure Control','Pressure Switch','Temperature','Temperature Transmitter','Flow','Flow Transmitter','Level Alarm','Level Transmitter','Analyzer','Vibration','Pompa','Compressor','Fan/Blower','Motor','Turbine','Heat Exchanger','Vessel','Filter/Strainer','Transmitter','Indicator','Switch','Instrument','Crane','Lainnya'];
+let TYPES=['Control Valve','Gate Valve','Globe Valve','Ball Valve','Butterfly Valve','Angle Valve','Check Valve','Solenoid Valve','Needle Valve','Plug Valve','Diaphragm Valve','Hand Valve','Flow Valve','Level Valve','Pressure Control Valve','Relief/Safety Valve','Shutdown Valve','Pressure Indicator','Pressure Transmitter','Pressure Control','Pressure Switch','Pressure Alarm','Pressure Recorder','Pressure Relay','Pressure Gauge','Temperature','Temperature Indicator','Temperature Transmitter','Temperature Control','Temperature Switch','Temperature Recorder','Flow','Flow Indicator','Flow Transmitter','Flow Control','Flow Switch','Flow Recorder','Level Indicator','Level Transmitter','Level Control','Level Switch','Level Alarm','Level Gauge','Analyzer','Vibration','Transmitter','Indicator','Recorder','Switch','Relay','Instrument','Gauge','Pompa','Compressor','Fan/Blower','Motor','Turbine','Governor','Heat Exchanger','Vessel','Drum','Tank','Column','Reformer','Furnace','Filter/Strainer','Silencer','Crane','Lainnya'];
+async function loadTypes(){ try{ const {data}=await sb.from('item_types').select('name').order('name'); if(data&&data.length) TYPES=data.map(r=>r.name); }catch(e){} }
 function iconForType(t){
   t=(t||'').toLowerCase();
   const w='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" ';
-  // POMPA (impeller berputar)
+  if(t.includes('fan')||t.includes('blower')||t.includes('kipas')||t.includes('fin'))
+    return w+'stroke="#0891b2"><circle cx="12" cy="12" r="9"/><g class="ic-spin" fill="#0891b2" stroke="none" opacity=".85"><ellipse cx="12" cy="7.6" rx="1.7" ry="3.4"/><ellipse cx="12" cy="16.4" rx="1.7" ry="3.4"/><ellipse cx="7.6" cy="12" rx="3.4" ry="1.7"/><ellipse cx="16.4" cy="12" rx="3.4" ry="1.7"/></g><circle cx="12" cy="12" r="1.3" fill="#0891b2" stroke="none"/></svg>';
+  if(t.includes('exchang')||t.includes('hx')||t.includes('condens')||t.includes('reboil')||t.includes('cooler')||t.includes('chiller')||t.includes('interchang'))
+    return w+'stroke="#0891b2"><rect x="2.5" y="8" width="19" height="8" rx="2.2"/><line x1="6" y1="8" x2="6" y2="16"/><line x1="18" y1="8" x2="18" y2="16"/><g class="ic-flow" stroke="#0891b2" stroke-width="1.3"><line x1="6" y1="10.7" x2="18" y2="10.7"/><line x1="6" y1="13.3" x2="18" y2="13.3"/></g><line x1="9" y1="8" x2="9" y2="5.5"/><line x1="15" y1="16" x2="15" y2="18.5"/></svg>';
+  if(t.includes('reformer')||t.includes('furnace')||t.includes('fired')||t.includes('burner')||t.includes('tungku'))
+    return w+'stroke="#dc2626"><rect x="4" y="3.5" width="16" height="11.5" rx="2"/><path d="M8.5 5.8v6.4M12 5.8v6.4M15.5 5.8v6.4" stroke-width="1.2"/><g class="ic-flicker" fill="#f97316" stroke="none"><path d="M8 20.5c-1.2-1.3-.4-2.8.3-3.4.1 1 .8 1.1 1 .2.5.8.6 1.7-.1 2.5-.4.5-.8.5-1.2.7z"/><path d="M12 20.8c-1.4-1.5-.4-3.2.5-3.9.2 1.2.9 1.3 1.1.2.6.9.7 1.9-.1 2.8-.5.6-1 .6-1.5.9z"/><path d="M16 20.5c-1.2-1.3-.4-2.8.3-3.4.1 1 .8 1.1 1 .2.5.8.6 1.7-.1 2.5-.4.5-.8.5-1.2.7z"/></g></svg>';
+  if(t.includes('column')||t.includes('tower')||t.includes('kolom')||t.includes('stripper')||t.includes('absorber')||t.includes('scrubber')||t.includes('distil'))
+    return w+'stroke="#0f766e"><rect x="8.5" y="2.5" width="7" height="19" rx="3.5"/><line x1="9.6" y1="7.6" x2="14.4" y2="7.6"/><line x1="9.6" y1="11" x2="14.4" y2="11"/><line x1="9.6" y1="14.4" x2="14.4" y2="14.4"/><g class="ic-rise" fill="#0f766e" stroke="none"><circle cx="12" cy="15" r=".8"/><circle cx="11" cy="11" r=".7"/><circle cx="13" cy="7.6" r=".6"/></g><line x1="6" y1="5" x2="8.5" y2="5"/><line x1="15.5" y1="19" x2="18" y2="19"/></svg>';
   if(t.includes('pump')||t.includes('pompa'))
     return w+'stroke="#2563eb"><circle cx="11" cy="13" r="6.4"/><path d="M17.4 13H21v-3"/><path d="M11 6.6V4h4"/><g class="ic-spin"><path d="M11 13l3.4-1.1M11 13l-1.7 3.2M11 13l-2-3.2"/></g><circle cx="11" cy="13" r="1.1" fill="#2563eb" stroke="none"/></svg>';
-  // KOMPRESOR (rotor cepat dalam casing)
-  if(t.includes('compressor')||t.includes('kompres')||t.includes('blower'))
+  if(t.includes('compressor')||t.includes('kompres'))
     return w+'stroke="#7c3aed"><rect x="3" y="6.5" width="18" height="11" rx="3"/><path d="M3 9.5H1.5M3 14.5H1.5M21 9.5h1.5M21 14.5h1.5"/><g class="ic-spin-fast" stroke-width="1.4"><path d="M12 12V7.2M12 12v4.8M12 12l4.2 2.4M12 12l-4.2 2.4M12 12l4.2-2.4M12 12l-4.2-2.4"/></g><circle cx="12" cy="12" r="1" fill="#7c3aed" stroke="none"/></svg>';
-  // FAN / kipas
-  if(t.includes('fan')||t.includes('kipas'))
-    return w+'stroke="#0891b2"><circle cx="12" cy="12" r="9"/><g class="ic-spin" fill="#0891b2" stroke="none" opacity=".85"><ellipse cx="12" cy="7.6" rx="1.7" ry="3.4"/><ellipse cx="12" cy="16.4" rx="1.7" ry="3.4"/><ellipse cx="7.6" cy="12" rx="3.4" ry="1.7"/><ellipse cx="16.4" cy="12" rx="3.4" ry="1.7"/></g><circle cx="12" cy="12" r="1.3" fill="#0891b2" stroke="none"/></svg>';
-  // TANK / VESSEL / DRUM (permukaan cairan bergoyang)
-  if(t.includes('tank')||t.includes('storage')||t.includes('vessel')||t.includes('drum')||t.includes('bejana')||t.includes('tangki'))
-    return w+'stroke="#0f766e"><rect x="6" y="3.5" width="12" height="17" rx="6"/><path class="ic-wave" d="M7 12.5q2.5 -1.6 5 0t5 0V16a5 4 0 0 1 -10 0Z" fill="#0f766e" fill-opacity=".25" stroke="none"/><path class="ic-wave" d="M7 12.5q2.5 -1.6 5 0t5 0" stroke="#0f766e" stroke-width="1.3"/></svg>';
-  // SUHU / thermometer (bulb berdenyut)
-  if(t.includes('temperature')||t.includes('temp')||t.includes('suhu')||t.includes('thermo'))
-    return w+'stroke="#dc2626"><rect x="10.4" y="3.5" width="3.2" height="10" rx="1.6"/><circle cx="12" cy="16.5" r="3.4" fill="#dc2626" fill-opacity=".22" stroke="none" class="ic-pulse"/><circle cx="12" cy="16.5" r="1.5" fill="#dc2626" stroke="none"/></svg>';
-  // PIPING (aliran berjalan)
-  if(t.includes('pip'))
-    return w+'stroke="#64748b"><rect x="3" y="9" width="18" height="6" rx="1.2"/><line x1="3" y1="8.5" x2="3" y2="15.5"/><line x1="21" y1="8.5" x2="21" y2="15.5"/><line class="ic-flow" x1="3" y1="12" x2="21" y2="12" stroke="#64748b" stroke-width="1.6"/></svg>';
-  // VALVE TERKENDALI (control/flow/level/pressure/shutdown valve) — aktuator berdenyut
+  if(t.includes('turbine')||t.includes('turbin'))
+    return w+'stroke="#7c3aed"><circle cx="12" cy="12" r="8.5"/><g class="ic-spin" stroke="none" fill="#7c3aed" opacity=".85"><path d="M12 12 14.5 4.2a8 8 0 0 1 3.3 3.3z"/><path d="M12 12 19.8 14.5a8 8 0 0 1-3.3 3.3z"/><path d="M12 12 9.5 19.8a8 8 0 0 1-3.3-3.3z"/><path d="M12 12 4.2 9.5a8 8 0 0 1 3.3-3.3z"/></g><circle cx="12" cy="12" r="1.5" fill="#7c3aed" stroke="none"/></svg>';
+  if(t.includes('motor'))
+    return w+'stroke="#2563eb"><circle cx="12" cy="12" r="8.5"/><g class="ic-spin"><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21" stroke-width="1.3"/></g><text x="12" y="15.4" font-size="8.5" font-weight="700" fill="#2563eb" stroke="none" text-anchor="middle">M</text></svg>';
+  if(t.includes('governor'))
+    return w+'stroke="#0d9488"><line x1="12" y1="3.5" x2="12" y2="11"/><g class="ic-spin"><line x1="12" y1="6.5" x2="6.5" y2="11"/><line x1="12" y1="6.5" x2="17.5" y2="11"/><circle cx="6" cy="11.5" r="2" fill="#0d9488" stroke="none"/><circle cx="18" cy="11.5" r="2" fill="#0d9488" stroke="none"/></g><rect x="9" y="15" width="6" height="5.5" rx="1"/></svg>';
+  if(t.includes('crane'))
+    return w+'stroke="#b45309"><path d="M4 5h12l-2.5 3.5"/><line x1="4" y1="5" x2="4" y2="20"/><line x1="2" y1="20" x2="6" y2="20"/><g class="ic-rock"><line x1="13.5" y1="8.5" x2="13.5" y2="13"/><path d="M11.8 13a1.7 1.7 0 0 0 3.4 0"/></g></svg>';
+  if(t.includes('filter')||t.includes('strainer')||t.includes('saring'))
+    return w+'stroke="#0891b2"><path d="M4 5h16l-6 7v5l-4 2v-7z" fill="#0891b2" fill-opacity=".12"/><line class="ic-flow" x1="7" y1="8" x2="17" y2="8" stroke-dasharray="2 2"/></svg>';
+  if(t.includes('silencer')||t.includes('muffler'))
+    return w+'stroke="#64748b"><path d="M4 8h11l4 4-4 4H4z" fill="#64748b" fill-opacity=".1"/><line x1="7.5" y1="8" x2="7.5" y2="16"/><line x1="10.5" y1="8" x2="10.5" y2="16"/><line x1="13.5" y1="8" x2="13.5" y2="16"/></svg>';
+  if(t.includes('analy'))
+    return w+'stroke="#d97706"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M6 14l2-3 2 4 2.4-6 2 5H18" stroke-width="1.3"/><circle class="ic-pulse" cx="17" cy="8" r="1.5" fill="#16a34a" stroke="none"/></svg>';
+  if(t.includes('vibration')||t.includes('vibrasi'))
+    return w+'stroke="#d97706"><g class="ic-shake"><path d="M6 12c2-4 4-4 6 0s4 4 6 0"/></g><path d="M4.5 8c0 0 1 2 1 4s-1 4-1 4"/><path d="M19.5 8c0 0-1 2-1 4s1 4 1 4"/></svg>';
+  if((t.includes('relief')||t.includes('safety')||t.includes('psv')||t.includes('prv'))&&t.includes('valve')||t.includes('relief')||t.includes('safety valve'))
+    return w+'stroke="#ea580c"><path d="M5 18 12 13 5 8z" fill="#ea580c" fill-opacity=".15"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="8" y1="18" x2="16" y2="18"/><g class="ic-pulse"><path d="M12 13v-3.5M10 9.2l4-1M10 7.4l4-1M10 5.6l4-1" stroke-width="1.3"/></g></svg>';
   if(t.includes('valve')&&(t.includes('control')||t.includes('flow')||t.includes('level')||t.includes('pressure')||t.includes('shutdown')))
     return w+'stroke="#16a34a"><path d="M5 16.5 12 12 5 7.5Z" fill="#16a34a" fill-opacity=".15"/><path d="M19 16.5 12 12 19 7.5Z" fill="#16a34a" fill-opacity=".15"/><line x1="12" y1="12" x2="12" y2="6.5"/><circle class="ic-pulse" cx="12" cy="5" r="2.8" fill="#16a34a" fill-opacity=".25"/></svg>';
-  // VALVE biasa (gate dll) — handwheel bergoyang
   if(t.includes('valve')||t.includes('gate')||t.includes('valv'))
     return w+'stroke="#16a34a"><path d="M5 16.5 12 12 5 7.5Z" fill="#16a34a" fill-opacity=".15"/><path d="M19 16.5 12 12 19 7.5Z" fill="#16a34a" fill-opacity=".15"/><line x1="12" y1="12" x2="12" y2="6"/><g class="ic-rock"><line x1="9" y1="5" x2="15" y2="5"/></g></svg>';
-  // INSTRUMEN / indikator / transmitter / gauge / flow / level / pressure (jarum menyapu)
+  if(t.includes('alarm'))
+    return w+'stroke="#dc2626"><path d="M12 4a5 5 0 0 0-5 5c0 5-2 6-2 6h14s-2-1-2-6a5 5 0 0 0-5-5z"/><path d="M10.4 19a1.7 1.7 0 0 0 3.2 0"/><circle class="ic-pulse" cx="17.5" cy="6.5" r="2" fill="#dc2626" fill-opacity=".45" stroke="none"/></svg>';
+  if(t.includes('relay'))
+    return w+'stroke="#7c3aed"><rect x="4" y="6" width="16" height="12" rx="2"/><g class="ic-pulse"><path d="M8 10v4M10.2 10v4M12.4 10v4" stroke-width="1.3"/></g><path d="M15 9l3 3-3 3"/></svg>';
+  if(t.includes('recorder')||t.includes('record'))
+    return w+'stroke="#d97706"><rect x="4" y="5" width="16" height="14" rx="2"/><path class="ic-flow" d="M5 13c2-3 3-3 4 0s3 3 4 0 3-3 4 0 3 3 4 0" stroke-dasharray="22 30"/></svg>';
+  if(t.includes('switch'))
+    return w+'stroke="#0891b2"><rect x="3" y="9" width="18" height="6" rx="3"/><circle class="ic-toggle" cx="8" cy="12" r="3.4" fill="#0891b2" stroke="none"/></svg>';
+  if(t.includes('tank')||t.includes('storage')||t.includes('vessel')||t.includes('drum')||t.includes('bejana')||t.includes('tangki'))
+    return w+'stroke="#0f766e"><rect x="6" y="3.5" width="12" height="17" rx="6"/><path class="ic-wave" d="M7 12.5q2.5 -1.6 5 0t5 0V16a5 4 0 0 1 -10 0Z" fill="#0f766e" fill-opacity=".25" stroke="none"/><path class="ic-wave" d="M7 12.5q2.5 -1.6 5 0t5 0" stroke="#0f766e" stroke-width="1.3"/></svg>';
+  if(t.includes('temperature')||t.includes('temp')||t.includes('suhu')||t.includes('thermo'))
+    return w+'stroke="#dc2626"><rect x="10.4" y="3.5" width="3.2" height="10" rx="1.6"/><circle cx="12" cy="16.5" r="3.4" fill="#dc2626" fill-opacity=".22" stroke="none" class="ic-pulse"/><circle cx="12" cy="16.5" r="1.5" fill="#dc2626" stroke="none"/></svg>';
+  if(t.includes('pip'))
+    return w+'stroke="#64748b"><rect x="3" y="9" width="18" height="6" rx="1.2"/><line x1="3" y1="8.5" x2="3" y2="15.5"/><line x1="21" y1="8.5" x2="21" y2="15.5"/><line class="ic-flow" x1="3" y1="12" x2="21" y2="12" stroke="#64748b" stroke-width="1.6"/></svg>';
   if(t.includes('transmitter')||t.includes('indicator')||t.includes('instrument')||t.includes('gauge')||t.includes('flow')||t.includes('level')||t.includes('pressure'))
     return w+'stroke="#d97706"><circle cx="12" cy="13" r="6.4"/><line class="ic-needle" x1="12" y1="13" x2="12" y2="8.4"/><circle cx="12" cy="13" r="1" fill="#d97706" stroke="none"/></svg>';
-  // DEFAULT — gear berputar
   return w+'stroke="#6b7280"><g class="ic-spin"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="M12 3.5v2.4M12 18.1v2.4M3.5 12h2.4M18.1 12h2.4M6 6l1.7 1.7M16.3 16.3 18 18M18 6l-1.7 1.7M7.7 16.3 6 18"/></g></svg>';
+}
+function clsForType(t){ t=(t||'').toLowerCase();
+  if(t.includes('fan')||t.includes('blower')||t.includes('kipas')||t.includes('fin'))return'fan';
+  if(t.includes('exchang')||t.includes('hx')||t.includes('condens')||t.includes('reboil')||t.includes('cooler')||t.includes('chiller')||t.includes('interchang'))return'exchanger';
+  if(t.includes('reformer')||t.includes('furnace')||t.includes('fired')||t.includes('burner')||t.includes('tungku'))return'furnace';
+  if(t.includes('column')||t.includes('tower')||t.includes('kolom')||t.includes('stripper')||t.includes('absorber')||t.includes('scrubber')||t.includes('distil'))return'column';
+  if(t.includes('pump')||t.includes('pompa'))return'pump';
+  if(t.includes('compressor')||t.includes('kompres')||t.includes('turbine')||t.includes('turbin')||t.includes('motor')||t.includes('governor'))return'compressor';
+  if(t.includes('tank')||t.includes('storage')||t.includes('vessel')||t.includes('drum')||t.includes('bejana')||t.includes('tangki'))return'tank';
+  if(t.includes('relief')||t.includes('safety')||t.includes('psv')||t.includes('valve')||t.includes('gate'))return'valve';
+  if(t.includes('filter')||t.includes('strainer')||t.includes('silencer')||t.includes('crane')||t.includes('saring'))return'default';
+  return'instrument';
 }
 
 function toggleAdminMenu(e){ if(e)e.stopPropagation(); document.getElementById('adminMenu').classList.toggle('show'); }
@@ -2481,6 +2539,8 @@ async function mdInit(){
   document.getElementById('md-areas').innerHTML='<div class="empty">Pilih unit dulu di atas.</div>';
   const psec=document.getElementById('md-plant-sec'); if(psec) psec.style.display=(profile&&profile.role==='master')?'':'none';
   if(profile&&profile.role==='master') mdLoadPlants();
+  const tsec=document.getElementById('md-type-sec'); if(tsec) tsec.style.display=(profile&&profile.role==='master')?'':'none';
+  if(profile&&profile.role==='master') mdLoadTypes();
   mdLoadUnits();
 }
 function mdOnPlant(){
@@ -2503,9 +2563,10 @@ async function mdLoadPlants(){
   }catch(e){ box.innerHTML='<div class="empty">Gagal memuat pabrik.</div>'; }
 }
 async function mdAddPlant(){
-  const inp=document.getElementById('md-plant-name'); const name=(inp.value||'').trim();
-  if(!name) return;
-  try{ const r=await callAdminOps({action:'plant_create',name}); inp.value=''; alert('Pabrik "'+name+'" dibuat (kode '+r.id+').'); mdLoadPlants(); mdRefreshPlantSelect(); }catch(e){ alert(e.message); }
+  const inp=document.getElementById('md-plant-name'); const cin=document.getElementById('md-plant-code');
+  const name=(inp.value||'').trim(); const code=(cin.value||'').trim();
+  if(!name){ alert('Nama pabrik wajib diisi.'); return; }
+  try{ const r=await callAdminOps({action:'plant_create',name,id:code}); inp.value=''; cin.value=''; alert('Pabrik "'+name+'" dibuat (kode '+r.id+').'); mdLoadPlants(); mdRefreshPlantSelect(); }catch(e){ alert(e.message); }
 }
 async function mdRenamePlant(id,cur){
   const name=prompt('Nama pabrik baru:',cur); if(name===null||!name.trim())return;
@@ -2521,6 +2582,31 @@ async function mdRefreshPlantSelect(){
     sel.innerHTML=(plants||[]).map(p=>'<option value="'+p.id+'">'+(p.name||p.id)+'</option>').join('');
     sel.value=(cur&&(plants||[]).some(p=>p.id===cur))?cur:((plants&&plants[0]&&plants[0].id)||''); mdPlant=sel.value;
   }catch(e){}
+}
+async function mdLoadTypes(){
+  const box=document.getElementById('md-type-list'); if(!box)return; box.innerHTML=skel(3);
+  try{
+    const {data:rows}=await sb.from('item_types').select('id,name').order('name');
+    if(!rows||!rows.length){ box.innerHTML='<div class="empty">Belum ada tipe.</div>'; return; }
+    box.innerHTML=rows.map(function(r){
+      return '<div class="md-row"><div class="md-nm" style="cursor:default">'+r.name+'</div>'
+        +'<div class="md-act"><button onclick="mdRenameType('+r.id+',\''+escq(r.name)+'\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>'
+        +'<button class="danger" onclick="mdDeleteType('+r.id+',\''+escq(r.name)+'\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="empty">Gagal memuat tipe.</div>'; }
+}
+async function mdAddType(){
+  const inp=document.getElementById('md-type-name'); const name=(inp.value||'').trim();
+  if(!name){ alert('Nama tipe wajib diisi.'); return; }
+  try{ await callAdminOps({action:'type_create',name}); inp.value=''; await loadTypes(); mdLoadTypes(); }catch(e){ alert(e.message); }
+}
+async function mdRenameType(id,cur){
+  const name=prompt('Nama tipe baru:',cur); if(name===null||!name.trim())return;
+  try{ await callAdminOps({action:'type_update',id,name:name.trim()}); await loadTypes(); mdLoadTypes(); }catch(e){ alert(e.message); }
+}
+async function mdDeleteType(id,name){
+  if(!confirm('Hapus tipe "'+name+'"?\nItem yang sudah memakai tipe ini TETAP menyimpan teksnya; tipe hanya hilang dari daftar pilihan.'))return;
+  try{ await callAdminOps({action:'type_delete',id}); await loadTypes(); mdLoadTypes(); }catch(e){ alert(e.message); }
 }
 async function mdLoadUnits(){
   const box=document.getElementById('md-units'); box.innerHTML=skel(3);
