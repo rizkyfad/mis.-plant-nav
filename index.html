@@ -789,7 +789,7 @@ button{color:var(--g800);}
 .ph-gal .img-ph{flex:0 0 100%;scroll-snap-align:center;}
 /* ===== SKELETON / LOADING ===== */
 @keyframes sk-shimmer{0%{background-position:-220px 0}100%{background-position:220px 0}}
-.sk-row{padding:14px;margin-bottom:10px;background:var(--w);border:1px solid var(--g200);border-radius:14px;}
+.sk-row{padding:14px;margin-bottom:10px;background:var(--g50);border:1px solid var(--g200);border-radius:14px;}
 .sk-line,.sk-tile,.sk-stat,.sk-block{background-color:var(--g200);background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);background-size:220px 100%;background-repeat:no-repeat;animation:sk-shimmer 1.15s infinite;border-radius:8px;}
 .sk-line{height:12px;margin-bottom:9px;}
 .sk-line.w60{width:60%}.sk-line.w40{width:40%}
@@ -862,7 +862,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0613-Y</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-B</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -1226,6 +1226,7 @@ button{color:var(--g800);}
     <p class="ph-sub" id="md-plant-wrap">—</p>
   </div>
   <div class="page-body">
+    <div id="md-dbg" style="font-size:11px;color:#b45309;padding:2px 6px;font-family:monospace;"></div>
     <div class="md-sec" id="md-plant-sec" style="display:none;">
       <div class="md-sec-h">Pabrik</div>
       <div class="md-add"><input id="md-plant-code" placeholder="Kode (mis. P7)" autocomplete="off" style="max-width:118px;"><input id="md-plant-name" placeholder="Nama (mis. Pabrik 7 (NPK))" autocomplete="off"><button class="md-addbtn" onclick="mdAddPlant()">＋ Tambah</button></div>
@@ -2518,7 +2519,10 @@ let mdPlant=null, mdUnit=null, mdUnitName='';
 function escq(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 function openMD(){ goTo('md'); mdInit(); }
 function mdReload(){ mdInit(); }
+let _mdDbg={};
+function mdDbgShow(){ const e=document.getElementById('md-dbg'); if(e) e.textContent='DBG '+Object.keys(_mdDbg).map(k=>k+'='+_mdDbg[k]).join(' | '); }
 async function mdInit(){
+  _mdDbg={role:(profile&&profile.role)||'?'}; mdDbgShow();
   const wrap=document.getElementById('md-plant-wrap');
   if(profile && profile.role==='master'){
     try{
@@ -2542,6 +2546,15 @@ async function mdInit(){
   const tsec=document.getElementById('md-type-sec'); if(tsec) tsec.style.display=(profile&&profile.role==='master')?'':'none';
   if(profile&&profile.role==='master') mdLoadTypes();
   mdLoadUnits();
+  // jaring pengaman: jika ada list yang kosong (race/ter-clear), muat ulang
+  setTimeout(function(){ try{
+    if(!document.getElementById('screen-md').classList.contains('active')) return;
+    const u=document.getElementById('md-units'); if(u && !u.innerHTML.trim()) mdLoadUnits();
+    if(profile&&profile.role==='master'){
+      const p=document.getElementById('md-plant-list'); if(p && !p.innerHTML.trim()) mdLoadPlants();
+      const t=document.getElementById('md-type-list'); if(t && !t.innerHTML.trim()) mdLoadTypes();
+    }
+  }catch(e){} }, 900);
 }
 function mdOnPlant(){
   mdPlant=document.getElementById('md-plant').value; mdUnit=null;
@@ -2553,7 +2566,8 @@ function mdOnPlant(){
 async function mdLoadPlants(){
   const box=document.getElementById('md-plant-list'); if(!box)return; box.innerHTML=skel(2);
   try{
-    const {data:plants}=await sb.from('plants').select('id,name').order('sort');
+    const {data:plants,error:perr}=await sb.from('plants').select('id,name').order('sort');
+    _mdDbg.plants=perr?('ERR:'+(perr.message||perr.code||'?')):(plants?plants.length:0); mdDbgShow();
     if(!plants||!plants.length){ box.innerHTML='<div class="empty">Belum ada pabrik.</div>'; return; }
     box.innerHTML=plants.map(function(p){
       return '<div class="md-row"><div class="md-nm" style="cursor:default">'+(p.name||p.id)+' <small style="color:var(--g400)">('+p.id+')</small></div>'
@@ -2586,7 +2600,9 @@ async function mdRefreshPlantSelect(){
 async function mdLoadTypes(){
   const box=document.getElementById('md-type-list'); if(!box)return; box.innerHTML=skel(3);
   try{
-    const {data:rows}=await sb.from('item_types').select('id,name').order('name');
+    const {data:rows,error}=await sb.from('item_types').select('id,name').order('name');
+    _mdDbg.types=error?('ERR:'+(error.message||error.code||'?')):(rows?rows.length:0); mdDbgShow();
+    if(error){ box.innerHTML='<div class="empty" style="color:#b45309">Tabel tipe belum siap. Jalankan <b>item_types.sql</b> di Supabase, lalu redeploy Edge Function.</div>'; return; }
     if(!rows||!rows.length){ box.innerHTML='<div class="empty">Belum ada tipe.</div>'; return; }
     box.innerHTML=rows.map(function(r){
       return '<div class="md-row"><div class="md-nm" style="cursor:default">'+r.name+'</div>'
@@ -2610,7 +2626,8 @@ async function mdDeleteType(id,name){
 }
 async function mdLoadUnits(){
   const box=document.getElementById('md-units'); box.innerHTML=skel(3);
-  let units=[]; try{ units=await fetchUnits(mdPlant); }catch(e){}
+  let units=[]; let uerr=''; try{ units=await fetchUnits(mdPlant); }catch(e){ uerr=(e&&e.message)||'throw'; }
+  _mdDbg.units=uerr?('ERR:'+uerr):units.length; _mdDbg.plant=mdPlant; mdDbgShow();
   units=units.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   if(!units.length){ box.innerHTML='<div class="empty">Belum ada unit.</div>'; return; }
   box.innerHTML=units.map(function(u){
