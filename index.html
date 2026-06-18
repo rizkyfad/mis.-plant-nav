@@ -863,7 +863,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-C</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-D</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -3673,8 +3673,9 @@ function pnToast(msg){
     if(ey-sy>70 && cont.scrollTop<=0){ pnToast('Menyegarkan…'); refreshCurrent(true); }
   }, {passive:true});
 })();
-document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') refreshCurrent(); });
-window.addEventListener('focus', refreshCurrent);
+// auto-refresh-on-focus DINONAKTIFKAN (menyebabkan layar ter-clear saat app dapat fokus/saat screenshot).
+// Refresh tetap bisa via tombol Segarkan & tarik-ke-bawah.
+// document.addEventListener('visibilitychange', ...); window.addEventListener('focus', refreshCurrent);
 // Minta izin yang dibutuhkan sedini mungkin (dialog sistem HP yang muncul, bukan tombol app)
 window.addEventListener('load', function(){ try{ startGPS(); }catch(e){} });
 // Motion/kompas iOS wajib dipicu oleh sentuhan -> picu pada interaksi pertama, otomatis
