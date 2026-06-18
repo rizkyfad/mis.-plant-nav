@@ -846,6 +846,7 @@ button{color:var(--g800);}
 </style>
 </head>
 <body>
+<div id="g-dbg" style="position:fixed;left:4px;top:2px;z-index:999999;font:11px monospace;color:#b45309;background:rgba(255,255,255,.75);padding:1px 5px;border-radius:5px;pointer-events:none;"></div>
 <div class="phone">
 <div id="offlineBar" class="offline-bar">⚠️ Mode offline — menampilkan data tersimpan (perubahan tidak akan tersimpan)</div>
 
@@ -865,7 +866,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-F</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-G</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -2273,7 +2274,7 @@ async function renderAllItems(){
     const items=await fetchAllRows(()=>sb.from('items')
       .select('id,tag,name,func,type,floor,lat,lon,hint,photo_path,sv_path,area_id,is_active')
       .eq('plant_id',selectedPlant).eq('unit_id',selectedUnit).order('tag'));
-    allItemsCache=items||[];
+    allItemsCache=items||[]; gdbg('allitem='+allItemsCache.length);
   }catch(e){ listEl.innerHTML='<div class="empty">Gagal memuat item.</div>'; return; }
   let list=allItemsCache.slice();
   const q=(document.getElementById('mng-search')?.value||'').trim().toLowerCase();
@@ -3683,6 +3684,10 @@ window.addEventListener('load', function(){ try{ startGPS(); }catch(e){} });
 ['pointerdown','touchend','click','keydown'].forEach(function(ev){
   document.addEventListener(ev, function _once(){ try{ requestAllAccess(); }catch(e){} }, {once:true, passive:true});
 });
+
+let _reloads=1; try{ _reloads=(parseInt(sessionStorage.getItem('_rl'))||0)+1; sessionStorage.setItem('_rl',String(_reloads)); }catch(e){}
+function gdbg(s){ try{ const e=document.getElementById('g-dbg'); if(e) e.textContent='RL='+_reloads+(s?(' '+s):''); }catch(e){} }
+try{ gdbg('boot'); window.addEventListener('load',function(){ gdbg('load'); }); }catch(e){}
 </script>
 </body>
 </html>
