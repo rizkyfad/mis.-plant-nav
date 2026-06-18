@@ -790,6 +790,7 @@ button{color:var(--g800);}
 /* ===== SKELETON / LOADING ===== */
 @keyframes sk-shimmer{0%{background-position:-220px 0}100%{background-position:220px 0}}
 .sk-row{padding:14px;margin-bottom:10px;background:var(--g50);border:1px solid var(--g200);border-radius:14px;}
+[data-theme="dark"] .sk-row{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);}
 .sk-line,.sk-tile,.sk-stat,.sk-block{background-color:var(--g200);background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);background-size:220px 100%;background-repeat:no-repeat;animation:sk-shimmer 1.15s infinite;border-radius:8px;}
 .sk-line{height:12px;margin-bottom:9px;}
 .sk-line.w60{width:60%}.sk-line.w40{width:40%}
@@ -862,7 +863,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-B</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-C</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -2519,9 +2520,11 @@ let mdPlant=null, mdUnit=null, mdUnitName='';
 function escq(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 function openMD(){ goTo('md'); mdInit(); }
 function mdReload(){ mdInit(); }
+let _mdRun=0;
 let _mdDbg={};
 function mdDbgShow(){ const e=document.getElementById('md-dbg'); if(e) e.textContent='DBG '+Object.keys(_mdDbg).map(k=>k+'='+_mdDbg[k]).join(' | '); }
 async function mdInit(){
+  const run=++_mdRun;
   _mdDbg={role:(profile&&profile.role)||'?'}; mdDbgShow();
   const wrap=document.getElementById('md-plant-wrap');
   if(profile && profile.role==='master'){
@@ -2542,17 +2545,18 @@ async function mdInit(){
   document.getElementById('md-area-unit').textContent='';
   document.getElementById('md-areas').innerHTML='<div class="empty">Pilih unit dulu di atas.</div>';
   const psec=document.getElementById('md-plant-sec'); if(psec) psec.style.display=(profile&&profile.role==='master')?'':'none';
-  if(profile&&profile.role==='master') mdLoadPlants();
+  if(profile&&profile.role==='master') mdLoadPlants(run);
   const tsec=document.getElementById('md-type-sec'); if(tsec) tsec.style.display=(profile&&profile.role==='master')?'':'none';
-  if(profile&&profile.role==='master') mdLoadTypes();
-  mdLoadUnits();
+  if(profile&&profile.role==='master') mdLoadTypes(run);
+  mdLoadUnits(run);
   // jaring pengaman: jika ada list yang kosong (race/ter-clear), muat ulang
   setTimeout(function(){ try{
+    if(run!==_mdRun) return;
     if(!document.getElementById('screen-md').classList.contains('active')) return;
-    const u=document.getElementById('md-units'); if(u && !u.innerHTML.trim()) mdLoadUnits();
+    const u=document.getElementById('md-units'); if(u && !u.innerHTML.trim()) mdLoadUnits(run);
     if(profile&&profile.role==='master'){
-      const p=document.getElementById('md-plant-list'); if(p && !p.innerHTML.trim()) mdLoadPlants();
-      const t=document.getElementById('md-type-list'); if(t && !t.innerHTML.trim()) mdLoadTypes();
+      const p=document.getElementById('md-plant-list'); if(p && !p.innerHTML.trim()) mdLoadPlants(run);
+      const t=document.getElementById('md-type-list'); if(t && !t.innerHTML.trim()) mdLoadTypes(run);
     }
   }catch(e){} }, 900);
 }
@@ -2563,11 +2567,12 @@ function mdOnPlant(){
   document.getElementById('md-areas').innerHTML='<div class="empty">Pilih unit dulu di atas.</div>';
   mdLoadUnits();
 }
-async function mdLoadPlants(){
-  const box=document.getElementById('md-plant-list'); if(!box)return; box.innerHTML=skel(2);
+async function mdLoadPlants(run){
+  const box=document.getElementById('md-plant-list'); if(!box)return; if(!box.firstElementChild) box.innerHTML=skel(2);
   try{
     const {data:plants,error:perr}=await sb.from('plants').select('id,name').order('sort');
     _mdDbg.plants=perr?('ERR:'+(perr.message||perr.code||'?')):(plants?plants.length:0); mdDbgShow();
+    if(run!=null && run!==_mdRun) return;
     if(!plants||!plants.length){ box.innerHTML='<div class="empty">Belum ada pabrik.</div>'; return; }
     box.innerHTML=plants.map(function(p){
       return '<div class="md-row"><div class="md-nm" style="cursor:default">'+(p.name||p.id)+' <small style="color:var(--g400)">('+p.id+')</small></div>'
@@ -2597,11 +2602,12 @@ async function mdRefreshPlantSelect(){
     sel.value=(cur&&(plants||[]).some(p=>p.id===cur))?cur:((plants&&plants[0]&&plants[0].id)||''); mdPlant=sel.value;
   }catch(e){}
 }
-async function mdLoadTypes(){
-  const box=document.getElementById('md-type-list'); if(!box)return; box.innerHTML=skel(3);
+async function mdLoadTypes(run){
+  const box=document.getElementById('md-type-list'); if(!box)return; if(!box.firstElementChild) box.innerHTML=skel(3);
   try{
     const {data:rows,error}=await sb.from('item_types').select('id,name').order('name');
     _mdDbg.types=error?('ERR:'+(error.message||error.code||'?')):(rows?rows.length:0); mdDbgShow();
+    if(run!=null && run!==_mdRun) return;
     if(error){ box.innerHTML='<div class="empty" style="color:#b45309">Tabel tipe belum siap. Jalankan <b>item_types.sql</b> di Supabase, lalu redeploy Edge Function.</div>'; return; }
     if(!rows||!rows.length){ box.innerHTML='<div class="empty">Belum ada tipe.</div>'; return; }
     box.innerHTML=rows.map(function(r){
@@ -2624,10 +2630,11 @@ async function mdDeleteType(id,name){
   if(!confirm('Hapus tipe "'+name+'"?\nItem yang sudah memakai tipe ini TETAP menyimpan teksnya; tipe hanya hilang dari daftar pilihan.'))return;
   try{ await callAdminOps({action:'type_delete',id}); await loadTypes(); mdLoadTypes(); }catch(e){ alert(e.message); }
 }
-async function mdLoadUnits(){
-  const box=document.getElementById('md-units'); box.innerHTML=skel(3);
+async function mdLoadUnits(run){
+  const box=document.getElementById('md-units'); if(!box)return; if(!box.firstElementChild) box.innerHTML=skel(3);
   let units=[]; let uerr=''; try{ units=await fetchUnits(mdPlant); }catch(e){ uerr=(e&&e.message)||'throw'; }
   _mdDbg.units=uerr?('ERR:'+uerr):units.length; _mdDbg.plant=mdPlant; mdDbgShow();
+  if(run!=null && run!==_mdRun) return;
   units=units.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   if(!units.length){ box.innerHTML='<div class="empty">Belum ada unit.</div>'; return; }
   box.innerHTML=units.map(function(u){
