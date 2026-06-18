@@ -391,6 +391,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;displa
 .mt-arrow{color:var(--g400);font-size:22px;flex-shrink:0;}
 .ic{width:24px;height:24px;display:block;}
 .ic-static svg *{animation:none !important;}
+.mt-card .mt-ic .ic *{animation-play-state:paused;}
+.mt-card.in-view .mt-ic .ic *{animation-play-state:running;}
 @keyframes pn-spin{to{transform:rotate(360deg);}}
 @keyframes pn-pulse{0%,100%{opacity:.35;transform:scale(.8);}50%{opacity:1;transform:scale(1.12);}}
 @keyframes pn-flow{to{stroke-dashoffset:-16;}}
@@ -862,7 +864,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-J</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-L</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -961,8 +963,6 @@ button{color:var(--g800);}
       <div class="am-item admin-only" onclick="closeAdminMenu();goTo('karyawan')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16.5 5.2a3.2 3.2 0 0 1 0 6.1M20.5 19a5.5 5.5 0 0 0-3.6-5.2"/></svg> Data Karyawan</div>
       <div class="am-item admin-only" onclick="closeAdminMenu();openMD()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h3.5l2 2H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg> Kelola Unit & Area</div>
       <div class="am-item admin-only" onclick="closeAdminMenu();openTypeMgr()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg> Kelola Tipe Item</div>
-      <div class="am-item" onclick="closeAdminMenu();goTo('pending')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg> Pending</div>
-      <div class="am-item" onclick="closeAdminMenu();goTo('maint')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.7 5.3a1 1 0 0 0-1.6-.3l-2.9 2.9-2.1-2.1 2.9-2.9a1 1 0 0 0-.3-1.6 5.5 5.5 0 0 0-7 7L3.3 17.6a1.6 1.6 0 0 0 0 2.3l.8.8a1.6 1.6 0 0 0 2.3 0l9.3-9.3a5.5 5.5 0 0 0 6-6z"/></svg> Maintenance</div>
       <div class="am-item" onclick="closeAdminMenu();downloadOffline()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg> Unduh Offline</div>
       <div class="am-sep"></div>
       <div class="am-item" onclick="closeAdminMenu();openSettings()">👤 Profil & Tema</div>
@@ -2306,7 +2306,7 @@ function paintMng(){
   const shown=mngList.slice(0,mngShown);
   let html=shown.length?shown.map(i=>{
     const comp=isComplete(i);
-    return `<div class="mt-card ic-static" onclick="openItemDetail('${i.id}')">
+    return `<div class="mt-card" onclick="openItemDetail('${i.id}')">
       <div class="mt-ic">${iconForType(i.type)}</div>
       <div style="flex:1;min-width:0;">
         <div class="mt-tag"><span class="dot ${comp?'dot-green':'dot-red'}" title="${comp?'Lengkap':'Belum lengkap'}"></span>${i.tag}${i.is_active?'':'<span class="mng-badge st-non">NON-AKTIF</span>'}</div>
@@ -2319,6 +2319,16 @@ function paintMng(){
   const sisa=mngList.length-shown.length;
   if(sisa>0) html+=`<button class="load-more" onclick="mngMore()">Muat lebih banyak (${sisa} tersisa)</button>`;
   listEl.innerHTML=html;
+  observeMngCards();
+}
+let _mngIO=null;
+function observeMngCards(){
+  try{
+    if(_mngIO) _mngIO.disconnect();
+    if(!('IntersectionObserver' in window)){ document.querySelectorAll('#mng-list .mt-card').forEach(c=>c.classList.add('in-view')); return; }
+    _mngIO=new IntersectionObserver(function(entries){ entries.forEach(function(e){ e.target.classList.toggle('in-view', e.isIntersecting); }); }, {root:null, rootMargin:'140px 0px', threshold:0});
+    document.querySelectorAll('#mng-list .mt-card').forEach(function(c){ _mngIO.observe(c); });
+  }catch(e){ document.querySelectorAll('#mng-list .mt-card').forEach(c=>c.classList.add('in-view')); }
 }
 function mngMore(){ mngShown+=300; paintMng(); }
 
