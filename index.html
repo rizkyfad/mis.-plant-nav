@@ -842,9 +842,13 @@ button{color:var(--g800);}
 .ic-shake{transform-box:fill-box;transform-origin:center;animation:pn-shake .34s linear infinite;}
 @keyframes pn-toggle{0%,42%{transform:translateX(0)}58%,100%{transform:translateX(10px)}}
 .ic-toggle{transform-box:fill-box;animation:pn-toggle 2.4s ease-in-out infinite;}
+#bg-up.warn{background:#fff4ed;color:#b45309;border-color:#fed7aa;}
+.bg-spin{width:13px;height:13px;border:2px solid var(--g300,#ccc);border-top-color:var(--bl,#2a6fb0);border-radius:50%;display:inline-block;animation:pn-spin .8s linear infinite;flex:0 0 auto;}
+#bg-up{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:99998;background:var(--w,#fff);color:var(--g600,#222);border:1px solid var(--g200,#ddd);box-shadow:0 6px 20px rgba(0,0,0,.18);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:92vw;}
 </style>
 </head>
 <body>
+<div id="bg-up" style="display:none;"></div>
 <div class="phone">
 <div id="offlineBar" class="offline-bar">⚠️ Mode offline — menampilkan data tersimpan (perubahan tidak akan tersimpan)</div>
 
@@ -864,7 +868,7 @@ button{color:var(--g800);}
     <button class="btn-login" onclick="doLogin()">Masuk →</button>
     <button id="installBtn" class="btn-install" style="display:none" onclick="pwaInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg> Pasang ke Layar HP</button>
   </div>
-  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-L</div>
+  <div style="position:absolute;bottom:12px;left:16px;z-index:2;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:.3px;">©Pabrik2 · build 0614-P</div>
 </div>
 
 <!-- MODAL TUTORIAL PASANG (PWA) -->
@@ -1128,7 +1132,7 @@ button{color:var(--g800);}
     <div class="form-group"><label>Foto Item</label>
       <div id="photoMulti">
   <div id="photoGrid" class="ph-grid"></div>
-  <button type="button" id="photoAddBtn" class="ph-add" onclick="document.getElementById('file-photo').click()">+ Tambah foto (0/5)</button>
+  <button type="button" id="photoAddBtn" class="ph-add" onclick="saveItemDraft();document.getElementById('file-photo').click()">+ Tambah foto (0/5)</button>
   <input type="file" id="file-photo" accept="image/*" multiple hidden onchange="onPhotoPick(this.files)">
 </div>
 <input type="hidden" id="ai-photo"></div>
@@ -2186,6 +2190,37 @@ function sdropPick(id,el){
   document.getElementById(id).value=el.getAttribute('data-v');
   document.getElementById(id+'-list').classList.remove('show');
 }
+function _draftGet(id){ const e=document.getElementById(id); return e?e.value:''; }
+function saveItemDraft(){
+  try{
+    const m=document.getElementById('addModal');
+    if(!m || m.style.display==='none') return;
+    const d={ editingId:editingId, editingDbId:editingDbId,
+      title:(document.getElementById('add-title')||{}).textContent||'',
+      tag:_draftGet('ai-tag'),name:_draftGet('ai-name'),func:_draftGet('ai-func'),
+      type:_draftGet('ai-type'),area:_draftGet('ai-area'),floor:_draftGet('ai-floor'),
+      coord:_draftGet('ai-coord'),hint:_draftGet('ai-hint'),
+      existing:(typeof photoState!=='undefined'&&photoState&&photoState.existing)?photoState.existing.slice():[],
+      ts:Date.now() };
+    localStorage.setItem('pn_item_draft',JSON.stringify(d));
+  }catch(e){}
+}
+function clearItemDraft(){ try{ localStorage.removeItem('pn_item_draft'); }catch(e){} }
+function restoreItemDraft(){
+  let d; try{ d=JSON.parse(localStorage.getItem('pn_item_draft')||'null'); }catch(e){ return; }
+  if(!d||!d.ts||(Date.now()-d.ts)>3600000){ clearItemDraft(); return; }
+  try{
+    editingId=d.editingId||null; editingDbId=d.editingDbId||null;
+    const t=document.getElementById('add-title'); if(t) t.textContent=d.title||(editingId?'Edit Item':'Tambah Item');
+    const s=function(id,v){ const e=document.getElementById(id); if(e) e.value=v||''; };
+    s('ai-tag',d.tag);s('ai-name',d.name);s('ai-func',d.func);s('ai-type',d.type);
+    s('ai-area',d.area);s('ai-floor',d.floor);s('ai-coord',d.coord);s('ai-hint',d.hint);
+    try{ resetPhotoWidget(d.existing||[]); }catch(e){}
+    const m=document.getElementById('addModal'); if(m){ m.style.display='flex'; const c=m.querySelector('.login-card'); if(c) c.scrollTop=0; }
+    const ch=document.getElementById('coord-hint'); if(ch){ ch.style.color='#b45309'; ch.textContent='Edit dipulihkan otomatis. Jika tadi sempat ambil foto baru, mohon tambah ulang.'; }
+  }catch(e){}
+}
+try{ document.addEventListener('visibilitychange', function(){ if(document.hidden) saveItemDraft(); }); }catch(e){}
 function openAddItem(){
   editingId=null;
   document.getElementById('add-title').textContent='Tambah Item';
@@ -2199,7 +2234,50 @@ function openAddItem(){
   document.getElementById('ai-msg').style.display='none';
   (function(){ const _am=document.getElementById('addModal'); _am.style.display='flex'; const _r=function(){const _c=_am.querySelector('.login-card'); if(_c)_c.scrollTop=0;}; requestAnimationFrame(_r); setTimeout(_r,90); })();
 }
-function closeAddItem(){ document.getElementById('addModal').style.display='none'; editingId=null; }
+function closeAddItem(){ document.getElementById('addModal').style.display='none'; editingId=null; clearItemDraft(); }
+let _bgUp=[], _bgBusy=false, _bgFailed=[];
+function bgUpUI(){
+  let el=document.getElementById('bg-up'); if(!el) return;
+  if(_bgUp.length){
+    const j=_bgUp[0]; el.style.display='flex'; el.className='';
+    el.innerHTML='<span class="bg-spin"></span> Mengunggah foto '+escq(j.label)+' ('+(j.cur||0)+'/'+j.total+')\u2026 <b style="opacity:.85;">Jangan tutup aplikasi</b>'
+      + (_bgFailed.length?(' \u00b7 <span onclick="bgShowFailed()" style="text-decoration:underline;cursor:pointer;">'+_bgFailed.length+' gagal</span>'):'');
+  } else if(_bgFailed.length){
+    el.style.display='flex'; el.className='warn';
+    el.innerHTML='\u26a0\ufe0f '+_bgFailed.length+' foto gagal diunggah \u00b7 <span onclick="bgShowFailed()" style="text-decoration:underline;cursor:pointer;">Lihat</span>';
+  } else { el.style.display='none'; }
+}
+function bgEnqueue(job){ job.status='wait'; job.cur=0; _bgUp.push(job); bgUpUI(); if(!_bgBusy) bgRunUploads(); }
+async function bgRunUploads(){
+  _bgBusy=true;
+  while(_bgUp.length){
+    const j=_bgUp[0]; j.status='uploading'; bgUpUI();
+    try{
+      let arr=(j.existing||[]).slice();
+      for(let i=0;i<j.files.length;i++){ j.cur=arr.length+1; bgUpUI(); const pp=await uploadPhoto(j.files[i],'item'); arr.push(pp); }
+      let upd={photo_path:photosToStore(arr)};
+      if(j.sv){ j.cur='360'; bgUpUI(); upd.sv_path=await uploadPhoto(j.sv,'item',{maxDim:4096}); }
+      const {error}=await sb.from('items').update(upd).eq('id',j.dbId);
+      if(error) throw new Error(error.message);
+      _bgUp.shift(); bgUpUI();
+      try{ await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderRecent(); if(typeof _act==='function'&&_act('manage')) await renderAllItems(); }catch(e){}
+    }catch(e){ j.err=(e&&e.message)||'gagal'; _bgUp.shift(); _bgFailed.push(j); bgUpUI(); }
+  }
+  _bgBusy=false; bgUpUI();
+  if(!_bgFailed.length){ try{ pnToast('Foto selesai diunggah.'); }catch(e){} }
+}
+function bgRetryOne(idx){ if(_bgFailed[idx]){ const j=_bgFailed.splice(idx,1)[0]; j.status='wait'; _bgUp.push(j); } bgShowFailed(); bgUpUI(); if(!_bgBusy) bgRunUploads(); }
+function bgRetryAll(){ while(_bgFailed.length){ const j=_bgFailed.shift(); j.status='wait'; _bgUp.push(j); } closeBgFailed(); bgUpUI(); if(!_bgBusy) bgRunUploads(); }
+function bgShowFailed(){
+  let html='<div class="login-card" style="max-width:340px;max-height:80vh;overflow:auto;"><h2>Foto gagal diunggah</h2><p>Data item tetap tersimpan; hanya foto yang perlu diulang.</p>';
+  html += _bgFailed.length ? _bgFailed.map(function(j,i){ return '<div class="md-row"><div class="md-nm">'+escq(j.label)+' <span style="color:var(--g400);font-size:11px;">'+escq(j.err||'')+'</span></div><div class="md-act"><button onclick="bgRetryOne('+i+')">Coba lagi</button></div></div>'; }).join('') : '<p class="empty">Tidak ada.</p>';
+  html += '<div style="display:flex;gap:8px;margin-top:14px;">'+(_bgFailed.length?'<button class="btn-login" style="flex:1;" onclick="bgRetryAll()">Coba semua</button>':'')+'<button class="btn-ghost" style="flex:1;" onclick="closeBgFailed()">Tutup</button></div></div>';
+  let bg=document.getElementById('bgFailModal');
+  if(!bg){ bg=document.createElement('div'); bg.id='bgFailModal'; bg.className='modal-bg'; document.body.appendChild(bg); }
+  bg.innerHTML=html; bg.style.display='flex';
+}
+function closeBgFailed(){ const bg=document.getElementById('bgFailModal'); if(bg) bg.style.display='none'; }
+try{ window.addEventListener('beforeunload', function(e){ if(_bgUp.length){ e.preventDefault(); e.returnValue=''; return ''; } }); }catch(e){}
 async function saveNewItem(){
   const msg=document.getElementById('ai-msg');
   function err(t){msg.textContent=t;msg.style.color='#e02424';msg.style.display='block';}
@@ -2219,31 +2297,36 @@ async function saveNewItem(){
   const areaName=document.getElementById('ai-area').value.trim();
   if(areaName && !(areaName in areaMap)){ err('Area "'+areaName+'" tidak ada di daftar. Pilih dari saran atau kosongkan.'); return; }
   const fv=parseInt(document.getElementById('ai-floor').value); const floor=isNaN(fv)?0:fv;
-  let svPath=document.getElementById('ai-sv').value.trim(); let photoArr=(photoState.existing||[]).slice();
-  try{
-    for(let fi=0;fi<photoState.files.length;fi++){ info('Mengunggah foto '+(photoArr.length+1)+'…'); const pp=await uploadPhoto(photoState.files[fi],'item'); photoArr.push(pp); }
-    if(pendingFiles.sv){ info('Mengunggah foto 360…'); svPath=await uploadPhoto(pendingFiles.sv,'item',{maxDim:4096}); }
-  }catch(e){ err('Gagal unggah foto: '+e.message); return; }
+  const svExistingPath=document.getElementById('ai-sv').value.trim();
+  const existingPhotos=(photoState.existing||[]).slice();
+  const newFiles=(photoState.files||[]).slice();
+  const newSv=pendingFiles.sv||null;
+  const hasBg=newFiles.length>0||!!newSv;
   const payload={tag,name,func:document.getElementById('ai-func').value.trim(),type,
     area_id:(areaMap[areaName]||null),floor:String(floor),lat,lon,
     hint:document.getElementById('ai-hint').value.trim(),
-    photo_path:photosToStore(photoArr), sv_path:svPath||null};
+    photo_path:photosToStore(existingPhotos), sv_path:svExistingPath||null};
   if(editingId){
-    info('Menyimpan…');
+    info(hasBg?'Menyimpan… (foto akan diunggah di latar)':'Menyimpan…');
     sb.from('items').update(payload).eq('id',editingDbId).then(async ({error})=>{
       if(error){ err(error.code==='23505'?'Tag/ID sudah dipakai item lain di pabrik ini.':('Gagal: '+error.message)); return; }
       logAudit('edit_item',tag,'edit data',(profile&&profile.npk)||'');
-      pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderRecent(); try{await renderAllItems();}catch(e){}
-      ok('✅ Perubahan tersimpan.'); setTimeout(closeAddItem,800);
+      pendingFiles.photo=null; pendingFiles.sv=null;
+      if(hasBg){ bgEnqueue({dbId:editingDbId,label:tag,files:newFiles,sv:newSv,existing:existingPhotos,total:newFiles.length+(newSv?1:0)}); ok('✅ Tersimpan. Foto diunggah di latar.'); }
+      else ok('✅ Perubahan tersimpan.');
+      await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderRecent(); try{await renderAllItems();}catch(e){}
+      setTimeout(closeAddItem,hasBg?400:800);
     });
   }else{
-    info('Menyimpan…');
+    info(hasBg?'Menyimpan… (foto akan diunggah di latar)':'Menyimpan…');
     const ins=Object.assign({plant_id:selectedPlant,unit_id:selectedUnit,created_by:myId},payload);
-    sb.from('items').insert(ins).then(async ({error})=>{
+    sb.from('items').insert(ins).select('id').single().then(async ({data:row,error})=>{
       if(error){ err(error.code==='23505'?'Tag/ID sudah ada di pabrik ini.':('Gagal: '+error.message)); return; }
-      pendingFiles.photo=null; pendingFiles.sv=null; await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderRecent();
-      ok('✅ Item '+tag+' tersimpan ke database.');
-      setTimeout(closeAddItem,1000);
+      pendingFiles.photo=null; pendingFiles.sv=null;
+      if(hasBg&&row){ bgEnqueue({dbId:row.id,label:tag,files:newFiles,sv:newSv,existing:existingPhotos,total:newFiles.length+(newSv?1:0)}); ok('✅ Item '+tag+' tersimpan. Foto diunggah di latar.'); }
+      else ok('✅ Item '+tag+' tersimpan ke database.');
+      await loadItemsForUnit({fresh:true}); buildAreaChips(); updateStats(); renderRecent();
+      setTimeout(closeAddItem,hasBg?400:1000);
     });
   }
 }
@@ -3235,22 +3318,42 @@ function _pickStartWatch(){
     if(!pickCentered && pickMap){ try{ pickMap.easeTo({center:[myLon,myLat],zoom:20,duration:600}); }catch(e){} pickCentered=true; }
   }, function(){}, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
 }
+function captureBestFix(onProgress,onDone,onError){
+  if(!navigator.geolocation){ onError&&onError('nosupport'); return; }
+  let fixes=[],best=null,done=false; const t0=Date.now();
+  const MAXT=12000, GOOD=4, KEEP=35;
+  const w=navigator.geolocation.watchPosition(function(pos){
+    const a=pos.coords.accuracy||999;
+    fixes.push({lat:pos.coords.latitude,lon:pos.coords.longitude,acc:a});
+    if(!best||a<best.acc) best={lat:pos.coords.latitude,lon:pos.coords.longitude,acc:a};
+    onProgress&&onProgress(a,fixes.length);
+    if((a<=GOOD&&fixes.length>=4)||(Date.now()-t0)>=MAXT) fin();
+  }, function(err){ if(done)return; done=true; clr(); onError&&onError(err.code===1?'denied':'fail'); },
+     {enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  const tmr=setTimeout(fin,MAXT+600);
+  function clr(){ try{navigator.geolocation.clearWatch(w);}catch(e){} try{clearTimeout(tmr);}catch(e){} }
+  function fin(){
+    if(done)return; done=true; clr();
+    if(!fixes.length){ onError&&onError('fail'); return; }
+    const bestAcc=best.acc;
+    let pool=fixes.filter(function(f){ return f.acc<=Math.max(bestAcc*2,bestAcc+3) && f.acc<=KEEP; });
+    if(!pool.length) pool=[best];
+    let sw=0,sLat=0,sLon=0;
+    pool.forEach(function(f){ var wgt=1/Math.max(1,f.acc*f.acc); sw+=wgt; sLat+=f.lat*wgt; sLon+=f.lon*wgt; });
+    const lat=sLat/sw, lon=sLon/sw;
+    const acc=Math.round(Math.min.apply(null,pool.map(function(f){return f.acc;})));
+    onDone&&onDone({lat:lat,lon:lon,acc:acc,samples:fixes.length,used:pool.length});
+  }
+}
 function pickHere(){
   const cd=document.getElementById('pick-coord');
   if(!navigator.geolocation){ cd.textContent='Perangkat tidak mendukung GPS.'; return; }
-  cd.textContent='Mengambil GPS paling akurat… ±6 dtk, berdiri dekat item.';
-  let best=null,n=0,done=false;
-  const w=navigator.geolocation.watchPosition(function(pos){
-    n++; if(!best||pos.coords.accuracy<best.coords.accuracy) best=pos;
-    cd.textContent='GPS… ±'+Math.round(pos.coords.accuracy)+' m (mencari terbaik)';
-    if(n>=6||pos.coords.accuracy<=5) fin();
-  }, function(err){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} cd.textContent=(err.code===1)?'Izin lokasi ditolak.':'Gagal ambil GPS.'; }, {enableHighAccuracy:true,timeout:15000,maximumAge:0});
-  setTimeout(fin,6500);
-  function fin(){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} if(!best){ cd.textContent='GPS gagal, coba lagi.'; return; }
-    const la=best.coords.latitude, lo=best.coords.longitude;
-    if(pickMap){ try{ pickMap.easeTo({center:[lo,la],zoom:20,duration:500}); }catch(e){} }
-    pickCentered=true; setPick(la,lo);
-    cd.textContent=la.toFixed(7)+', '+lo.toFixed(7)+'  ·  ±'+Math.round(best.coords.accuracy)+' m'; }
+  cd.textContent='Mengambil GPS akurasi tinggi… berdiri DIAM dekat item (±10 dtk).';
+  captureBestFix(
+    function(a,n){ cd.textContent='GPS… ±'+Math.round(a)+' m · '+n+' sampel (mencari terbaik)'; },
+    function(r){ if(pickMap){ try{ pickMap.easeTo({center:[r.lon,r.lat],zoom:20,duration:500}); }catch(e){} } pickCentered=true; setPick(r.lat,r.lon); cd.textContent=r.lat.toFixed(7)+', '+r.lon.toFixed(7)+'  ·  ±'+r.acc+' m ('+r.used+'/'+r.samples+' sampel)'; },
+    function(e){ cd.textContent=(e==='denied')?'Izin lokasi ditolak.':(e==='nosupport')?'Perangkat tidak mendukung GPS.':'GPS gagal, coba lagi.'; }
+  );
 }
 function pickMeEl(){ const d=document.createElement('div'); d.innerHTML='<div class="me-dot"></div>'; return d.firstChild; }
 function updatePickMe(){
@@ -3476,19 +3579,12 @@ async function pasteGMaps(){
 function useMyLocation(){
   const hint=document.getElementById('coord-hint');
   if(!navigator.geolocation){ hint.style.color='#e02424'; hint.textContent='Perangkat/browser tidak mendukung lokasi.'; return; }
-  hint.style.color='var(--g500)'; hint.textContent='Mengambil GPS paling akurat… ±6 dtk, berdiri dekat item.';
-  let best=null,n=0,done=false;
-  const w=navigator.geolocation.watchPosition(function(pos){
-    n++; if(!best||pos.coords.accuracy<best.coords.accuracy) best=pos;
-    hint.textContent='GPS… ±'+Math.round(pos.coords.accuracy)+' m (mencari terbaik)';
-    if(n>=6||pos.coords.accuracy<=5) fin();
-  }, function(err){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} hint.style.color='#e02424'; hint.textContent=(err.code===1)?'Izin lokasi ditolak.':'Gagal ambil lokasi.'; }, {enableHighAccuracy:true,timeout:15000,maximumAge:0});
-  setTimeout(fin,6500);
-  function fin(){ if(done)return; done=true; try{navigator.geolocation.clearWatch(w);}catch(e){} if(!best){ hint.style.color='#e02424'; hint.textContent='GPS gagal, coba lagi.'; return; }
-    const la=best.coords.latitude.toFixed(7), lo=best.coords.longitude.toFixed(7);
-    document.getElementById('ai-coord').value=la+','+lo;
-    try{ document.getElementById('ai-coord').dispatchEvent(new Event('input')); }catch(e){}
-    hint.style.color='#16a34a'; hint.textContent='Terisi (akurasi ±'+Math.round(best.coords.accuracy)+' m). Pastikan dekat item.'; }
+  hint.style.color='var(--g500)'; hint.textContent='Mengambil GPS akurasi tinggi… berdiri DIAM dekat item (±10 dtk).';
+  captureBestFix(
+    function(a,n){ hint.textContent='GPS… ±'+Math.round(a)+' m · '+n+' sampel (mencari terbaik)'; },
+    function(r){ document.getElementById('ai-coord').value=r.lat.toFixed(7)+','+r.lon.toFixed(7); try{ document.getElementById('ai-coord').dispatchEvent(new Event('input')); }catch(e){} hint.style.color='#16a34a'; hint.textContent='Terisi · akurasi ±'+r.acc+' m ('+r.used+'/'+r.samples+' sampel). Pastikan dekat item.'; },
+    function(e){ hint.style.color='#e02424'; hint.textContent=(e==='denied')?'Izin lokasi ditolak.':(e==='nosupport')?'Perangkat tidak mendukung lokasi.':'GPS gagal, coba lagi.'; }
+  );
 }
 function hiddenOf(prefix){ return document.getElementById(prefix==='done'?'done-photo':(prefix==='wr'?'wr-photo':'ai-'+prefix)); }
 function setFile(prefix,file){
@@ -3600,7 +3696,7 @@ window.addEventListener('orientationchange',()=>{ _lastEffShown=null; });
 
 
 // ===== RESTORE SESI (Supabase) =====
-(async function(){ try{ const r=await sb.auth.getSession(); const s=r.data.session; if(s&&s.user){ await afterLogin(s.user); } }catch(e){} })();
+(async function(){ try{ const r=await sb.auth.getSession(); const s=r.data.session; if(s&&s.user){ await afterLogin(s.user); setTimeout(restoreItemDraft,600); } }catch(e){} })();
 </script>
 <script>
 if('serviceWorker' in navigator){
